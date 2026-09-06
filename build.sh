@@ -16,3 +16,11 @@ rm -rf dist
 mkdir -p dist/app
 cp -r site/. dist/.
 cp -r build/web/. dist/app/.
+
+# Overwrite the placeholder config.js with real values from Vercel's env vars,
+# so the plain-HTML marketing site can talk to the same Supabase project the
+# Flutter app uses.
+cat > dist/config.js << CONFIGEOF
+window.__SUPABASE_URL = "$SUPABASE_URL";
+window.__SUPABASE_ANON_KEY = "$SUPABASE_ANON_KEY";
+CONFIGEOF
