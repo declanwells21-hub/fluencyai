@@ -1,0 +1,31 @@
+/// Maps our app's 2-letter language codes to the BCP-47 locale strings that
+/// device text-to-speech engines (Android TextToSpeech, iOS AVSpeechSynthesizer,
+/// Chrome Web Speech API) expect. This is what makes offline, no-AI audio
+/// playback possible - the OS does the speech synthesis locally.
+const Map<String, String> kTtsLocales = {
+  'en': 'en-US',
+  'de': 'de-DE',
+  'es': 'es-ES',
+  'fr': 'fr-FR',
+  'it': 'it-IT',
+  'pt': 'pt-PT',
+  'ja': 'ja-JP',
+  'zh': 'zh-CN',
+  'ko': 'ko-KR',
+  'ar': 'ar-SA',
+  'ru': 'ru-RU',
+  'hi': 'hi-IN',
+  'nl': 'nl-NL',
+  'sv': 'sv-SE',
+  'pl': 'pl-PL',
+  'tr': 'tr-TR',
+  'vi': 'vi-VN',
+  'th': 'th-TH',
+  'id': 'id-ID',
+  'el': 'el-GR',
+  'he': 'he-IL',
+  'cs': 'cs-CZ',
+  'ro': 'ro-RO',
+  'uk': 'uk-UA',
+  'sw': 'sw-KE',
+};
