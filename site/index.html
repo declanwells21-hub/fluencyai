@@ -172,6 +172,28 @@ button{font-family:inherit}
 .faq-a{overflow:hidden;transition:max-height .45s var(--ease-standard),opacity .35s ease;max-height:0;opacity:0}
 .faq-item.open .faq-a{max-height:240px;opacity:1}
 
+/* Auth modal */
+.auth-overlay{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(4,18,27,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .3s var(--ease-standard)}
+.auth-overlay.open{opacity:1;pointer-events:auto}
+.auth-modal{position:relative;width:min(420px,100%);max-height:88vh;overflow-y:auto;padding:36px 30px 30px;border-radius:26px;background:var(--pg-2);border:1px solid var(--glass-bd);box-shadow:0 40px 100px rgba(4,18,27,.5);transform:translateY(14px) scale(.98);transition:transform .35s var(--ease-spring)}
+.auth-overlay.open .auth-modal{transform:translateY(0) scale(1)}
+.auth-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:999px;border:1px solid var(--hair);background:var(--glass);color:var(--tx-2);font:400 20px/1 var(--font-body);cursor:pointer;display:grid;place-items:center}
+.auth-close:hover{color:var(--tx);border-color:var(--teal-400)}
+.auth-step h3{margin:14px 0 6px;font:var(--type-title-l);font-size:1.4rem;color:var(--tx)}
+.auth-sub{margin:0 0 22px;font:var(--type-body-m);color:var(--tx-2)}
+.auth-step form{display:grid;gap:14px}
+.auth-step label{display:grid;gap:7px;font:var(--type-label);color:var(--tx-2)}
+.auth-step input{height:48px;padding:0 16px;border-radius:14px;background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);font:var(--type-body-m);outline:none;transition:border-color .2s}
+.auth-step input:focus{border-color:var(--teal-400)}
+.auth-error{min-height:0;font:var(--type-body-s);color:var(--coral-400);display:none}
+.auth-error.show{display:block}
+.auth-footnote{margin:18px 0 0;text-align:center;font:var(--type-body-s);color:var(--tx-3)}
+.auth-link-btn{background:none;border:0;padding:0;color:var(--teal-400);font:inherit;cursor:pointer;text-decoration:underline}
+.auth-link-btn:hover{color:var(--teal-300)}
+.auth-step{display:none}
+.auth-step.active{display:block}
+.fl-btn[disabled]{opacity:.6;cursor:default;pointer-events:none}
+
 /* responsive */
 @media (max-width:1040px){
   .r-2col{grid-template-columns:1fr !important}
@@ -211,7 +233,7 @@ button{font-family:inherit}
     <span id="fl-knob"></span>
     <span id="fl-sun" class="fl-icon" data-icon="sun" data-size="15"></span>
   </button>
-  <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent fl-btn-s"><span class="fl-icon" data-icon="mic" data-size="15"></span>Start speaking free</a>
+  <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent fl-btn-s js-auth-trigger"><span class="fl-icon" data-icon="mic" data-size="15"></span>Start speaking free</a>
 </nav>
 
 <!-- ===================== HERO ===================== -->
@@ -227,7 +249,7 @@ button{font-family:inherit}
       <h1 style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(3rem,6.4vw,6.1rem);line-height:.94;letter-spacing:-.045em;color:var(--tx)">Stop freezing.<br><span style="color:var(--teal-400)">Start speaking.</span></h1>
       <p style="margin:0;font:var(--type-body-l);font-size:clamp(1rem,1.25vw,1.15rem);color:var(--tx-2);max-width:470px">Fluency AI hears how you actually speak — the hesitation, the accent, the word you nearly said — answers like a person, and teaches you the fix while it still matters.</p>
       <div class="r-stack" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
-        <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent" style="height:52px"><span class="fl-icon" data-icon="mic" data-size="18"></span>Start speaking free</a>
+        <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent js-auth-trigger" style="height:52px"><span class="fl-icon" data-icon="mic" data-size="18"></span>Start speaking free</a>
         <a href="#product" class="fl-btn fl-btn-inverse" style="height:52px"><span class="fl-icon" data-icon="play" data-size="18"></span>Hear a conversation</a>
       </div>
       <div style="display:grid;gap:8px">
@@ -534,7 +556,7 @@ button{font-family:inherit}
         <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--indigo-300)"></span>Corrections, pronunciation breakdowns, mistake memory</span>
         <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--indigo-300)"></span>Delete any recording, any time</span>
       </div>
-      <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent" style="width:100%;height:52px"><span class="fl-icon" data-icon="user-plus" data-size="18"></span>Create your account</a>
+      <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent js-auth-trigger" style="width:100%;height:52px"><span class="fl-icon" data-icon="user-plus" data-size="18"></span>Create your account</a>
       <span style="font:var(--type-caption);color:var(--tx-3);text-align:center">Create your account, pick weekly or yearly, start your 3-day free trial. A card is required to start the trial — you won't be charged until it ends.</span>
     </div>
   </div>
@@ -558,15 +580,15 @@ button{font-family:inherit}
         <h2 style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(2.4rem,5.2vw,4.6rem);line-height:.98;letter-spacing:-.04em;color:#fff">Say anything.<br>Even badly.</h2>
         <p style="margin:0;font:var(--type-body-l);color:var(--ink-300,#B7CCD6);max-width:440px">Practice smarter. Speak with confidence. Your first conversation takes ten seconds to start.</p>
         <div class="r-stack" style="display:flex;gap:12px;flex-wrap:wrap">
-          <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent" style="height:52px"><span class="fl-icon" data-icon="user-plus" data-size="18"></span>Create your account</a>
+          <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent js-auth-trigger" style="height:52px"><span class="fl-icon" data-icon="user-plus" data-size="18"></span>Create your account</a>
           <a href="#how" class="fl-btn fl-btn-inverse" style="height:52px">See how it works<span class="fl-icon" data-icon="arrow-right" data-size="18"></span></a>
         </div>
         <div style="display:grid;gap:10px">
           <span style="font:var(--type-caption);color:var(--ink-400,#8CACBB)">All three open the web app for now — real store links go live at launch</span>
           <div class="r-stack" style="display:flex;gap:10px;flex-wrap:wrap">
-            <a href="/app/auth?mode=signup" class="store-link"><span class="fl-icon" data-icon="smartphone" data-size="16"></span>Download for iOS</a>
-            <a href="/app/auth?mode=signup" class="store-link"><span class="fl-icon" data-icon="smartphone" data-size="16"></span>Get it on Android</a>
-            <a href="/app/auth?mode=signup" class="store-link"><span class="fl-icon" data-icon="mic" data-size="16"></span>Open the web app</a>
+            <a href="/app/auth?mode=signup" class="store-link js-auth-trigger"><span class="fl-icon" data-icon="smartphone" data-size="16"></span>Download for iOS</a>
+            <a href="/app/auth?mode=signup" class="store-link js-auth-trigger"><span class="fl-icon" data-icon="smartphone" data-size="16"></span>Get it on Android</a>
+            <a href="/app/auth?mode=signup" class="store-link js-auth-trigger"><span class="fl-icon" data-icon="mic" data-size="16"></span>Open the web app</a>
           </div>
         </div>
       </div>
@@ -606,9 +628,56 @@ button{font-family:inherit}
   </div>
 </footer>
 
+
+<div id="auth-modal-overlay" class="auth-overlay" aria-hidden="true">
+  <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+    <button type="button" class="auth-close" id="auth-close-btn" aria-label="Close">&times;</button>
+
+    <div id="auth-step-signup" class="auth-step active">
+      <span class="fl-icon" data-icon="mic" data-size="22" style="color:var(--teal-400)"></span>
+      <h3 id="auth-modal-title">Create your account</h3>
+      <p class="auth-sub">Start your 3-day free trial. No card required to sign up here — you'll pick a plan once you're in.</p>
+      <form id="auth-signup-form">
+        <label>Email
+          <input type="email" id="auth-email" required autocomplete="email" placeholder="you@example.com">
+        </label>
+        <label>Password
+          <input type="password" id="auth-password" required autocomplete="new-password" minlength="6" placeholder="At least 6 characters">
+        </label>
+        <div class="auth-error" id="auth-signup-error"></div>
+        <button type="submit" class="fl-btn fl-btn-accent" id="auth-signup-submit" style="width:100%;height:52px">
+          <span class="fl-icon" data-icon="user-plus" data-size="18"></span>Create account
+        </button>
+      </form>
+      <p class="auth-footnote">Already have an account? <a href="/app/auth?mode=login" style="color:var(--teal-400)">Log in</a></p>
+    </div>
+
+    <div id="auth-step-verify" class="auth-step">
+      <span class="fl-icon" data-icon="mail" data-size="22" style="color:var(--teal-400)"></span>
+      <h3>Check your email</h3>
+      <p class="auth-sub">We sent a 6-digit code to <strong id="auth-verify-email" style="color:var(--tx)"></strong>. Enter it below to confirm your account.</p>
+      <form id="auth-verify-form">
+        <label>Confirmation code
+          <input type="text" id="auth-code" required inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="123456" style="letter-spacing:.5em;text-align:center;font:700 20px var(--font-mono)">
+        </label>
+        <div class="auth-error" id="auth-verify-error"></div>
+        <button type="submit" class="fl-btn fl-btn-accent" id="auth-verify-submit" style="width:100%;height:52px">Confirm &amp; continue</button>
+      </form>
+      <p class="auth-footnote">Didn't get it? <button type="button" id="auth-resend-btn" class="auth-link-btn">Resend code</button></p>
+    </div>
+
+    <div id="auth-step-success" class="auth-step">
+      <span class="fl-icon" data-icon="check-circle" data-size="30" style="color:var(--mint-400)"></span>
+      <h3>You're all set</h3>
+      <p class="auth-sub">Taking you to Fluency AI to log in&hellip;</p>
+    </div>
+  </div>
 </div>
 
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
+<script src="auth.js"></script>
 </body>
 </html>
