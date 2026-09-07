@@ -1,5 +1,11 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../core/config/env.dart';
 import 'auth_repository.dart';
 
 /// Real accounts, real sessions - swaps in for FakeAuthRepository with zero
@@ -33,6 +39,9 @@ class SupabaseAuthRepository implements AuthRepository {
   Future<bool> logIn(String email, String password) async {
     try {
       final res = await _client.auth.signInWithPassword(email: email, password: password);
+      if (res.session != null) {
+        _reportActivity(res.session!.accessToken);
+      }
       return res.session != null;
     } on AuthException {
       return false;
@@ -52,6 +61,9 @@ class SupabaseAuthRepository implements AuthRepository {
         token: code,
         type: OtpType.signup,
       );
+      if (res.session != null) {
+        _reportActivity(res.session!.accessToken);
+      }
       return res.session != null;
     } on AuthException {
       return false;
@@ -125,6 +137,35 @@ class SupabaseAuthRepository implements AuthRepository {
       return true;
     } catch (_) {
       return false;
+    }
+  }
+
+  /// Fire-and-forget ping so the admin dashboard's "active users" and
+  /// country/device breakdowns have something to show. Never blocks or
+  /// fails login if it doesn't succeed - this is purely analytics, not
+  /// something the user's experience should ever depend on.
+  void _reportActivity(String accessToken) {
+    http
+        .post(
+          Uri.parse('${Env.proxyBaseUrl}/track-activity'),
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({'device': _currentDevice()}),
+        )
+        .catchError((_) => http.Response('', 0));
+  }
+
+  String _currentDevice() {
+    if (kIsWeb) return 'web';
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.iOS:
+        return 'ios';
+      case TargetPlatform.android:
+        return 'android';
+      default:
+        return 'unknown';
     }
   }
 }
