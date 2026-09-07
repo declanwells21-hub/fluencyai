@@ -649,7 +649,44 @@ button{font-family:inherit}
           <span class="fl-icon" data-icon="user-plus" data-size="18"></span>Create account
         </button>
       </form>
-      <p class="auth-footnote">Already have an account? <a href="/app/auth?mode=login" style="color:var(--teal-400)">Log in</a></p>
+      <p class="auth-footnote">Already have an account? <a href="/app/auth?mode=login" style="color:var(--teal-400)">Log in</a> &middot; <button type="button" id="auth-forgot-link" class="auth-link-btn">Forgot password?</button></p>
+    </div>
+
+    <div id="auth-step-forgot" class="auth-step">
+      <span class="fl-icon" data-icon="key-round" data-size="22" style="color:var(--teal-400)"></span>
+      <h3>Reset your password</h3>
+      <p class="auth-sub">Enter the email on your account and we'll send you a 6-digit reset code.</p>
+      <form id="auth-forgot-form">
+        <label>Email
+          <input type="email" id="auth-forgot-email" required autocomplete="email" placeholder="you@example.com">
+        </label>
+        <div class="auth-error" id="auth-forgot-error"></div>
+        <button type="submit" class="fl-btn fl-btn-accent" id="auth-forgot-submit" style="width:100%;height:52px">Send reset code</button>
+      </form>
+      <p class="auth-footnote"><button type="button" id="auth-back-to-signup" class="auth-link-btn">Back to sign up</button></p>
+    </div>
+
+    <div id="auth-step-reset" class="auth-step">
+      <span class="fl-icon" data-icon="key-round" data-size="22" style="color:var(--teal-400)"></span>
+      <h3>Check your email</h3>
+      <p class="auth-sub">We sent a 6-digit code to <strong id="auth-reset-email" style="color:var(--tx)"></strong>. Enter it below with your new password.</p>
+      <form id="auth-reset-form">
+        <label>Reset code
+          <input type="text" id="auth-reset-code" required inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="123456" style="letter-spacing:.5em;text-align:center;font:700 20px var(--font-mono)">
+        </label>
+        <label>New password
+          <input type="password" id="auth-new-password" required autocomplete="new-password" minlength="6" placeholder="At least 6 characters">
+        </label>
+        <div class="auth-error" id="auth-reset-error"></div>
+        <button type="submit" class="fl-btn fl-btn-accent" id="auth-reset-submit" style="width:100%;height:52px">Set new password</button>
+      </form>
+      <p class="auth-footnote">Didn't get it? <button type="button" id="auth-resend-reset-btn" class="auth-link-btn">Resend code</button></p>
+    </div>
+
+    <div id="auth-step-reset-success" class="auth-step">
+      <span class="fl-icon" data-icon="check-circle" data-size="30" style="color:var(--mint-400)"></span>
+      <h3>Password updated</h3>
+      <p class="auth-sub">Taking you to Fluency AI to log in with your new password&hellip;</p>
     </div>
 
     <div id="auth-step-verify" class="auth-step">
