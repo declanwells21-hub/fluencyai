@@ -52,15 +52,26 @@
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     loginErr.textContent = '';
+    const submitBtn = document.getElementById('login-submit');
     const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error || !data.session) {
-      loginErr.textContent = 'Incorrect email or password.';
-      return;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Signing in\u2026';
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error || !data.session) {
+        loginErr.textContent = error ? error.message : 'Incorrect email or password.';
+        return;
+      }
+      await afterLogin(data.session);
+    } catch (err) {
+      console.error('Login failed:', err);
+      loginErr.textContent = 'Something went wrong (' + (err.message || 'unknown error') + '). Check your connection and try again.';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Sign in';
     }
-    await afterLogin(data.session);
   });
 
   document.getElementById('signout-btn').addEventListener('click', async () => {
