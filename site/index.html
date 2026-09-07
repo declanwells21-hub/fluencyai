@@ -227,6 +227,7 @@ button{font-family:inherit}
     <a href="#product">Product</a>
     <a href="#pricing">Pricing</a>
     <a href="#faq">FAQ</a>
+    <a href="#" class="js-login-trigger">Log in</a>
   </div>
   <div style="flex:1"></div>
   <button type="button" id="fl-theme-toggle" aria-label="Switch colour theme">
@@ -649,7 +650,43 @@ button{font-family:inherit}
           <span class="fl-icon" data-icon="user-plus" data-size="18"></span>Create account
         </button>
       </form>
-      <p class="auth-footnote">Already have an account? <a href="/app/auth?mode=login" style="color:var(--teal-400)">Log in</a> &middot; <button type="button" id="auth-forgot-link" class="auth-link-btn">Forgot password?</button></p>
+      <p class="auth-footnote">Already have an account? <button type="button" id="auth-go-to-login-from-signup" class="auth-link-btn">Log in</button> &middot; <button type="button" id="auth-forgot-link" class="auth-link-btn">Forgot password?</button></p>
+    </div>
+
+    <div id="auth-step-login" class="auth-step">
+      <span class="fl-icon" data-icon="log-in" data-size="22" style="color:var(--teal-400)"></span>
+      <h3>Log in</h3>
+      <p class="auth-sub">Welcome back.</p>
+      <form id="auth-login-form">
+        <label>Email
+          <input type="email" id="auth-login-email" required autocomplete="email" placeholder="you@example.com">
+        </label>
+        <label>Password
+          <input type="password" id="auth-login-password" required autocomplete="current-password">
+        </label>
+        <div class="auth-error" id="auth-login-error"></div>
+        <button type="submit" class="fl-btn fl-btn-accent" id="auth-login-submit" style="width:100%;height:52px">Log in</button>
+      </form>
+      <p class="auth-footnote">
+        <button type="button" id="auth-forgot-link-login" class="auth-link-btn">Forgot password?</button>
+        &middot; <button type="button" id="auth-go-to-signup" class="auth-link-btn">Need an account? Sign up</button>
+      </p>
+    </div>
+
+    <div id="auth-step-login-admin" class="auth-step">
+      <span class="fl-icon" data-icon="shield-check" data-size="22" style="color:var(--indigo-400)"></span>
+      <h3>Welcome back, admin</h3>
+      <p class="auth-sub">You're signed in with an admin account.</p>
+      <button type="button" id="auth-go-to-admin" class="fl-btn fl-btn-accent" style="width:100%;height:52px">
+        <span class="fl-icon" data-icon="layout-dashboard" data-size="18"></span>Go to admin dashboard
+      </button>
+    </div>
+
+    <div id="auth-step-login-success" class="auth-step">
+      <span class="fl-icon" data-icon="check-circle" data-size="30" style="color:var(--mint-400)"></span>
+      <h3>You're logged in</h3>
+      <p class="auth-sub">Continue to Fluency AI to start speaking.</p>
+      <button type="button" id="auth-continue-to-app" class="fl-btn fl-btn-accent" style="width:100%;height:52px">Continue to the app</button>
     </div>
 
     <div id="auth-step-forgot" class="auth-step">
