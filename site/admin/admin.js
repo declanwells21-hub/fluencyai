@@ -1,241 +1,155 @@
-// site/admin/admin.js
-(function () {
-  const SUPABASE_URL = window.__SUPABASE_URL || '';
-  const SUPABASE_ANON_KEY = window.__SUPABASE_ANON_KEY || '';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fluency AI — Admin</title>
+<link rel="icon" href="/assets/logo-appicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.js"></script>
+<style>
+:root{
+  --teal-400:#22CFCB;--teal-500:#10B8B8;--teal-600:#0E9A9C;
+  --indigo-400:#7A75D0;--indigo-500:#5B55B8;--indigo-600:#4A459C;
+  --mint-400:#25D79B;--coral-400:#FF6A6A;--amber-400:#F7B23B;
+  --ink-950:#04121B;--ink-900:#0B2233;--pg:#04121B;--pg-2:#08202D;--pg-3:#0B2233;
+  --tx:#FFFFFF;--tx-2:#B7CCD6;--tx-3:#6E93A6;--hair:rgba(255,255,255,.09);
+  --glass:rgba(255,255,255,.055);--glass-2:rgba(255,255,255,.09);--glass-bd:rgba(255,255,255,.12);
+  --font-display:"Figtree",system-ui,sans-serif;--font-mono:"JetBrains Mono",monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--pg);color:var(--tx);font-family:var(--font-display);min-height:100vh}
+a{color:var(--teal-400)}
+.wrap{max-width:1180px;margin:0 auto;padding:32px 24px 80px}
+header.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px}
+.logo{font-weight:800;font-size:20px;letter-spacing:-.03em}
+.logo span{color:var(--teal-400)}
+.tag{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tx-3);border:1px solid var(--hair);padding:4px 10px;border-radius:999px}
+#signout-btn{background:none;border:1px solid var(--hair);color:var(--tx-2);padding:8px 16px;border-radius:999px;cursor:pointer;font:inherit;font-size:13px}
+#signout-btn:hover{border-color:var(--teal-400);color:var(--tx)}
 
-  if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    document.body.innerHTML =
-      '<div class="loading">Admin dashboard isn\u2019t configured yet — config.js is missing real Supabase values.</div>';
-    return;
-  }
+.card{background:var(--glass);border:1px solid var(--hair);border-radius:20px;padding:22px}
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:28px}
+.stat-num{font:800 2rem/1 "Manrope",sans-serif;letter-spacing:-.03em}
+.stat-label{font-size:12px;color:var(--tx-3);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-top:6px}
 
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+@media (max-width:800px){.grid-2{grid-template-columns:1fr}}
+.bar-row{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px}
+.bar-label{width:90px;flex:0 0 auto;color:var(--tx-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:10px;border-radius:999px;background:var(--pg-3);overflow:hidden}
+.bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--teal-500),var(--indigo-500))}
+.bar-count{width:34px;text-align:right;color:var(--tx-3);font:600 12px var(--font-mono)}
 
-  const loginScreen = document.getElementById('login-screen');
-  const dashboard = document.getElementById('dashboard');
-  const loginForm = document.getElementById('login-form');
-  const loginErr = document.getElementById('login-err');
-  const whoami = document.getElementById('whoami');
-  const contentLoading = document.getElementById('content-loading');
-  const content = document.getElementById('content');
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.toolbar input{background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);border-radius:12px;padding:10px 14px;font:inherit;font-size:14px;flex:1;min-width:180px}
+.tab{background:none;border:1px solid var(--hair);color:var(--tx-2);padding:8px 14px;border-radius:999px;cursor:pointer;font:inherit;font-size:13px}
+.tab.active{background:var(--indigo-500);border-color:var(--indigo-400);color:#fff}
 
-  let currentPage = 1;
-  let currentFilter = 'all';
-  let currentSearch = '';
-  let accessToken = null;
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--tx-3);text-transform:uppercase;font-size:11px;letter-spacing:.06em;padding:10px 12px;border-bottom:1px solid var(--hair)}
+td{padding:12px;border-bottom:1px solid var(--hair);color:var(--tx-2);vertical-align:middle}
+td.email{color:var(--tx);font-weight:600}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.pill-admin{background:rgba(91,85,184,.25);color:#C0BEEE}
+.pill-user{background:var(--glass);color:var(--tx-3)}
+.pill-active{background:rgba(37,215,155,.18);color:var(--mint-400)}
+.pill-trialing{background:rgba(34,207,203,.18);color:var(--teal-400)}
+.pill-free{background:var(--glass);color:var(--tx-3)}
+.pill-canceled,.pill-past_due,.pill-unpaid{background:rgba(255,106,106,.15);color:var(--coral-400)}
+.row-btn{background:none;border:1px solid var(--hair);color:var(--tx-2);padding:5px 10px;border-radius:8px;cursor:pointer;font:inherit;font-size:12px;margin-right:4px}
+.row-btn:hover{border-color:var(--teal-400);color:var(--tx)}
+.pager{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:14px;font-size:13px;color:var(--tx-3)}
+.pager button{background:none;border:1px solid var(--hair);color:var(--tx-2);padding:6px 12px;border-radius:8px;cursor:pointer;font:inherit}
+.pager button:disabled{opacity:.4;cursor:default}
 
-  function fmtDate(iso) {
-    if (!iso) return '—';
-    const d = new Date(iso);
-    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-  }
-  function fmtDateTime(iso) {
-    if (!iso) return 'Never';
-    const d = new Date(iso);
-    return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-  }
+#login-screen{max-width:380px;margin:120px auto;padding:36px 30px;background:var(--glass-2);border:1px solid var(--hair);border-radius:24px}
+#login-screen h1{font-size:22px;margin:0 0 6px}
+#login-screen p{color:var(--tx-3);font-size:14px;margin:0 0 22px}
+#login-screen label{display:grid;gap:6px;font-size:13px;color:var(--tx-2);margin-bottom:14px}
+#login-screen input{height:46px;padding:0 14px;border-radius:12px;background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);font:inherit}
+#login-screen button{width:100%;height:48px;border-radius:12px;background:var(--indigo-500);color:#fff;border:0;font:700 14px inherit;cursor:pointer;margin-top:6px}
+.err{color:var(--coral-400);font-size:13px;min-height:18px;margin-top:8px}
+.hidden{display:none !important}
+.loading{color:var(--tx-3);font-size:14px;text-align:center;padding:60px 0}
+</style>
+</head>
+<body>
 
-  async function apiFetch(path, options) {
-    options = options || {};
-    const headers = Object.assign({}, options.headers || {}, {
-      Authorization: 'Bearer ' + accessToken,
-      'Content-Type': 'application/json',
-    });
-    const res = await fetch('/api' + path, Object.assign({}, options, { headers }));
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || 'Request failed (' + res.status + ')');
-    return data;
-  }
+<div id="login-screen">
+  <h1>Admin sign in</h1>
+  <p>Fluency<span style="color:var(--teal-400)">AI</span> dashboard — admin accounts only.</p>
+  <form id="login-form">
+    <label>Email<input type="email" id="login-email" required autocomplete="email"></label>
+    <label>Password<input type="password" id="login-password" required autocomplete="current-password"></label>
+    <div class="err" id="login-err"></div>
+    <button type="submit">Sign in</button>
+  </form>
+</div>
 
-  // ---------- Login ----------
+<div id="dashboard" class="hidden">
+  <div class="wrap">
+    <header class="top">
+      <div class="logo">Fluency<span>AI</span> — Admin</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="tag" id="whoami"></span>
+        <button id="signout-btn">Sign out</button>
+      </div>
+    </header>
 
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    loginErr.textContent = '';
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
+    <div id="content-loading" class="loading">Loading dashboard…</div>
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error || !data.session) {
-      loginErr.textContent = 'Incorrect email or password.';
-      return;
-    }
-    await afterLogin(data.session);
-  });
+    <div id="content" class="hidden">
+      <div class="grid-cards" id="stat-cards"></div>
 
-  document.getElementById('signout-btn').addEventListener('click', async () => {
-    await supabase.auth.signOut();
-    window.location.reload();
-  });
+      <div class="grid-2">
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:10px">Users by country</div>
+          <div id="by-country"></div>
+        </div>
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:10px">Users by device</div>
+          <div id="by-device"></div>
+        </div>
+      </div>
 
-  async function afterLogin(session) {
-    accessToken = session.access_token;
-    whoami.textContent = session.user.email;
+      <div class="card" style="margin-bottom:28px">
+        <div style="font-weight:700;margin-bottom:10px">Subscription breakdown</div>
+        <div id="by-subscription"></div>
+      </div>
 
-    try {
-      // A successful call to any admin endpoint doubles as the access
-      // check — 403 here means "signed in, but not an admin".
-      loginScreen.classList.add('hidden');
-      dashboard.classList.remove('hidden');
-      await loadStats();
-      await loadUsers();
-      content.classList.remove('hidden');
-      contentLoading.classList.add('hidden');
-    } catch (err) {
-      contentLoading.textContent =
-        err.message === 'Not an admin'
-          ? "This account isn't an admin. Signed in, but access denied."
-          : 'Something went wrong: ' + err.message;
-    }
-  }
-
-  // Restore an existing session on reload, if any.
-  supabase.auth.getSession().then(({ data }) => {
-    if (data.session) afterLogin(data.session);
-  });
-
-  // ---------- Stats ----------
-
-  function barList(el, items, colorVar) {
-    if (!items || items.length === 0) {
-      el.innerHTML = '<div style="color:var(--tx-3);font-size:13px">No data yet</div>';
-      return;
-    }
-    const max = Math.max.apply(null, items.map((i) => i.count));
-    el.innerHTML = items
-      .map(
-        (i) => `
-      <div class="bar-row">
-        <span class="bar-label" title="${i.label}">${i.label}</span>
-        <span class="bar-track"><span class="bar-fill" style="width:${(i.count / max) * 100}%"></span></span>
-        <span class="bar-count">${i.count}</span>
-      </div>`
-      )
-      .join('');
-  }
-
-  async function loadStats() {
-    const stats = await apiFetch('/admin/stats');
-
-    document.getElementById('stat-cards').innerHTML = [
-      ['Total users', stats.total_users],
-      ['Active (7d)', stats.active_users_7d],
-      ['Active (30d)', stats.active_users_30d],
-      ['Subscribed', stats.subscribed_users],
-      ['Admins', stats.total_admins],
-    ]
-      .map(
-        ([label, num]) => `
       <div class="card">
-        <div class="stat-num">${num ?? 0}</div>
-        <div class="stat-label">${label}</div>
-      </div>`
-      )
-      .join('');
+        <div style="font-weight:700;margin-bottom:14px">All users</div>
+        <div class="toolbar">
+          <input type="text" id="search-input" placeholder="Search by email…">
+          <button class="tab active" data-filter="all">All</button>
+          <button class="tab" data-filter="subscribed">Subscribed</button>
+          <button class="tab" data-filter="free">Free</button>
+          <button class="tab" data-filter="admins">Admins</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Email</th><th>Joined</th><th>Role</th><th>Subscription</th>
+                <th>Ends</th><th>Last active</th><th>Country</th><th>Device</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody"></tbody>
+          </table>
+        </div>
+        <div class="pager">
+          <span id="pager-info"></span>
+          <button id="prev-page">Prev</button>
+          <button id="next-page">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-    barList(document.getElementById('by-country'), stats.by_country);
-    barList(document.getElementById('by-device'), stats.by_device);
-    barList(document.getElementById('by-subscription'), stats.by_subscription_status);
-  }
-
-  // ---------- Users table ----------
-
-  document.querySelectorAll('.tab').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab').forEach((b) => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentFilter = btn.dataset.filter;
-      currentPage = 1;
-      loadUsers();
-    });
-  });
-
-  let searchDebounce;
-  document.getElementById('search-input').addEventListener('input', (e) => {
-    clearTimeout(searchDebounce);
-    searchDebounce = setTimeout(() => {
-      currentSearch = e.target.value.trim();
-      currentPage = 1;
-      loadUsers();
-    }, 350);
-  });
-
-  document.getElementById('prev-page').addEventListener('click', () => {
-    if (currentPage > 1) {
-      currentPage -= 1;
-      loadUsers();
-    }
-  });
-  document.getElementById('next-page').addEventListener('click', () => {
-    currentPage += 1;
-    loadUsers();
-  });
-
-  function subscriptionPill(status) {
-    const cls = 'pill-' + (status || 'free');
-    return `<span class="pill ${cls}">${status || 'free'}</span>`;
-  }
-
-  async function loadUsers() {
-    const params = new URLSearchParams({
-      search: currentSearch,
-      filter: currentFilter,
-      page: String(currentPage),
-      pageSize: '25',
-    });
-    const data = await apiFetch('/admin/users?' + params.toString());
-
-    document.getElementById('users-tbody').innerHTML = data.users
-      .map((u) => {
-        const isAdmin = u.role === 'admin';
-        const isSubscribed = u.subscription_status === 'active' || u.subscription_status === 'trialing';
-        return `
-        <tr>
-          <td class="email">${u.email}</td>
-          <td>${fmtDate(u.created_at)}</td>
-          <td>${isAdmin ? '<span class="pill pill-admin">admin</span>' : '<span class="pill pill-user">user</span>'}</td>
-          <td>${subscriptionPill(u.subscription_status)}</td>
-          <td>${fmtDate(u.subscription_period_end)}</td>
-          <td>${fmtDateTime(u.last_active_at)}</td>
-          <td>${u.last_country || '—'}</td>
-          <td>${u.last_device || '—'}</td>
-          <td style="white-space:nowrap">
-            <button class="row-btn" data-action="${isAdmin ? 'demote' : 'promote'}" data-id="${u.id}">${isAdmin ? 'Demote' : 'Promote'}</button>
-            <button class="row-btn" data-action="${isSubscribed ? 'revoke' : 'grant'}" data-id="${u.id}">${isSubscribed ? 'Revoke' : 'Grant'}</button>
-          </td>
-        </tr>`;
-      })
-      .join('');
-
-    document.getElementById('pager-info').textContent =
-      `Page ${data.page} of ${data.totalPages} · ${data.totalCount} users`;
-    document.getElementById('prev-page').disabled = data.page <= 1;
-    document.getElementById('next-page').disabled = data.page >= data.totalPages;
-  }
-
-  document.getElementById('users-tbody').addEventListener('click', async (e) => {
-    const btn = e.target.closest('button[data-action]');
-    if (!btn) return;
-    const { action, id } = btn.dataset;
-    btn.disabled = true;
-
-    try {
-      if (action === 'promote' || action === 'demote') {
-        await apiFetch('/admin/set-role', {
-          method: 'POST',
-          body: JSON.stringify({ userId: id, role: action === 'promote' ? 'admin' : 'user' }),
-        });
-      } else if (action === 'grant' || action === 'revoke') {
-        await apiFetch('/admin/grant-access', {
-          method: 'POST',
-          body: JSON.stringify({ userId: id, status: action === 'grant' ? 'active' : 'canceled' }),
-        });
-      }
-      await loadUsers();
-      await loadStats();
-    } catch (err) {
-      alert(err.message);
-      btn.disabled = false;
-    }
-  });
-})();
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="admin.js"></script>
+</body>
+</html>
