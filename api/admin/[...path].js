@@ -25,28 +25,33 @@
 const { requireAdmin } = require('../_lib/adminAuth');
 
 module.exports = async (req, res) => {
-  const auth = await requireAdmin(req);
-  if (!auth.ok) {
-    return res.status(auth.status).json({ error: auth.error });
-  }
+  try {
+    const auth = await requireAdmin(req);
+    if (!auth.ok) {
+      return res.status(auth.status).json({ error: auth.error });
+    }
 
-  const segments = Array.isArray(req.query.path) ? req.query.path : [req.query.path];
-  const route = segments[0];
+    const segments = Array.isArray(req.query.path) ? req.query.path : [req.query.path];
+    const route = segments[0];
 
-  if (route === 'stats' && req.method === 'GET') {
-    return handleStats(auth, res);
-  }
-  if (route === 'users' && req.method === 'GET') {
-    return handleUsers(auth, req, res);
-  }
-  if (route === 'set-role' && req.method === 'POST') {
-    return handleSetRole(auth, req, res);
-  }
-  if (route === 'grant-access' && req.method === 'POST') {
-    return handleGrantAccess(auth, req, res);
-  }
+    if (route === 'stats' && req.method === 'GET') {
+      return handleStats(auth, res);
+    }
+    if (route === 'users' && req.method === 'GET') {
+      return handleUsers(auth, req, res);
+    }
+    if (route === 'set-role' && req.method === 'POST') {
+      return handleSetRole(auth, req, res);
+    }
+    if (route === 'grant-access' && req.method === 'POST') {
+      return handleGrantAccess(auth, req, res);
+    }
 
-  return res.status(404).json({ error: 'Unknown admin route: ' + route });
+    return res.status(404).json({ error: 'Unknown admin route: ' + route });
+  } catch (err) {
+    console.error('api/admin: unexpected error:', err);
+    return res.status(500).json({ error: err.message || 'Unexpected server error' });
+  }
 };
 
 async function handleStats(auth, res) {
