@@ -21,6 +21,16 @@
   const signupSubmit = document.getElementById('auth-signup-submit');
   const verifySubmit = document.getElementById('auth-verify-submit');
 
+  const forgotLink = document.getElementById('auth-forgot-link');
+  const backToSignupBtn = document.getElementById('auth-back-to-signup');
+  const forgotForm = document.getElementById('auth-forgot-form');
+  const forgotSubmit = document.getElementById('auth-forgot-submit');
+  const resetForm = document.getElementById('auth-reset-form');
+  const resetSubmit = document.getElementById('auth-reset-submit');
+  const resendResetBtn = document.getElementById('auth-resend-reset-btn');
+
+  let pendingResetEmail = '';
+
   let pendingEmail = '';
   let pendingPassword = '';
 
@@ -164,6 +174,98 @@
     } else {
       showError('auth-verify-error', 'Code resent — check your inbox.');
       document.getElementById('auth-verify-error').style.color = 'var(--mint-400)';
+    }
+  });
+
+  // ---------- Forgot password / recovery flow ----------
+
+  forgotLink.addEventListener('click', () => {
+    clearError('auth-forgot-error');
+    showStep('forgot');
+    setTimeout(() => document.getElementById('auth-forgot-email').focus(), 200);
+  });
+
+  backToSignupBtn.addEventListener('click', () => {
+    showStep('signup');
+  });
+
+  forgotForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!supabase) return;
+    clearError('auth-forgot-error');
+    const email = document.getElementById('auth-forgot-email').value.trim();
+
+    setLoading(forgotSubmit, true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    setLoading(forgotSubmit, false);
+
+    if (error) {
+      showError('auth-forgot-error', humanizeError(error));
+      return;
+    }
+
+    pendingResetEmail = email;
+    document.getElementById('auth-reset-email').textContent = email;
+    showStep('reset');
+    setTimeout(() => document.getElementById('auth-reset-code').focus(), 200);
+  });
+
+  resetForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!supabase) return;
+    clearError('auth-reset-error');
+    const token = document.getElementById('auth-reset-code').value.trim();
+    const newPassword = document.getElementById('auth-new-password').value;
+
+    setLoading(resetSubmit, true);
+
+    // Step 1: verify the recovery code — this logs the browser into a
+    // temporary session for this user, same as the app's
+    // verifyOTP(type: OtpType.recovery).
+    const { error: verifyError } = await supabase.auth.verifyOTP({
+      email: pendingResetEmail,
+      token: token,
+      type: 'recovery',
+    });
+
+    if (verifyError) {
+      setLoading(resetSubmit, false);
+      showError('auth-reset-error', humanizeError(verifyError));
+      return;
+    }
+
+    // Step 2: now that we have a session, set the new password.
+    const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+    setLoading(resetSubmit, false);
+
+    if (updateError) {
+      showError('auth-reset-error', humanizeError(updateError));
+      return;
+    }
+
+    // Sign out of this temporary browser session — the actual login still
+    // happens in the app, same as after signup.
+    await supabase.auth.signOut();
+
+    showStep('reset-success');
+    setTimeout(() => {
+      window.location.href = '/app/auth?mode=login';
+    }, 1800);
+  });
+
+  resendResetBtn.addEventListener('click', async () => {
+    if (!supabase) return;
+    clearError('auth-reset-error');
+    resendResetBtn.disabled = true;
+    resendResetBtn.textContent = 'Sending\u2026';
+    const { error } = await supabase.auth.resetPasswordForEmail(pendingResetEmail);
+    resendResetBtn.disabled = false;
+    resendResetBtn.textContent = 'Resend code';
+    if (error) {
+      showError('auth-reset-error', humanizeError(error));
+    } else {
+      showError('auth-reset-error', 'Code resent — check your inbox.');
+      document.getElementById('auth-reset-error').style.color = 'var(--mint-400)';
     }
   });
 })();
