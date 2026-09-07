@@ -11,7 +11,14 @@
 const { createClient } = require('@supabase/supabase-js');
 
 function getServiceClient() {
-  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    throw new Error(
+      'Server is missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables.'
+    );
+  }
+  return createClient(url, key, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
@@ -25,32 +32,41 @@ function getServiceClient() {
  * that status/error directly and stop.
  */
 async function requireAdmin(req) {
-  const authHeader = req.headers.authorization || '';
-  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
-  if (!token) {
-    return { ok: false, status: 401, error: 'Missing Authorization header' };
-  }
+  try {
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!token) {
+      return { ok: false, status: 401, error: 'Missing Authorization header' };
+    }
 
-  const supabase = getServiceClient();
-  const { data: userData, error: userErr } = await supabase.auth.getUser(token);
-  if (userErr || !userData || !userData.user) {
-    return { ok: false, status: 401, error: 'Invalid or expired session' };
-  }
+    const supabase = getServiceClient();
 
-  const { data: profile, error: profileErr } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userData.user.id)
-    .maybeSingle();
+    const { data: userData, error: userErr } = await supabase.auth.getUser(token);
+    if (userErr || !userData || !userData.user) {
+      return { ok: false, status: 401, error: 'Invalid or expired session' };
+    }
 
-  if (profileErr) {
-    return { ok: false, status: 500, error: profileErr.message };
-  }
-  if (!profile || profile.role !== 'admin') {
-    return { ok: false, status: 403, error: 'Not an admin' };
-  }
+    const { data: profile, error: profileErr } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', userData.user.id)
+      .maybeSingle();
 
-  return { ok: true, user: userData.user, supabase };
+    if (profileErr) {
+      return { ok: false, status: 500, error: profileErr.message };
+    }
+    if (!profile || profile.role !== 'admin') {
+      return { ok: false, status: 403, error: 'Not an admin' };
+    }
+
+    return { ok: true, user: userData.user, supabase };
+  } catch (err) {
+    // Catch-all: whatever this was (missing env var, network error,
+    // unexpected shape), the caller gets a readable JSON error instead of
+    // Vercel's opaque FUNCTION_INVOCATION_FAILED page.
+    console.error('requireAdmin: unexpected error:', err.message);
+    return { ok: false, status: 500, error: err.message };
+  }
 }
 
 module.exports = { requireAdmin, getServiceClient };
