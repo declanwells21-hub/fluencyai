@@ -47,7 +47,10 @@ module.exports = async (req, res) => {
       return handleGrantAccess(auth, req, res);
     }
 
-    return res.status(404).json({ error: 'Unknown admin route: ' + route });
+    return res.status(404).json({
+      error: 'Unknown admin route: ' + route,
+      debug: { url: req.url, query: req.query },
+    });
   } catch (err) {
     console.error('api/admin: unexpected error:', err);
     return res.status(500).json({ error: err.message || 'Unexpected server error' });
