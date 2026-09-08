@@ -43,8 +43,36 @@
   const resetSubmit = document.getElementById('auth-reset-submit');
   const resendResetBtn = document.getElementById('auth-resend-reset-btn');
 
-  let pendingEmail = '';
-  let pendingResetEmail = '';
+  // Pending emails are stored in sessionStorage, not just a JS variable -
+  // this is the actual fix for "That code is incorrect or has expired"
+  // showing up even with a fresh, correctly-typed code. A plain variable
+  // resets to empty on any page reload; if that happened between
+  // requesting a code and entering it, verifyOTP would silently be called
+  // with an empty email attached to a real code, and Supabase returns the
+  // exact same generic error for that as it does for a genuinely wrong
+  // code. sessionStorage survives a reload within the same tab and clears
+  // itself when the tab closes.
+  const PENDING_SIGNUP_KEY = 'fl_pending_signup_email';
+  const PENDING_RESET_KEY = 'fl_pending_reset_email';
+
+  function getPendingEmail() {
+    return sessionStorage.getItem(PENDING_SIGNUP_KEY) || '';
+  }
+  function setPendingEmail(email) {
+    sessionStorage.setItem(PENDING_SIGNUP_KEY, email);
+  }
+  function clearPendingEmail() {
+    sessionStorage.removeItem(PENDING_SIGNUP_KEY);
+  }
+  function getPendingResetEmail() {
+    return sessionStorage.getItem(PENDING_RESET_KEY) || '';
+  }
+  function setPendingResetEmail(email) {
+    sessionStorage.setItem(PENDING_RESET_KEY, email);
+  }
+  function clearPendingResetEmail() {
+    sessionStorage.removeItem(PENDING_RESET_KEY);
+  }
 
   function showStep(name) {
     document.querySelectorAll('.auth-step').forEach((el) => el.classList.remove('active'));
@@ -123,6 +151,22 @@
     });
   });
 
+  // If the page reloaded while a code was pending (switched tabs, browser
+  // restored the page, etc.), reopen straight to the right step instead of
+  // silently losing track and producing a confusing "incorrect or expired
+  // code" error later for what looks like a perfectly valid code.
+  if (supabase) {
+    const pendingSignup = getPendingEmail();
+    const pendingReset = getPendingResetEmail();
+    if (pendingSignup) {
+      document.getElementById('auth-verify-email').textContent = pendingSignup;
+      openModal('verify');
+    } else if (pendingReset) {
+      document.getElementById('auth-reset-email').textContent = pendingReset;
+      openModal('reset');
+    }
+  }
+
   closeBtn.addEventListener('click', closeModal);
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) closeModal();
@@ -147,7 +191,7 @@
         showError('auth-signup-error', humanizeError(error));
         return;
       }
-      pendingEmail = email;
+      setPendingEmail(email);
       document.getElementById('auth-verify-email').textContent = email;
       showStep('verify');
     } catch (err) {
@@ -162,14 +206,21 @@
     if (!supabase) { window.location.href = '/app/auth?mode=signup'; return; }
     clearError('auth-verify-error');
     const token = document.getElementById('auth-code').value.trim();
+    const email = getPendingEmail();
+
+    if (!email) {
+      showError('auth-verify-error', 'We lost track of which email this code was for — please sign up again to get a fresh code.');
+      return;
+    }
 
     setLoading(verifySubmit, true);
     try {
-      const { error } = await supabase.auth.verifyOTP({ email: pendingEmail, token, type: 'signup' });
+      const { error } = await supabase.auth.verifyOTP({ email, token, type: 'signup' });
       if (error) {
         showError('auth-verify-error', humanizeError(error));
         return;
       }
+      clearPendingEmail();
       showStep('success');
       setTimeout(() => { window.location.href = '/app/auth?mode=login'; }, 1800);
     } catch (err) {
@@ -185,7 +236,7 @@
     resendBtn.disabled = true;
     resendBtn.textContent = 'Sending\u2026';
     try {
-      const { error } = await supabase.auth.resend({ type: 'signup', email: pendingEmail });
+      const { error } = await supabase.auth.resend({ type: 'signup', email: getPendingEmail() });
       if (error) {
         showError('auth-verify-error', humanizeError(error));
       } else {
@@ -276,7 +327,7 @@
         showError('auth-forgot-error', humanizeError(error));
         return;
       }
-      pendingResetEmail = email;
+      setPendingResetEmail(email);
       document.getElementById('auth-reset-email').textContent = email;
       showStep('reset');
     } catch (err) {
@@ -292,6 +343,12 @@
     clearError('auth-reset-error');
     const token = document.getElementById('auth-reset-code').value.trim();
     const newPassword = document.getElementById('auth-new-password').value;
+    const email = getPendingResetEmail();
+
+    if (!email) {
+      showError('auth-reset-error', 'We lost track of which email this code was for — please request a new reset code.');
+      return;
+    }
 
     setLoading(resetSubmit, true);
     try {
@@ -299,7 +356,7 @@
       // temporary session for this user, same as the app's
       // verifyOTP(type: OtpType.recovery).
       const { error: verifyError } = await supabase.auth.verifyOTP({
-        email: pendingResetEmail,
+        email,
         token,
         type: 'recovery',
       });
@@ -318,6 +375,7 @@
       // Sign out of this temporary browser session - actual login still
       // happens explicitly, same as after signup.
       await supabase.auth.signOut().catch(() => {});
+      clearPendingResetEmail();
 
       showStep('reset-success');
       setTimeout(() => { window.location.href = '/app/auth?mode=login'; }, 1800);
@@ -334,7 +392,7 @@
     resendResetBtn.disabled = true;
     resendResetBtn.textContent = 'Sending\u2026';
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(pendingResetEmail);
+      const { error } = await supabase.auth.resetPasswordForEmail(getPendingResetEmail());
       if (error) {
         showError('auth-reset-error', humanizeError(error));
       } else {
