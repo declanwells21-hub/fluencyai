@@ -55,6 +55,15 @@ module.exports = async (req, res) => {
     if (route === 'grant-access' && req.method === 'POST') {
       return handleGrantAccess(auth, req, res);
     }
+    if (route === 'suspend-user' && req.method === 'POST') {
+      return handleSuspendUser(auth, req, res);
+    }
+    if (route === 'delete-user' && req.method === 'POST') {
+      return handleDeleteUser(auth, req, res);
+    }
+    if (route === 'send-email' && req.method === 'POST') {
+      return handleSendEmail(auth, req, res);
+    }
 
     return res.status(404).json({ error: 'Unknown admin route: ' + route });
   } catch (err) {
@@ -158,4 +167,189 @@ async function handleGrantAccess(auth, req, res) {
   }
 
   res.status(200).json({ ok: true, userId, status, periodEnd });
+}
+
+// ---------- Suspend / unsuspend ----------
+//
+// Uses Supabase Auth's own ban mechanism (ban_duration) - this blocks
+// login/token refresh without touching any of the user's data, and is
+// fully reversible. Nothing to do with the database directly.
+
+async function handleSuspendUser(auth, req, res) {
+  const { userId, suspend, durationHours } = req.body || {};
+  if (!userId || typeof suspend !== 'boolean') {
+    return res.status(400).json({ error: 'Body must include userId and suspend (true or false)' });
+  }
+  if (userId === auth.user.id) {
+    return res.status(400).json({ error: "Can't suspend your own account." });
+  }
+
+  // "876000h" is 100 years - GoTrue's ban_duration has no literal
+  // "forever" option, so an effectively-permanent suspension just uses a
+  // very long duration. 'none' lifts a ban immediately.
+  const banDuration = suspend
+    ? Number.isFinite(durationHours) && durationHours > 0
+      ? `${durationHours}h`
+      : '876000h'
+    : 'none';
+
+  const { error } = await auth.supabase.auth.admin.updateUserById(userId, { ban_duration: banDuration });
+  if (error) {
+    console.error('admin/suspend-user failed:', error.message);
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.status(200).json({ ok: true, userId, suspended: suspend });
+}
+
+// ---------- Delete ----------
+//
+// profiles.id and plan_items.user_id both have "on delete cascade" back to
+// auth.users, so deleting the auth user is genuinely all that's needed -
+// their profile and plan data disappear automatically. This is permanent
+// and cannot be undone.
+
+async function handleDeleteUser(auth, req, res) {
+  const { userId } = req.body || {};
+  if (!userId) {
+    return res.status(400).json({ error: 'Body must include userId' });
+  }
+  if (userId === auth.user.id) {
+    return res.status(400).json({ error: "Can't delete your own account from here." });
+  }
+
+  const { error } = await auth.supabase.auth.admin.deleteUser(userId);
+  if (error) {
+    console.error('admin/delete-user failed:', error.message);
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.status(200).json({ ok: true, userId });
+}
+
+// ---------- Communication center ----------
+//
+// Supabase Auth only ever sends its own fixed set of emails (confirm
+// signup, reset password, etc.) - there's no built-in way to send
+// arbitrary custom content to a chosen set of users, so this calls Brevo's
+// transactional email API directly instead. Requires BREVO_API_KEY and
+// EMAIL_FROM_ADDRESS as Vercel environment variables (the from address
+// must be a verified sender in your Brevo account).
+//
+// Sends one API call per recipient (not one call with everyone in the "to"
+// list, which would let recipients see each other's addresses), fired
+// concurrently to fit inside a single serverless function's time limit.
+// Fine for the user counts an early-stage app has; if this ever needs to
+// scale to thousands of recipients, that's a queue/background-job
+// redesign, not a tweak to this function.
+
+async function handleSendEmail(auth, req, res) {
+  const { audience, specificEmail, subject, message } = req.body || {};
+  if (!subject || !message) {
+    return res.status(400).json({ error: 'Body must include subject and message' });
+  }
+
+  const BREVO_API_KEY = process.env.BREVO_API_KEY;
+  const FROM_EMAIL = process.env.EMAIL_FROM_ADDRESS;
+  const FROM_NAME = process.env.EMAIL_FROM_NAME || 'Fluency AI';
+
+  if (!BREVO_API_KEY || !FROM_EMAIL) {
+    return res.status(500).json({
+      error: 'Email sending is not configured (missing BREVO_API_KEY or EMAIL_FROM_ADDRESS env vars).',
+    });
+  }
+
+  let recipients = [];
+  if (audience === 'specific') {
+    if (!specificEmail) {
+      return res.status(400).json({ error: 'specificEmail is required when audience is "specific"' });
+    }
+    recipients = [{ email: specificEmail }];
+  } else {
+    const filter = ['all', 'subscribed', 'free', 'suspended'].includes(audience) ? audience : 'all';
+    const { data, error } = await auth.supabase.rpc('admin_list_users', {
+      p_search: null,
+      p_filter: filter,
+      p_limit: 5000,
+      p_offset: 0,
+    });
+    if (error) {
+      console.error('admin/send-email: admin_list_users failed:', error.message);
+      return res.status(500).json({ error: error.message });
+    }
+    recipients = (data || []).map((row) => ({ email: row.email }));
+  }
+
+  if (recipients.length === 0) {
+    return res.status(200).json({ ok: true, sent: 0, failed: 0, total: 0 });
+  }
+
+  const htmlContent = buildEmailHtml(subject, message);
+
+  const results = await Promise.allSettled(
+    recipients.map((r) =>
+      fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'api-key': BREVO_API_KEY,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          sender: { name: FROM_NAME, email: FROM_EMAIL },
+          to: [{ email: r.email }],
+          subject,
+          htmlContent,
+        }),
+      }).then((brevoRes) => {
+        if (!brevoRes.ok) throw new Error('Brevo responded with ' + brevoRes.status);
+        return brevoRes.json();
+      })
+    )
+  );
+
+  const sent = results.filter((r) => r.status === 'fulfilled').length;
+  const failed = results.length - sent;
+
+  res.status(200).json({ ok: true, sent, failed, total: recipients.length });
+}
+
+function buildEmailHtml(subject, message) {
+  const paragraphs = String(message)
+    .split(/\n\s*\n/)
+    .map(
+      (para) =>
+        `<p style="margin:0 0 16px;font-size:14px;line-height:22px;color:#475569;">${escapeHtml(para).replace(/\n/g, '<br>')}</p>`
+    )
+    .join('');
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#F6FAFB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F6FAFB;padding:32px 16px;">
+<tr><td align="center">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background-color:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(11,34,51,0.08);">
+<tr><td align="center" bgcolor="#0E9A9C" style="background:linear-gradient(135deg,#0E9A9C 0%,#4A459C 100%);padding:36px 24px 28px 24px;">
+<div style="font-size:22px;font-weight:800;letter-spacing:-0.5px;color:#FFFFFF;">Fluency<span style="color:#8CEECB;font-weight:800;">AI</span></div>
+</td></tr>
+<tr><td style="padding:36px 36px 8px 36px;">
+<h1 style="margin:0 0 18px 0;font-size:19px;font-weight:800;color:#0B2233;letter-spacing:-0.3px;">${escapeHtml(subject)}</h1>
+${paragraphs}
+</td></tr>
+<tr><td style="padding:20px 36px 0 36px;"><div style="height:1px;background-color:#E2E8F0;width:100%;"></div></td></tr>
+<tr><td align="center" style="padding:20px 36px 36px 36px;">
+<p style="margin:0;font-size:12px;line-height:18px;color:#94A3B8;">Sent by Fluency AI<br>You're receiving this because you have a Fluency AI account.</p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>`;
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
