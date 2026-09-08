@@ -133,6 +133,7 @@
       ['Active (7d)', stats.active_users_7d],
       ['Active (30d)', stats.active_users_30d],
       ['Subscribed', stats.subscribed_users],
+      ['Suspended', stats.suspended_users],
       ['Admins', stats.total_admins],
     ]
       .map(
@@ -200,6 +201,7 @@
       .map((u) => {
         const isAdmin = u.role === 'admin';
         const isSubscribed = u.subscription_status === 'active' || u.subscription_status === 'trialing';
+        const isSuspended = u.banned_until && new Date(u.banned_until) > new Date();
         return `
         <tr>
           <td class="email">${u.email}</td>
@@ -210,9 +212,12 @@
           <td>${fmtDateTime(u.last_active_at)}</td>
           <td>${u.last_country || '—'}</td>
           <td>${u.last_device || '—'}</td>
+          <td>${isSuspended ? '<span class="pill pill-suspended">suspended</span>' : '<span class="pill pill-ok">active</span>'}</td>
           <td style="white-space:nowrap">
             <button class="row-btn" data-action="${isAdmin ? 'demote' : 'promote'}" data-id="${u.id}">${isAdmin ? 'Demote' : 'Promote'}</button>
             <button class="row-btn" data-action="${isSubscribed ? 'revoke' : 'grant'}" data-id="${u.id}">${isSubscribed ? 'Revoke' : 'Grant'}</button>
+            <button class="row-btn" data-action="${isSuspended ? 'unsuspend' : 'suspend'}" data-id="${u.id}">${isSuspended ? 'Unsuspend' : 'Suspend'}</button>
+            <button class="row-btn" data-action="delete" data-id="${u.id}" data-email="${u.email}" style="border-color:var(--coral-400);color:var(--coral-400)">Delete</button>
           </td>
         </tr>`;
       })
@@ -227,9 +232,20 @@
   document.getElementById('users-tbody').addEventListener('click', async (e) => {
     const btn = e.target.closest('button[data-action]');
     if (!btn) return;
-    const { action, id } = btn.dataset;
-    btn.disabled = true;
+    const { action, id, email } = btn.dataset;
 
+    if (action === 'delete') {
+      if (!confirm(`Permanently delete ${email}? This deletes their account and all their data. This cannot be undone.`)) {
+        return;
+      }
+    }
+    if (action === 'suspend') {
+      if (!confirm(`Suspend ${email || 'this user'}? They won't be able to log in until unsuspended.`)) {
+        return;
+      }
+    }
+
+    btn.disabled = true;
     try {
       if (action === 'promote' || action === 'demote') {
         await apiFetch('/admin/set-role', {
@@ -241,12 +257,112 @@
           method: 'POST',
           body: JSON.stringify({ userId: id, status: action === 'grant' ? 'active' : 'canceled' }),
         });
+      } else if (action === 'suspend' || action === 'unsuspend') {
+        await apiFetch('/admin/suspend-user', {
+          method: 'POST',
+          body: JSON.stringify({ userId: id, suspend: action === 'suspend' }),
+        });
+      } else if (action === 'delete') {
+        await apiFetch('/admin/delete-user', {
+          method: 'POST',
+          body: JSON.stringify({ userId: id }),
+        });
       }
       await loadUsers();
       await loadStats();
     } catch (err) {
       alert(err.message);
       btn.disabled = false;
+    }
+  });
+
+  // ---------- Communication center ----------
+
+  const TEMPLATES = {
+    general: {
+      subject: 'An update from Fluency AI',
+      message:
+        "Hi,\n\nWe wanted to share a quick update with you.\n\n[Write your announcement here.]\n\nThanks for being part of Fluency AI.",
+    },
+    subscription: {
+      subject: 'Your Fluency AI subscription',
+      message:
+        "Hi,\n\nThis is a note about your Fluency AI subscription.\n\n[Explain the billing/subscription update here.]\n\nIf you have any questions, just reply to this email.",
+    },
+    info: {
+      subject: "What's new in Fluency AI",
+      message:
+        "Hi,\n\nHere's a quick look at what's new.\n\n[Describe the update or feature here.]\n\nHappy speaking!",
+    },
+    custom: { subject: '', message: '' },
+  };
+
+  const commAudience = document.getElementById('comm-audience');
+  const commSpecificWrap = document.getElementById('comm-specific-wrap');
+  const commSpecificEmail = document.getElementById('comm-specific-email');
+  const commTemplate = document.getElementById('comm-template');
+  const commSubject = document.getElementById('comm-subject');
+  const commMessage = document.getElementById('comm-message');
+  const commResult = document.getElementById('comm-result');
+  const commSendBtn = document.getElementById('comm-send-btn');
+
+  commAudience.addEventListener('change', () => {
+    commSpecificWrap.style.display = commAudience.value === 'specific' ? 'grid' : 'none';
+  });
+
+  commTemplate.addEventListener('change', () => {
+    const t = TEMPLATES[commTemplate.value];
+    if (t) {
+      commSubject.value = t.subject;
+      commMessage.value = t.message;
+    }
+  });
+  // Load the default template's text in on first render.
+  commTemplate.dispatchEvent(new Event('change'));
+
+  commSendBtn.addEventListener('click', async () => {
+    commResult.textContent = '';
+    commResult.classList.remove('show');
+
+    const audience = commAudience.value;
+    const specificEmail = commSpecificEmail.value.trim();
+    const subject = commSubject.value.trim();
+    const message = commMessage.value.trim();
+
+    if (!subject || !message) {
+      commResult.textContent = 'Subject and message are both required.';
+      commResult.classList.add('show');
+      return;
+    }
+    if (audience === 'specific' && !specificEmail) {
+      commResult.textContent = 'Enter the recipient\u2019s email.';
+      commResult.classList.add('show');
+      return;
+    }
+
+    const audienceLabel =
+      audience === 'specific'
+        ? specificEmail
+        : { all: 'ALL users', subscribed: 'subscribed users', free: 'free users', suspended: 'suspended users' }[audience];
+    if (!confirm(`Send this email to ${audienceLabel}?`)) return;
+
+    commSendBtn.disabled = true;
+    commSendBtn.textContent = 'Sending\u2026';
+    try {
+      const result = await apiFetch('/admin/send-email', {
+        method: 'POST',
+        body: JSON.stringify({ audience, specificEmail, subject, message }),
+      });
+      commResult.textContent = `Sent to ${result.sent} of ${result.total} recipient(s)${result.failed ? ` — ${result.failed} failed` : ''}.`;
+      commResult.style.color = result.failed ? 'var(--amber-400)' : 'var(--mint-400)';
+      commResult.classList.add('show');
+    } catch (err) {
+      commResult.textContent = err.message;
+      commResult.style.color = 'var(--coral-400)';
+      commResult.classList.add('show');
+    } finally {
+      commSendBtn.disabled = false;
+      commSendBtn.textContent = 'Send email';
     }
   });
 })();
