@@ -2,8 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="google-site-verification" content="FsCTu0DfhRUCeQ9tsIXHBuZo99hUFWmd4LTmtGvuGj4" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fluency AI">
+<link rel="apple-touch-icon" href="assets/logo-appicon.png">
+<link rel="manifest" href="manifest.json">
 <title>Fluency AI — Stop freezing. Start speaking.</title>
 <meta name="description" content="Fluency AI is the AI language app you talk out loud to. Have real spoken conversations in 40 languages, get corrected mid-sentence, and finally speak with confidence. Free 3-day trial.">
 <meta name="robots" content="index, follow">
@@ -223,6 +229,7 @@ button{font-family:inherit}
 .r-navlinks a{font:var(--fw-medium) 14px/1 var(--font-body);color:var(--tx-2);text-decoration:none;transition:color .2s}
 .r-navlinks a:hover{color:var(--tx)}
 #fl-theme-toggle{position:relative;width:58px;height:31px;border-radius:999px;border:1px solid var(--glass-bd);background:var(--glass);cursor:pointer;flex:0 0 auto;padding:0;transition:background .3s ease}
+.r-cta-short{display:none}
 #fl-knob{position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:999px;background:linear-gradient(150deg,var(--teal-300),var(--teal-600));box-shadow:0 0 0 1px rgba(255,255,255,.18),0 0 18px 2px rgba(16,184,184,.55);transition:transform .42s cubic-bezier(.34,1.56,.64,1)}
 #fl-sun{position:absolute;right:8px;top:8px;width:15px;height:15px;opacity:.5;color:var(--tx-2);transition:opacity .3s}
 
@@ -310,6 +317,38 @@ button{font-family:inherit}
 @media (max-width:640px){
   .r-5col,.r-4col{grid-template-columns:1fr !important}
   .r-stack{flex-direction:column !important;align-items:stretch !important}
+
+  /* --- Nav: fix the CTA button overflowing off-screen on phones --- */
+  #fl-nav{
+    top:calc(10px + env(safe-area-inset-top,0px));
+    width:calc(100% - 20px);
+    gap:8px;
+    padding:8px 8px 8px 16px;
+  }
+  .fl-logo{font-size:17px}
+  #fl-theme-toggle{display:none}
+  .r-cta-full{display:none}
+  .r-cta-short{display:inline}
+  #fl-nav .fl-btn-s{height:40px;padding:0 16px;min-height:40px}
+}
+
+/* --- Native app feel: safe areas, no rubber-band overscroll flash, no stuck hover states --- */
+body{
+  overflow-x:hidden;
+  overscroll-behavior-y:none;
+  -webkit-tap-highlight-color:transparent;
+  padding-left:env(safe-area-inset-left,0px);
+  padding-right:env(safe-area-inset-right,0px);
+}
+a,button{-webkit-tap-highlight-color:transparent}
+@media (hover:none){
+  .fl-hover-card:hover,.fl-hover-card-sm:hover,.fl-lang-card:hover,.store-link:hover{
+    transform:none;
+  }
+}
+@media (max-width:640px){
+  a,button,.fl-btn,.store-link,.repair-chip,.stage-tab,.faq-q{min-height:44px}
+  .fl-btn-s{min-height:40px}
 }
 </style>
 </head>
@@ -332,7 +371,7 @@ button{font-family:inherit}
     <span id="fl-knob"></span>
     <span id="fl-sun" class="fl-icon" data-icon="sun" data-size="15"></span>
   </button>
-  <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent fl-btn-s js-auth-trigger"><span class="fl-icon" data-icon="mic" data-size="15"></span>Start speaking free</a>
+  <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent fl-btn-s js-auth-trigger"><span class="fl-icon" data-icon="mic" data-size="15"></span><span class="r-cta-full">Start speaking free</span><span class="r-cta-short">Start free</span></a>
 </nav>
 
 <!-- ===================== HERO ===================== -->
