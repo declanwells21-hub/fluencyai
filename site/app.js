@@ -20,15 +20,57 @@ function renderIcons() {
 // ============ THEME TOGGLE ============
 let isLight = false;
 function syncKnob() {
-  const k = document.getElementById('fl-knob'), s = document.getElementById('fl-sun');
-  if (k) k.style.transform = isLight ? 'translateX(27px)' : 'translateX(0)';
-  if (s) s.style.opacity = isLight ? '0' : '.5';
+  document.querySelectorAll('#fl-knob, #fl-knob-m').forEach(k => {
+    k.style.transform = isLight ? 'translateX(27px)' : 'translateX(0)';
+  });
+  document.querySelectorAll('#fl-sun, #fl-sun-m').forEach(s => {
+    s.style.opacity = isLight ? '0' : '.5';
+  });
 }
-document.getElementById('fl-theme-toggle').addEventListener('click', () => {
+function toggleTheme() {
   isLight = !isLight;
   document.body.setAttribute('data-fl-theme', isLight ? 'light' : 'dark');
   syncKnob();
-});
+}
+document.getElementById('fl-theme-toggle').addEventListener('click', toggleTheme);
+const themeToggleM = document.getElementById('fl-theme-toggle-m');
+if (themeToggleM) themeToggleM.addEventListener('click', toggleTheme);
+
+// ============ MOBILE HAMBURGER MENU ============
+const hamburger = document.getElementById('fl-hamburger');
+const mobileMenu = document.getElementById('fl-mobile-menu');
+function closeMobileMenu() {
+  if (!mobileMenu || !mobileMenu.classList.contains('open')) return;
+  mobileMenu.classList.remove('open');
+  mobileMenu.setAttribute('aria-hidden', 'true');
+  hamburger.setAttribute('aria-expanded', 'false');
+  document.body.style.overflowY = '';
+}
+function openMobileMenu() {
+  mobileMenu.classList.add('open');
+  mobileMenu.setAttribute('aria-hidden', 'false');
+  hamburger.setAttribute('aria-expanded', 'true');
+  document.body.style.overflowY = 'hidden';
+}
+if (hamburger && mobileMenu) {
+  hamburger.addEventListener('click', () => {
+    mobileMenu.classList.contains('open') ? closeMobileMenu() : openMobileMenu();
+  });
+  mobileMenu.querySelectorAll('a.r-mm-link').forEach(a => {
+    a.addEventListener('click', closeMobileMenu);
+  });
+  document.addEventListener('click', (e) => {
+    if (!mobileMenu.classList.contains('open')) return;
+    if (mobileMenu.contains(e.target) || hamburger.contains(e.target)) return;
+    closeMobileMenu();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMobileMenu();
+  });
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 1040) closeMobileMenu();
+  });
+}
 
 // ============ NAV SHRINK ON SCROLL ============
 const nav = document.getElementById('fl-nav');
@@ -45,7 +87,19 @@ function spawnWords() {
   if (!host || host.childElementCount) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  const lanes = [
+  const isMobile = window.innerWidth <= 1040;
+  // Desktop lanes assume a two-column hero (text on the left, product card on the
+  // right) and scatter words around that layout. On mobile the hero stacks into a
+  // single column and the card below covers the full width, so those same lanes
+  // would mostly render hidden behind it. These lanes instead stay inside the open
+  // band above the stacked content (badge/headline/paragraph area) so the drifting
+  // words are actually visible, the same way they are on desktop.
+  const lanes = isMobile ? [
+    [4, 30, 1, 6], [36, 30, 2, 7], [70, 26, 1, 6],
+    [6, 26, 10, 7], [42, 24, 11, 8], [72, 24, 12, 7],
+    [4, 24, 20, 8], [38, 28, 21, 7], [68, 28, 22, 8],
+    [10, 30, 30, 6],
+  ] : [
     [2, 12, 4, 78], [2, 14, 6, 82], [3, 13, 10, 70],
     [20, 62, 2, 12], [28, 58, 3, 10],
     [66, 30, 8, 74], [72, 26, 4, 66], [70, 28, 14, 60],
@@ -53,13 +107,14 @@ function spawnWords() {
   ];
   const pool = GREETINGS.slice().sort(() => Math.random() - 0.5).slice(0, lanes.length);
   const rnd = (a, b) => a + Math.random() * (b - a);
+  const sizeRange = isMobile ? [12, 21] : [13, 30];
 
   pool.forEach(([text], i) => {
     const [lx, lw, ly, lh] = lanes[i];
     const el = document.createElement('span');
     el.textContent = text;
     el.className = 'fl-word fl-anim';
-    const size = Math.round(rnd(13, 30));
+    const size = Math.round(rnd(sizeRange[0], sizeRange[1]));
     const op = +(0.1 + Math.random() * 0.24).toFixed(3);
     const s = el.style;
     s.left = rnd(lx, lx + lw).toFixed(2) + '%';
