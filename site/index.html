@@ -243,10 +243,10 @@ button{font-family:inherit}
 .r-navlinks{display:flex;align-items:center;gap:26px;margin-left:10px}
 .r-navlinks a{font:var(--fw-medium) 14px/1 var(--font-body);color:var(--tx-2);text-decoration:none;transition:color .2s}
 .r-navlinks a:hover{color:var(--tx)}
-#fl-theme-toggle{position:relative;width:58px;height:31px;border-radius:999px;border:1px solid var(--glass-bd);background:var(--glass);cursor:pointer;flex:0 0 auto;padding:0;transition:background .3s ease}
+#fl-theme-toggle,#fl-theme-toggle-m{position:relative;width:58px;height:31px;border-radius:999px;border:1px solid var(--glass-bd);background:var(--glass);cursor:pointer;flex:0 0 auto;padding:0;transition:background .3s ease}
 .r-cta-short{display:none}
-#fl-knob{position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:999px;background:linear-gradient(150deg,var(--teal-300),var(--teal-600));box-shadow:0 0 0 1px rgba(255,255,255,.18),0 0 18px 2px rgba(16,184,184,.55);transition:transform .42s cubic-bezier(.34,1.56,.64,1)}
-#fl-sun{position:absolute;right:8px;top:8px;width:15px;height:15px;opacity:.5;color:var(--tx-2);transition:opacity .3s}
+#fl-knob,#fl-knob-m{position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:999px;background:linear-gradient(150deg,var(--teal-300),var(--teal-600));box-shadow:0 0 0 1px rgba(255,255,255,.18),0 0 18px 2px rgba(16,184,184,.55);transition:transform .42s cubic-bezier(.34,1.56,.64,1)}
+#fl-sun,#fl-sun-m{position:absolute;right:8px;top:8px;width:15px;height:15px;opacity:.5;color:var(--tx-2);transition:opacity .3s}
 
 /* Marquee mask */
 .fl-mask{mask-image:linear-gradient(to right,transparent,#000 10%,#000 90%,transparent);-webkit-mask-image:linear-gradient(to right,transparent,#000 10%,#000 90%,transparent)}
@@ -328,7 +328,25 @@ button{font-family:inherit}
   .r-stage{grid-template-columns:1fr !important}
   .r-pad{padding-left:20px !important;padding-right:20px !important}
   .r-hide{display:none !important}
+  #fl-hamburger{display:inline-flex}
 }
+#fl-hamburger{display:none;align-items:center;justify-content:center;width:40px;height:40px;border-radius:999px;border:1px solid var(--glass-bd);background:var(--glass);color:var(--tx);cursor:pointer;flex:0 0 auto;padding:0}
+#fl-mobile-menu{
+  position:fixed;left:50%;transform:translateX(-50%) translateY(-10px);top:calc(78px + env(safe-area-inset-top,0px));
+  z-index:79;width:min(420px,calc(100% - 28px));max-height:0;overflow:hidden;
+  border-radius:24px;background:var(--nav-bg);border:1px solid var(--glass-bd);
+  backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);
+  box-shadow:0 20px 60px rgba(4,18,27,.34);
+  opacity:0;pointer-events:none;
+  transition:max-height .38s var(--ease-standard),opacity .28s ease,transform .32s var(--ease-standard);
+}
+#fl-mobile-menu.open{max-height:80vh;opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+#fl-mobile-menu nav{display:flex;flex-direction:column;padding:10px}
+#fl-mobile-menu a.r-mm-link{display:flex;align-items:center;padding:14px 16px;border-radius:14px;color:var(--tx);font:var(--fw-medium) 16px/1 var(--font-body);text-decoration:none;transition:background .2s}
+#fl-mobile-menu a.r-mm-link:hover{background:var(--glass)}
+#fl-mobile-menu .r-mm-hair{margin:6px 12px;border-top:1px solid var(--hair)}
+#fl-mobile-menu .r-mm-appearance{display:flex;align-items:center;justify-content:space-between;padding:14px 16px}
+#fl-mobile-menu .r-mm-appearance span{font:var(--fw-medium) 16px/1 var(--font-body);color:var(--tx)}
 @media (max-width:640px){
   .r-5col,.r-4col{grid-template-columns:1fr !important}
   .r-stack{flex-direction:column !important;align-items:stretch !important}
@@ -342,6 +360,7 @@ button{font-family:inherit}
   }
   .fl-logo{font-size:17px}
   #fl-theme-toggle{display:none}
+  #fl-hamburger{width:36px;height:36px}
   .r-cta-full{display:none}
   .r-cta-short{display:inline}
   #fl-nav .fl-btn-s{height:40px;padding:0 16px;min-height:40px}
@@ -382,12 +401,35 @@ a,button{-webkit-tap-highlight-color:transparent}
     <a href="#" class="js-login-trigger">Log in</a>
   </div>
   <div style="flex:1"></div>
+  <button type="button" id="fl-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="fl-mobile-menu">
+    <span class="fl-icon" data-icon="menu" data-size="20"></span>
+  </button>
   <button type="button" id="fl-theme-toggle" aria-label="Switch colour theme">
     <span id="fl-knob"></span>
     <span id="fl-sun" class="fl-icon" data-icon="sun" data-size="15"></span>
   </button>
   <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent fl-btn-s js-auth-trigger"><span class="fl-icon" data-icon="mic" data-size="15"></span><span class="r-cta-full">Start speaking free</span><span class="r-cta-short">Start free</span></a>
 </nav>
+
+<div id="fl-mobile-menu" role="dialog" aria-label="Menu" aria-hidden="true">
+  <nav>
+    <a href="#problem" class="r-mm-link">The freeze</a>
+    <a href="#how" class="r-mm-link">How it works</a>
+    <a href="#product" class="r-mm-link">Product</a>
+    <a href="#pricing" class="r-mm-link">Pricing</a>
+    <a href="#faq" class="r-mm-link">FAQ</a>
+    <div class="r-mm-hair"></div>
+    <a href="#" class="r-mm-link js-login-trigger">Log in</a>
+    <div class="r-mm-hair"></div>
+    <div class="r-mm-appearance">
+      <span>Dark mode</span>
+      <button type="button" id="fl-theme-toggle-m" aria-label="Switch colour theme">
+        <span id="fl-knob-m"></span>
+        <span id="fl-sun-m" class="fl-icon" data-icon="sun" data-size="15"></span>
+      </button>
+    </div>
+  </nav>
+</div>
 
 <!-- ===================== HERO ===================== -->
 <section style="position:relative;background:var(--hero-bg);padding:170px 34px 0;overflow:hidden;transition:background .45s var(--ease-standard)">
