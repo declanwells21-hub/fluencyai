@@ -175,11 +175,26 @@ body[data-fl-theme="light"]{
   --nav-bg:rgba(255,255,255,.78); --brand-ink:var(--indigo-700);
   --hero-bg:radial-gradient(120% 95% at 50% -10%, #DFF6F5 0%, #F1F9FA 45%, #F6FAFB 80%);
   background:#F6FAFB;
+  /* Bright teal-300/400 read fine on dark surfaces but wash out to near-invisible on
+     light ones. Deepen them here so every eyebrow label, badge, caption and icon that
+     references these tokens stays legible — and reads as a deliberate deep teal rather
+     than a washed-out mint. */
+  --teal-300:#0F6265; --teal-400:#0E7B7E; --teal-500:#0E7B7E;
 }
 a{color:var(--teal-400);text-decoration:none}
 a:hover{color:var(--teal-300)}
 body[data-fl-theme="light"] a{color:var(--teal-600)}
 body[data-fl-theme="light"] a:hover{color:var(--teal-700)}
+/* .fl-btn links (both CTA buttons) carry their own text color and must never inherit
+   the theme's link-color rule above — that specificity clash was why "Start speaking
+   free" rendered in low-contrast teal-on-purple in light mode instead of white. */
+a.fl-btn-accent,body[data-fl-theme="light"] a.fl-btn-accent{color:#fff}
+a.fl-btn-accent:hover,body[data-fl-theme="light"] a.fl-btn-accent:hover{color:#fff}
+a.fl-btn-inverse,body[data-fl-theme="light"] a.fl-btn-inverse{color:var(--tx)}
+body[data-fl-theme="light"] .fl-btn-accent{
+  background:var(--indigo-600);
+  box-shadow:inset 0 -3px 0 var(--indigo-800), var(--shadow-s);
+}
 button{font-family:inherit}
 
 @keyframes fl-drift{0%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-14px,0)}100%{transform:translate3d(0,0,0)}}
@@ -420,7 +435,7 @@ a,button{-webkit-tap-highlight-color:transparent}
       </div>
 
       <div id="fl-card-b" class="r-abs fl-anim" style="animation:fl-drift 17s var(--ease-breathe) 1.4s infinite;transition:translate .8s cubic-bezier(.16,1,.3,1);position:absolute;right:-34px;top:60px;width:268px;padding:16px 18px;border-radius:22px;background:rgba(91,85,184,.16);border:1px solid rgba(154,150,224,.34);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 22px 60px rgba(4,18,27,.42);z-index:4">
-        <span style="font:var(--fw-bold) 10px/1 var(--font-body);letter-spacing:.13em;text-transform:uppercase;color:var(--indigo-300)">Grammar · fixed quietly</span>
+        <span style="font:var(--fw-bold) 10px/1 var(--font-body);letter-spacing:.13em;text-transform:uppercase;color:var(--brand-ink)">Grammar · fixed quietly</span>
         <p style="margin:10px 0 0;font:var(--fw-medium) 14px/1.4 var(--font-body);color:rgba(255,255,255,.5);text-decoration:line-through">Ich will ein Kaffee.</p>
         <p style="margin:5px 0 0;font:var(--fw-bold) 15px/1.4 var(--font-display);color:#fff">Ich möchte einen Kaffee.</p>
         <p style="margin:8px 0 0;font:var(--type-body-s);color:var(--ink-400,#8CACBB)">"Kaffee" is masculine, so "ein" becomes "einen".</p>
@@ -565,7 +580,7 @@ a,button{-webkit-tap-highlight-color:transparent}
           </div>
         </div>
         <div class="r-hide" style="position:absolute;right:0;top:66px;width:min(330px,92%);z-index:3;padding:18px 20px;border-radius:22px;background:rgba(91,85,184,.16);border:1px solid rgba(154,150,224,.34);backdrop-filter:blur(18px);box-shadow:0 22px 60px rgba(4,18,27,.42)">
-          <span style="font:var(--fw-bold) 10px/1 var(--font-body);letter-spacing:.13em;text-transform:uppercase;color:var(--indigo-300)">Grammar · fixed quietly</span>
+          <span style="font:var(--fw-bold) 10px/1 var(--font-body);letter-spacing:.13em;text-transform:uppercase;color:var(--brand-ink)">Grammar · fixed quietly</span>
           <p style="margin:10px 0 0;font:var(--fw-medium) 14px/1.4 var(--font-body);color:rgba(255,255,255,.5);text-decoration:line-through">Ich will ein Kaffee.</p>
           <p style="margin:5px 0 0;font:var(--fw-bold) 15px/1.4 var(--font-display);color:#fff">Ich möchte einen Kaffee.</p>
           <p style="margin:8px 0 0;font:var(--type-body-s);color:var(--ink-400,#8CACBB)">"Kaffee" is masculine, so "ein" becomes "einen" as the object of möchte.</p>
@@ -689,10 +704,10 @@ a,button{-webkit-tap-highlight-color:transparent}
         <span style="font:var(--type-body-m);color:var(--tx-2)">Pick either plan free — you're only charged once the 3-day trial ends, and you can switch or cancel from inside the app any time.</span>
       </div>
       <div style="display:grid;gap:11px">
-        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--indigo-300)"></span>Unlimited spoken conversation</span>
-        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--indigo-300)"></span>All forty languages, switch any time</span>
-        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--indigo-300)"></span>Corrections, pronunciation breakdowns, mistake memory</span>
-        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--indigo-300)"></span>Delete any recording, any time</span>
+        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>Unlimited spoken conversation</span>
+        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>All forty languages, switch any time</span>
+        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>Corrections, pronunciation breakdowns, mistake memory</span>
+        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>Delete any recording, any time</span>
       </div>
       <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent js-auth-trigger" style="width:100%;height:52px"><span class="fl-icon" data-icon="user-plus" data-size="18"></span>Create your account</a>
       <span style="font:var(--type-caption);color:var(--tx-3);text-align:center">Create your account, pick weekly or yearly, start your 3-day free trial. A card is required to start the trial — you won't be charged until it ends.</span>
