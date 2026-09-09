@@ -1,0 +1,19 @@
+{
+  "name": "Fluency AI",
+  "short_name": "Fluency AI",
+  "description": "Have real spoken conversations in 40 languages and stop freezing when it matters.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#04121B",
+  "theme_color": "#04121B",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/assets/logo-appicon.png",
+      "sizes": "925x901",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
