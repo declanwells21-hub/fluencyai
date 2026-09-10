@@ -6,7 +6,7 @@ import '../../../shared/widgets/app_logo.dart';
 import '../../../shared/widgets/playful_background.dart';
 import '../../../shared/widgets/colorful_icon.dart';
 import '../../../core/theme/app_theme.dart';
-import '../data/supabase_auth_repository.dart';
+import '../data/rest_auth_repository.dart';
 
 /// Step 1 of "forgot password": the user types their email and we ask
 /// Supabase to email a reset code (sent via Brevo). We then push straight
