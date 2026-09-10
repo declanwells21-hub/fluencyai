@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../../shared/widgets/gradient_button.dart';
 import '../../../shared/widgets/app_logo.dart';
-import '../data/supabase_auth_repository.dart';
+import '../data/rest_auth_repository.dart';
 import '../data/auth_repository.dart';
 import '../../../shared/widgets/playful_background.dart';
 import '../../../shared/widgets/colorful_icon.dart';
