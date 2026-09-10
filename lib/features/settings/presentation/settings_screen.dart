@@ -10,7 +10,7 @@ import '../../../shared/widgets/playful_background.dart';
 import '../../../shared/widgets/colorful_icon.dart';
 import '../../../shared/data/languages.dart';
 import '../../../shared/data/onboarding_options.dart';
-import '../../auth/data/supabase_auth_repository.dart';
+import '../../auth/data/rest_auth_repository.dart';
 import '../../onboarding/data/onboarding_provider.dart';
 import '../../onboarding/data/profile_repository.dart';
 
