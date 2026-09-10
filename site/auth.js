@@ -10,6 +10,8 @@
 // button stuck on "One moment..." forever with no feedback. finally{}
 // guarantees the loading state always clears, no matter what happens.
 
+console.log('[FL_DEBUG] auth.js loaded, version debug-1');
+
 (function () {
   const SUPABASE_URL = window.__SUPABASE_URL || '';
   const SUPABASE_ANON_KEY = window.__SUPABASE_ANON_KEY || '';
@@ -338,14 +340,17 @@
   });
 
   resetForm.addEventListener('submit', async (e) => {
+    console.log('[FL_DEBUG] resetForm submit fired');
     e.preventDefault();
-    if (!supabase) return;
+    if (!supabase) { console.log('[FL_DEBUG] aborting: supabase client is null'); return; }
     clearError('auth-reset-error');
     const token = document.getElementById('auth-reset-code').value.trim();
     const newPassword = document.getElementById('auth-new-password').value;
     const email = getPendingResetEmail();
+    console.log('[FL_DEBUG] email:', JSON.stringify(email), 'token:', JSON.stringify(token), 'token length:', token.length, 'password length:', newPassword.length);
 
     if (!email) {
+      console.log('[FL_DEBUG] aborting: no pending email in sessionStorage');
       showError('auth-reset-error', 'We lost track of which email this code was for — please request a new reset code.');
       return;
     }
@@ -355,11 +360,13 @@
       // Step 1: verify the recovery code - logs the browser into a
       // temporary session for this user, same as the app's
       // verifyOTP(type: OtpType.recovery).
+      console.log('[FL_DEBUG] calling verifyOTP now...');
       const { error: verifyError } = await supabase.auth.verifyOTP({
         email,
         token,
         type: 'recovery',
       });
+      console.log('[FL_DEBUG] verifyOTP returned. error:', verifyError ? JSON.stringify({ message: verifyError.message, status: verifyError.status, name: verifyError.name }) : null);
       if (verifyError) {
         showError('auth-reset-error', humanizeError(verifyError));
         return;
