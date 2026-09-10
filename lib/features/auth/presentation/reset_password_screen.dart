@@ -6,7 +6,7 @@ import '../../../shared/widgets/app_logo.dart';
 import '../../../shared/widgets/playful_background.dart';
 import '../../../shared/widgets/colorful_icon.dart';
 import '../../../core/theme/app_theme.dart';
-import '../data/supabase_auth_repository.dart';
+import '../data/rest_auth_repository.dart';
 
 /// Step 2 of "forgot password". The user types the code that was emailed
 /// to them plus a new password, all in one screen - no link to click, no
