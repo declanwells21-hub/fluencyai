@@ -84,6 +84,50 @@ module.exports = async (req, res) => {
     if (error) console.error('stripe-webhook: failed to update profile:', error.message);
   }
 
+  // Fluency Creator Program: if this user originally signed up through a
+  // creator's ?ref=CODE link (profiles.referred_by_code, set by
+  // api/track-activity.js), log this checkout as a commission-earning
+  // conversion so it shows up on the admin dashboard's Creators tab.
+  // Silently does nothing for the vast majority of checkouts, which have
+  // no referrer at all - that's expected, not an error.
+  async function recordReferralConversion(supabase, userId, session, stripeEventId) {
+    if (!userId) return;
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('referred_by_code')
+      .eq('id', userId)
+      .maybeSingle();
+    const code = profile && profile.referred_by_code;
+    if (!code) return;
+
+    const { data: creator } = await supabase
+      .from('creators')
+      .select('id, commission_rate, status')
+      .eq('code', code)
+      .maybeSingle();
+    if (!creator || creator.status !== 'active') return;
+
+    const grossCents = typeof session.amount_total === 'number' ? session.amount_total : 0;
+    const commissionCents = Math.round(grossCents * Number(creator.commission_rate || 0));
+
+    const { error } = await supabase.from('referral_events').insert({
+      creator_id: creator.id,
+      code,
+      event_type: 'conversion',
+      user_id: userId,
+      amount_cents: commissionCents,
+      stripe_event_id: stripeEventId,
+      meta: { gross_amount_cents: grossCents, currency: session.currency || 'usd' },
+    });
+    // A duplicate stripe_event_id (Stripe redelivering the same webhook)
+    // hits the unique index from the migration and lands here as an
+    // error - that's the dedupe working as intended, not a real failure.
+    if (error && !String(error.message || '').includes('duplicate key')) {
+      console.error('stripe-webhook: referral conversion insert failed:', error.message);
+    }
+  }
+
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
@@ -94,6 +138,7 @@ module.exports = async (req, res) => {
         // here as a safe immediate default so the paywall clears right
         // after checkout even if that event lags slightly behind this one.
         await setStatus(userId, 'trialing');
+        await recordReferralConversion(supabase, userId, session, event.id);
         break;
       }
       case 'customer.subscription.created':
