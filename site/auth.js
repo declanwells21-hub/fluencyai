@@ -1,62 +1,93 @@
 // ============ FLUENCY AI — INLINE AUTH (site/auth.js) ============
-// Sign up, log in, and password recovery, all using the same Supabase
-// project + OTP-code flow as the Flutter app. Config comes from config.js,
-// regenerated at build time from Vercel's SUPABASE_URL / SUPABASE_ANON_KEY
-// - never hardcode real values in this file.
+// REWRITTEN FROM SCRATCH to talk to Supabase's Auth REST API directly with
+// plain fetch() calls, instead of going through the @supabase/supabase-js
+// library.
 //
-// Every async handler below is wrapped in try/catch/finally. Earlier
-// versions weren't, which meant an unexpected error (a network hiccup, a
-// Supabase call throwing instead of returning {error}) could leave a
-// button stuck on "One moment..." forever with no feedback. finally{}
-// guarantees the loading state always clears, no matter what happens.
+// Why: the supabase-js client keeps a lot of internal state under the hood
+// (a cross-tab lock via the Web Locks API, automatic token refresh timers,
+// session change listeners, etc.) to make advanced multi-tab session
+// syncing "just work." That internal machinery has a confirmed upstream
+// bug (Supabase tracks a lock-acquisition deadlock that can hang forever
+// in some browsers) which is what was causing signup/reset codes to fail
+// with "incorrect or expired" even when correct — the verify call never
+// even reached the network.
+//
+// This app doesn't need any of that multi-tab session syncing — it just
+// needs: sign up, verify a code, log in, reset a password. Each of those
+// is one explicit HTTP request with a clear success/failure. No SDK, no
+// hidden locks, no hidden retry/refresh logic, nothing that can silently
+// hang. Every request below is a plain fetch() you can watch in the
+// Network tab, every time.
 
 (function () {
-  const SUPABASE_URL = window.__SUPABASE_URL || '';
+  const SUPABASE_URL = (window.__SUPABASE_URL || '').replace(/\/$/, '');
   const SUPABASE_ANON_KEY = window.__SUPABASE_ANON_KEY || '';
+  const configured = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
 
-  // Custom auth lock: by default, supabase-js serializes auth calls (login,
-  // signup, verifyOTP, refresh, etc.) using the browser's Web Locks API,
-  // and that lock is shared across every tab open on this site - on
-  // purpose, so two tabs don't race to refresh the same session's token.
-  //
-  // The problem: if any one tab ever gets stuck mid-auth-call (a hung
-  // network request, a crashed tab, a background tab throttled by the
-  // browser before it could release the lock), it holds that lock forever
-  // - and every other tab, for every other visitor, silently hangs on
-  // their next login/signup/verify call with no error and no network
-  // request ever firing. That's what was happening here: a correct code
-  // would just hang indefinitely because some other, unrelated tab never
-  // released this shared lock.
-  //
-  // This replaces it with a lock that behaves the same in the normal case
-  // but automatically gives up and proceeds after 5 seconds instead of
-  // hanging forever, so one broken tab can never freeze auth for everyone
-  // else. A very rare double-refresh race is a far smaller risk than every
-  // user being unable to log in.
-  async function timeBoundedLock(lockName, acquireTimeout, fn) {
-    if (!('locks' in navigator)) return fn();
+  // ---------- Low-level REST helper ----------
+  async function authRequest(path, { method = 'POST', body, accessToken, query } = {}) {
+    const headers = {
+      apikey: SUPABASE_ANON_KEY,
+      'Content-Type': 'application/json',
+    };
+    if (accessToken) headers.Authorization = 'Bearer ' + accessToken;
+
+    let url = SUPABASE_URL + path;
+    if (query) url += '?' + new URLSearchParams(query).toString();
+
+    let res;
     try {
-      return await navigator.locks.request(
-        lockName,
-        { signal: AbortSignal.timeout(5000) },
-        () => fn()
-      );
-    } catch (err) {
-      if (err && (err.name === 'AbortError' || err.name === 'TimeoutError')) {
-        console.warn('[Fluency] Auth lock timed out after 5s (likely a stuck tab elsewhere) - proceeding without it.');
-        return fn();
-      }
+      res = await fetch(url, {
+        method,
+        headers,
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+      });
+    } catch (networkErr) {
+      // fetch() itself only throws for genuine network failures (offline,
+      // DNS, CORS) - never for a normal 4xx/5xx response from the server.
+      throw new Error('Could not reach the server. Check your connection and try again.');
+    }
+
+    let data = null;
+    try {
+      data = await res.json();
+    } catch (_) {
+      // Some endpoints (e.g. logout) return an empty body on success.
+    }
+
+    if (!res.ok) {
+      const message =
+        (data && (data.msg || data.error_description || data.message || data.error)) ||
+        `Request failed (${res.status})`;
+      const err = new Error(message);
+      err.status = res.status;
       throw err;
     }
+    return data;
   }
 
-  let supabase = null;
-  if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { lock: timeBoundedLock },
-    });
+  // ---------- Minimal local session storage ----------
+  // Stored under the same key format supabase-js/supabase_flutter use by
+  // default (sb-<project-ref>-auth-token), so the Flutter web app at /app
+  // can pick up an existing session from the site without the user having
+  // to log in twice.
+  function projectRef() {
+    const m = SUPABASE_URL.match(/https?:\/\/([^.]+)\.supabase\.co/);
+    return m ? m[1] : 'fluencyai';
+  }
+  const SESSION_KEY = 'sb-' + projectRef() + '-auth-token';
+
+  function saveSession(session) {
+    if (!session) return;
+    const expiresAt = session.expires_at || Math.floor(Date.now() / 1000) + (session.expires_in || 3600);
+    const toStore = { ...session, expires_at: expiresAt };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(toStore));
+  }
+  function clearSession() {
+    localStorage.removeItem(SESSION_KEY);
   }
 
+  // ---------- DOM wiring (unchanged from before) ----------
   const overlay = document.getElementById('auth-modal-overlay');
   const closeBtn = document.getElementById('auth-close-btn');
 
@@ -81,42 +112,23 @@
   const resetSubmit = document.getElementById('auth-reset-submit');
   const resendResetBtn = document.getElementById('auth-resend-reset-btn');
 
-  // Pending emails are stored in sessionStorage, not just a JS variable -
-  // this is the actual fix for "That code is incorrect or has expired"
-  // showing up even with a fresh, correctly-typed code. A plain variable
-  // resets to empty on any page reload; if that happened between
-  // requesting a code and entering it, verifyOTP would silently be called
-  // with an empty email attached to a real code, and Supabase returns the
-  // exact same generic error for that as it does for a genuinely wrong
-  // code. sessionStorage survives a reload within the same tab and clears
-  // itself when the tab closes.
+  // Pending emails live in sessionStorage (not just a JS variable) so a
+  // reload between "code sent" and "code entered" doesn't silently lose
+  // track of which email a code belongs to.
   const PENDING_SIGNUP_KEY = 'fl_pending_signup_email';
   const PENDING_RESET_KEY = 'fl_pending_reset_email';
 
-  function getPendingEmail() {
-    return sessionStorage.getItem(PENDING_SIGNUP_KEY) || '';
-  }
-  function setPendingEmail(email) {
-    sessionStorage.setItem(PENDING_SIGNUP_KEY, email);
-  }
-  function clearPendingEmail() {
-    sessionStorage.removeItem(PENDING_SIGNUP_KEY);
-  }
-  function getPendingResetEmail() {
-    return sessionStorage.getItem(PENDING_RESET_KEY) || '';
-  }
-  function setPendingResetEmail(email) {
-    sessionStorage.setItem(PENDING_RESET_KEY, email);
-  }
-  function clearPendingResetEmail() {
-    sessionStorage.removeItem(PENDING_RESET_KEY);
-  }
+  function getPendingEmail() { return sessionStorage.getItem(PENDING_SIGNUP_KEY) || ''; }
+  function setPendingEmail(email) { sessionStorage.setItem(PENDING_SIGNUP_KEY, email); }
+  function clearPendingEmail() { sessionStorage.removeItem(PENDING_SIGNUP_KEY); }
+  function getPendingResetEmail() { return sessionStorage.getItem(PENDING_RESET_KEY) || ''; }
+  function setPendingResetEmail(email) { sessionStorage.setItem(PENDING_RESET_KEY, email); }
+  function clearPendingResetEmail() { sessionStorage.removeItem(PENDING_RESET_KEY); }
 
   function showStep(name) {
     document.querySelectorAll('.auth-step').forEach((el) => el.classList.remove('active'));
     document.getElementById('auth-step-' + name).classList.add('active');
   }
-
   function showError(id, message, isSuccess) {
     const el = document.getElementById(id);
     el.textContent = message;
@@ -140,13 +152,13 @@
 
   function humanizeError(error) {
     const msg = (error && error.message) || 'Something went wrong. Please check your connection and try again.';
-    if (/already registered|already exists/i.test(msg)) {
+    if (/already registered|already exists|user_already_exists/i.test(msg)) {
       return "That email already has an account — try logging in instead.";
     }
     if (/password/i.test(msg) && /least|short|weak/i.test(msg)) {
       return 'Please use a password with at least 6 characters.';
     }
-    if (/invalid login credentials/i.test(msg)) {
+    if (/invalid login credentials|invalid_credentials/i.test(msg)) {
       return 'Incorrect email or password.';
     }
     if (/invalid.*(email|format)/i.test(msg)) {
@@ -159,7 +171,7 @@
   }
 
   function openModal(step) {
-    if (!supabase) {
+    if (!configured) {
       window.location.href = '/app/auth?mode=signup';
       return;
     }
@@ -169,7 +181,6 @@
     overlay.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
   }
-
   function closeModal() {
     overlay.classList.remove('open');
     overlay.setAttribute('aria-hidden', 'true');
@@ -177,23 +188,14 @@
   }
 
   document.querySelectorAll('.js-auth-trigger').forEach((el) => {
-    el.addEventListener('click', (e) => {
-      e.preventDefault();
-      openModal('signup');
-    });
+    el.addEventListener('click', (e) => { e.preventDefault(); openModal('signup'); });
   });
   document.querySelectorAll('.js-login-trigger').forEach((el) => {
-    el.addEventListener('click', (e) => {
-      e.preventDefault();
-      openModal('login');
-    });
+    el.addEventListener('click', (e) => { e.preventDefault(); openModal('login'); });
   });
 
-  // If the page reloaded while a code was pending (switched tabs, browser
-  // restored the page, etc.), reopen straight to the right step instead of
-  // silently losing track and producing a confusing "incorrect or expired
-  // code" error later for what looks like a perfectly valid code.
-  if (supabase) {
+  // Resume mid-flow if a code was already sent and the page reloaded.
+  if (configured) {
     const pendingSignup = getPendingEmail();
     const pendingReset = getPendingResetEmail();
     if (pendingSignup) {
@@ -206,9 +208,7 @@
   }
 
   closeBtn.addEventListener('click', closeModal);
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) closeModal();
-  });
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
   });
@@ -217,18 +217,14 @@
 
   signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!supabase) { window.location.href = '/app/auth?mode=signup'; return; }
+    if (!configured) { window.location.href = '/app/auth?mode=signup'; return; }
     clearError('auth-signup-error');
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value;
 
     setLoading(signupSubmit, true);
     try {
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) {
-        showError('auth-signup-error', humanizeError(error));
-        return;
-      }
+      await authRequest('/auth/v1/signup', { body: { email, password } });
       setPendingEmail(email);
       document.getElementById('auth-verify-email').textContent = email;
       showStep('verify');
@@ -241,7 +237,7 @@
 
   verifyForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!supabase) { window.location.href = '/app/auth?mode=signup'; return; }
+    if (!configured) { window.location.href = '/app/auth?mode=signup'; return; }
     clearError('auth-verify-error');
     const token = document.getElementById('auth-code').value.trim();
     const email = getPendingEmail();
@@ -253,11 +249,7 @@
 
     setLoading(verifySubmit, true);
     try {
-      const { error } = await supabase.auth.verifyOTP({ email, token, type: 'signup' });
-      if (error) {
-        showError('auth-verify-error', humanizeError(error));
-        return;
-      }
+      await authRequest('/auth/v1/verify', { body: { email, token, type: 'signup' } });
       clearPendingEmail();
       showStep('success');
       setTimeout(() => { window.location.href = '/app/auth?mode=login'; }, 1800);
@@ -269,17 +261,13 @@
   });
 
   resendBtn.addEventListener('click', async () => {
-    if (!supabase) return;
+    if (!configured) return;
     clearError('auth-verify-error');
     resendBtn.disabled = true;
     resendBtn.textContent = 'Sending\u2026';
     try {
-      const { error } = await supabase.auth.resend({ type: 'signup', email: getPendingEmail() });
-      if (error) {
-        showError('auth-verify-error', humanizeError(error));
-      } else {
-        showError('auth-verify-error', 'Code resent — check your inbox.', true);
-      }
+      await authRequest('/auth/v1/resend', { body: { type: 'signup', email: getPendingEmail() } });
+      showError('auth-verify-error', 'Code resent — check your inbox.', true);
     } catch (err) {
       showError('auth-verify-error', humanizeError(err));
     } finally {
@@ -295,28 +283,30 @@
 
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!supabase) { window.location.href = '/app/auth?mode=login'; return; }
+    if (!configured) { window.location.href = '/app/auth?mode=login'; return; }
     clearError('auth-login-error');
     const email = document.getElementById('auth-login-email').value.trim();
     const password = document.getElementById('auth-login-password').value;
 
     setLoading(loginSubmit, true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        showError('auth-login-error', humanizeError(error));
-        return;
-      }
+      const session = await authRequest('/auth/v1/token', {
+        query: { grant_type: 'password' },
+        body: { email, password },
+      });
+      saveSession(session);
 
-      // Check role directly - RLS already allows a user to read their own
-      // profiles row, no elevated privilege or extra endpoint needed here.
-      const { data: profile, error: profileErr } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .maybeSingle();
-
-      if (profileErr) {
+      // Check role directly via PostgREST - RLS already allows a user to
+      // read their own profiles row, no elevated privilege needed.
+      let profile = null;
+      try {
+        const rows = await authRequest('/rest/v1/profiles', {
+          method: 'GET',
+          accessToken: session.access_token,
+          query: { id: 'eq.' + session.user.id, select: 'role' },
+        });
+        profile = Array.isArray(rows) ? rows[0] : null;
+      } catch (profileErr) {
         // Logged in fine, just couldn't confirm role - fail safe by
         // treating as a normal (non-admin) user rather than blocking login.
         console.error('Could not check role:', profileErr.message);
@@ -334,12 +324,8 @@
     }
   });
 
-  goToAdminBtn.addEventListener('click', () => {
-    window.location.href = '/admin';
-  });
-  continueToAppBtn.addEventListener('click', () => {
-    window.location.href = '/app';
-  });
+  goToAdminBtn.addEventListener('click', () => { window.location.href = '/admin'; });
+  continueToAppBtn.addEventListener('click', () => { window.location.href = '/app'; });
 
   // ---------- Forgot password / recovery flow ----------
 
@@ -354,17 +340,13 @@
 
   forgotForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!supabase) return;
+    if (!configured) return;
     clearError('auth-forgot-error');
     const email = document.getElementById('auth-forgot-email').value.trim();
 
     setLoading(forgotSubmit, true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
-      if (error) {
-        showError('auth-forgot-error', humanizeError(error));
-        return;
-      }
+      await authRequest('/auth/v1/recover', { body: { email } });
       setPendingResetEmail(email);
       document.getElementById('auth-reset-email').textContent = email;
       showStep('reset');
@@ -377,7 +359,7 @@
 
   resetForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!supabase) return;
+    if (!configured) return;
     clearError('auth-reset-error');
     const token = document.getElementById('auth-reset-code').value.trim();
     const newPassword = document.getElementById('auth-new-password').value;
@@ -390,29 +372,27 @@
 
     setLoading(resetSubmit, true);
     try {
-      // Step 1: verify the recovery code - logs the browser into a
-      // temporary session for this user, same as the app's
+      // Step 1: verify the recovery code - this returns a real session for
+      // this user (access_token + refresh_token), same as the app's
       // verifyOTP(type: OtpType.recovery).
-      const { error: verifyError } = await supabase.auth.verifyOTP({
-        email,
-        token,
-        type: 'recovery',
+      const session = await authRequest('/auth/v1/verify', {
+        body: { email, token, type: 'recovery' },
       });
-      if (verifyError) {
-        showError('auth-reset-error', humanizeError(verifyError));
-        return;
-      }
 
-      // Step 2: now that we have a session, set the new password.
-      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
-      if (updateError) {
-        showError('auth-reset-error', humanizeError(updateError));
-        return;
-      }
+      // Step 2: use that session's access token to set the new password.
+      await authRequest('/auth/v1/user', {
+        method: 'PUT',
+        accessToken: session.access_token,
+        body: { password: newPassword },
+      });
 
-      // Sign out of this temporary browser session - actual login still
-      // happens explicitly, same as after signup.
-      await supabase.auth.signOut().catch(() => {});
+      // Sign out of this temporary session - actual login still happens
+      // explicitly afterwards, same as after signup.
+      await authRequest('/auth/v1/logout', {
+        accessToken: session.access_token,
+        query: { scope: 'local' },
+      }).catch(() => {});
+      clearSession();
       clearPendingResetEmail();
 
       showStep('reset-success');
@@ -425,17 +405,13 @@
   });
 
   resendResetBtn.addEventListener('click', async () => {
-    if (!supabase) return;
+    if (!configured) return;
     clearError('auth-reset-error');
     resendResetBtn.disabled = true;
     resendResetBtn.textContent = 'Sending\u2026';
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(getPendingResetEmail());
-      if (error) {
-        showError('auth-reset-error', humanizeError(error));
-      } else {
-        showError('auth-reset-error', 'Code resent — check your inbox.', true);
-      }
+      await authRequest('/auth/v1/recover', { body: { email: getPendingResetEmail() } });
+      showError('auth-reset-error', 'Code resent — check your inbox.', true);
     } catch (err) {
       showError('auth-reset-error', humanizeError(err));
     } finally {
