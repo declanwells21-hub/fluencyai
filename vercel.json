@@ -4,6 +4,7 @@
   "installCommand": "echo 'skip - flutter deps installed in build.sh'",
   "cleanUrls": true,
   "rewrites": [
+    { "source": "/app", "destination": "/app/index.html" },
     { "source": "/app/:path*", "destination": "/app/index.html" },
     { "source": "/api/admin/:path*", "destination": "/api/admin/router?path=:path*" }
   ]
