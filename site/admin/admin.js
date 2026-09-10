@@ -90,6 +90,8 @@
       dashboard.classList.remove('hidden');
       await loadStats();
       await loadUsers();
+      await loadCreators();
+      await loadApplications();
       content.classList.remove('hidden');
       contentLoading.classList.add('hidden');
     } catch (err) {
@@ -365,4 +367,178 @@
       commSendBtn.textContent = 'Send email';
     }
   });
+
+  // ---------- Fluency Creator Program: creators ----------
+
+  function money(cents) {
+    return '$' + ((cents || 0) / 100).toFixed(2);
+  }
+  function pct(rate) {
+    return Math.round((rate || 0) * 100) + '%';
+  }
+
+  async function loadCreators() {
+    const { creators } = await apiFetch('/admin/creators');
+
+    const totalClicks = creators.reduce((s, c) => s + Number(c.clicks || 0), 0);
+    const totalSignups = creators.reduce((s, c) => s + Number(c.signups || 0), 0);
+    const totalOwed = creators.reduce((s, c) => s + Number(c.commission_owed_cents || 0), 0);
+    document.getElementById('creator-totals').textContent =
+      `${creators.length} creator(s) · ${totalClicks} clicks · ${totalSignups} signups · ${money(totalOwed)} owed`;
+
+    document.getElementById('creators-tbody').innerHTML = creators
+      .map((c) => {
+        const link = `https://fluencyai.app/?ref=${c.code}`;
+        const isActive = c.status === 'active';
+        return `
+        <tr>
+          <td style="color:var(--tx);font-weight:600">${escapeHtml(c.name)}</td>
+          <td><code style="color:var(--teal-400)">${escapeHtml(c.code)}</code>
+            <button class="copy-link" data-copy="${link}" title="${link}">Copy link</button>
+          </td>
+          <td>${c.niche ? escapeHtml(c.niche) : '—'}</td>
+          <td>${c.clicks}</td>
+          <td>${c.signups}</td>
+          <td>${c.conversions}</td>
+          <td>${money(c.commission_owed_cents)} <span style="color:var(--tx-3)">(${pct(c.commission_rate)})</span></td>
+          <td><span class="pill ${isActive ? 'pill-ok' : 'pill-paused'}">${c.status}</span></td>
+          <td style="white-space:nowrap">
+            <button class="row-btn" data-creator-action="${isActive ? 'pause' : 'resume'}" data-id="${c.id}">${isActive ? 'Pause' : 'Resume'}</button>
+          </td>
+        </tr>`;
+      })
+      .join('') || `<tr><td colspan="9" style="color:var(--tx-3)">No creators yet — add one above, or approve an application below.</td></tr>`;
+  }
+
+  document.getElementById('creator-add-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errEl = document.getElementById('creator-add-err');
+    errEl.textContent = '';
+    const name = document.getElementById('creator-name').value.trim();
+    const code = document.getElementById('creator-code').value.trim();
+    const niche = document.getElementById('creator-niche').value.trim();
+    const contactEmail = document.getElementById('creator-email').value.trim();
+    const ratePct = parseFloat(document.getElementById('creator-rate').value);
+
+    if (!name) {
+      errEl.textContent = 'Creator name is required.';
+      return;
+    }
+
+    try {
+      await apiFetch('/admin/creator-create', {
+        method: 'POST',
+        body: JSON.stringify({
+          name,
+          code: code || undefined,
+          niche: niche || undefined,
+          contactEmail: contactEmail || undefined,
+          commissionRate: Number.isFinite(ratePct) ? ratePct / 100 : 0.2,
+        }),
+      });
+      document.getElementById('creator-add-form').reset();
+      document.getElementById('creator-rate').value = '20';
+      await loadCreators();
+    } catch (err) {
+      errEl.textContent = err.message;
+    }
+  });
+
+  document.getElementById('creators-tbody').addEventListener('click', async (e) => {
+    const copyBtn = e.target.closest('button[data-copy]');
+    if (copyBtn) {
+      navigator.clipboard.writeText(copyBtn.dataset.copy).then(() => {
+        const original = copyBtn.textContent;
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => (copyBtn.textContent = original), 1200);
+      });
+      return;
+    }
+    const actionBtn = e.target.closest('button[data-creator-action]');
+    if (!actionBtn) return;
+    const { creatorAction, id } = actionBtn.dataset;
+    actionBtn.disabled = true;
+    try {
+      await apiFetch('/admin/creator-update', {
+        method: 'POST',
+        body: JSON.stringify({ creatorId: id, status: creatorAction === 'pause' ? 'paused' : 'active' }),
+      });
+      await loadCreators();
+    } catch (err) {
+      alert(err.message);
+      actionBtn.disabled = false;
+    }
+  });
+
+  // ---------- Fluency Creator Program: applications ----------
+
+  let currentAppFilter = 'pending';
+
+  async function loadApplications() {
+    const { applications } = await apiFetch('/admin/applications?status=' + currentAppFilter);
+    document.getElementById('applications-tbody').innerHTML =
+      applications
+        .map(
+          (a) => `
+        <tr>
+          <td style="color:var(--tx);font-weight:600">${escapeHtml(a.name)}</td>
+          <td>${escapeHtml(a.email)}</td>
+          <td>${escapeHtml(a.platform)}</td>
+          <td>${escapeHtml(a.handle)}</td>
+          <td>${a.niche ? escapeHtml(a.niche) : '—'}</td>
+          <td>${a.follower_count ? escapeHtml(a.follower_count) : '—'}</td>
+          <td>${fmtDate(a.created_at)}</td>
+          <td><span class="pill pill-${a.status}">${a.status}</span></td>
+          <td style="white-space:nowrap">
+            ${
+              a.status === 'pending'
+                ? `<button class="row-btn" data-app-action="approve" data-id="${a.id}">Approve</button>
+                   <button class="row-btn" data-app-action="reject" data-id="${a.id}" style="border-color:var(--coral-400);color:var(--coral-400)">Reject</button>`
+                : '—'
+            }
+          </td>
+        </tr>`
+        )
+        .join('') || `<tr><td colspan="9" style="color:var(--tx-3)">No applications here yet.</td></tr>`;
+  }
+
+  document.querySelectorAll('[data-app-filter]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-app-filter]').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentAppFilter = btn.dataset.appFilter;
+      loadApplications();
+    });
+  });
+
+  document.getElementById('applications-tbody').addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-app-action]');
+    if (!btn) return;
+    const { appAction, id } = btn.dataset;
+    if (appAction === 'reject' && !confirm('Reject this application?')) return;
+
+    btn.disabled = true;
+    try {
+      const result = await apiFetch('/admin/application-decide', {
+        method: 'POST',
+        body: JSON.stringify({ applicationId: id, decision: appAction }),
+      });
+      if (appAction === 'approve' && result.creator) {
+        alert(`Approved! Referral code: ${result.creator.code}\nLink: https://fluencyai.app/?ref=${result.creator.code}`);
+      }
+      await loadApplications();
+      await loadCreators();
+    } catch (err) {
+      alert(err.message);
+      btn.disabled = false;
+    }
+  });
+
+  function escapeHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
 })();
