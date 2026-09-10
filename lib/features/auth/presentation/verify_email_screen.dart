@@ -6,7 +6,7 @@ import '../../../shared/widgets/app_logo.dart';
 import '../../../shared/widgets/playful_background.dart';
 import '../../../shared/widgets/colorful_icon.dart';
 import '../../../core/theme/app_theme.dart';
-import '../data/supabase_auth_repository.dart';
+import '../data/rest_auth_repository.dart';
 
 /// Shown right after sign up. Supabase emailed a code (via Brevo) - the
 /// user types it here instead of clicking a link, so there's no need for a
