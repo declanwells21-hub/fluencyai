@@ -144,7 +144,14 @@ class SupabaseAuthRepository implements AuthRepository {
   /// country/device breakdowns have something to show. Never blocks or
   /// fails login if it doesn't succeed - this is purely analytics, not
   /// something the user's experience should ever depend on.
+  ///
+  /// Also carries the Fluency Creator Program referral code, if this
+  /// session started from a creator's link - see _referralCode() below.
+  /// api/track-activity.js only ever writes it once (it won't overwrite an
+  /// existing referred_by_code), so it's safe to send on every login, not
+  /// just the first one.
   void _reportActivity(String accessToken) {
+    final referredByCode = _referralCode();
     http
         .post(
           Uri.parse('${Env.proxyBaseUrl}/track-activity'),
@@ -152,9 +159,26 @@ class SupabaseAuthRepository implements AuthRepository {
             'Authorization': 'Bearer $accessToken',
             'Content-Type': 'application/json',
           },
-          body: jsonEncode({'device': _currentDevice()}),
+          body: jsonEncode({
+            'device': _currentDevice(),
+            if (referredByCode != null) 'referredByCode': referredByCode,
+          }),
         )
         .catchError((_) => http.Response('', 0));
+  }
+
+  /// Reads ?ref=CODE from the page URL on web - set when someone arrives
+  /// via a creator's referral link (fluencyai.app/?ref=CODE ->
+  /// /app/auth?mode=signup&ref=CODE, rewritten client-side by
+  /// spawnReferralCapture() in site/app.js). Native iOS/Android builds have
+  /// no comparable URL to read here, so this is web-only by design - not a
+  /// gap, just the only place this particular link path exists today.
+  String? _referralCode() {
+    if (!kIsWeb) return null;
+    final ref = Uri.base.queryParameters['ref'];
+    if (ref == null) return null;
+    final trimmed = ref.trim();
+    return trimmed.isEmpty ? null : trimmed;
   }
 
   String _currentDevice() {
