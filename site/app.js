@@ -318,4 +318,55 @@ document.addEventListener('DOMContentLoaded', () => {
   renderIcons();
   spawnWords();
   setupScrollReveal();
+  spawnReferralCapture();
 });
+
+// ============ FLUENCY CREATOR PROGRAM: REFERRAL CAPTURE ============
+//
+// Picks up ?ref=CODE from a creator's link (e.g. fluencyai.app/?ref=MARIA20),
+// remembers it for 90 days so credit survives the visitor browsing around
+// before they sign up, quietly pings api/referral.js to log the click, and
+// rewrites every signup button on the page to carry the code through to
+// /app/auth - where the Flutter app reads it and reports it back via
+// api/track-activity.js once the account exists. See
+// scripts/supabase_migration_creators.sql for the full chain.
+function spawnReferralCapture() {
+  try {
+    const CODE_RE = /^[A-Za-z0-9_-]{3,32}$/;
+    const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000;
+
+    const urlCode = new URLSearchParams(window.location.search).get('ref');
+    if (urlCode && CODE_RE.test(urlCode)) {
+      localStorage.setItem('fl_ref_code', urlCode);
+      localStorage.setItem('fl_ref_set_at', String(Date.now()));
+      fetch('/api/referral', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'click', code: urlCode }),
+      }).catch(() => {});
+    }
+
+    const storedCode = localStorage.getItem('fl_ref_code');
+    const setAt = Number(localStorage.getItem('fl_ref_set_at') || 0);
+    const stillValid = storedCode && setAt && Date.now() - setAt < NINETY_DAYS_MS;
+    if (storedCode && !stillValid) {
+      localStorage.removeItem('fl_ref_code');
+      localStorage.removeItem('fl_ref_set_at');
+    }
+    const activeCode = stillValid ? storedCode : null;
+    if (!activeCode) return;
+
+    document.querySelectorAll('a.js-auth-trigger').forEach((a) => {
+      try {
+        const u = new URL(a.getAttribute('href'), window.location.origin);
+        u.searchParams.set('ref', activeCode);
+        a.setAttribute('href', u.pathname + u.search);
+      } catch (_) {
+        /* malformed href - leave it alone */
+      }
+    });
+  } catch (_) {
+    // localStorage can throw in some privacy modes - referral credit is a
+    // nice-to-have, never something that should break the page over.
+  }
+}
