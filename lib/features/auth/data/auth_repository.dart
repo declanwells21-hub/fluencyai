@@ -13,7 +13,7 @@ enum SignUpOutcome {
   failure,
 }
 
-/// Abstract interface. In Phase 4 this gets a SupabaseAuthRepository
+/// Abstract interface. RestAuthRepository (see rest_auth_repository.dart)
 /// implementation instead - nothing in the UI layer needs to change.
 abstract class AuthRepository {
   Future<SignUpOutcome> signUp(String email, String password);
@@ -44,13 +44,13 @@ abstract class AuthRepository {
   /// Permanently deletes the signed-in user's account. The Supabase client
   /// SDK can't delete a user by itself (that needs the service-role key),
   /// so the real implementation calls a Supabase Edge Function - see the
-  /// doc comment on SupabaseAuthRepository.deleteAccount for setup notes.
+  /// doc comment on RestAuthRepository.deleteAccount for setup notes.
   /// Returns false (never throws) if deletion isn't available.
   Future<bool> deleteAccount();
 }
 
 /// Phase 1-2 fake implementation: kept for reference. The real app now uses
-/// SupabaseAuthRepository (see supabase_auth_repository.dart).
+/// RestAuthRepository (see rest_auth_repository.dart).
 class FakeAuthRepository implements AuthRepository {
   bool _loggedIn = false;
 
