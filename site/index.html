@@ -313,6 +313,7 @@ button{font-family:inherit}
 .auth-step{display:none}
 .auth-step.active{display:block}
 .fl-btn[disabled]{opacity:.6;cursor:default;pointer-events:none}
+#fl-hamburger{display:none;align-items:center;justify-content:center;width:40px;height:40px;border-radius:999px;border:1px solid var(--glass-bd);background:var(--glass);color:var(--tx);cursor:pointer;flex:0 0 auto;padding:0}
 
 /* responsive */
 @media (max-width:1040px){
@@ -330,7 +331,6 @@ button{font-family:inherit}
   .r-hide{display:none !important}
   #fl-hamburger{display:inline-flex}
 }
-#fl-hamburger{display:none;align-items:center;justify-content:center;width:40px;height:40px;border-radius:999px;border:1px solid var(--glass-bd);background:var(--glass);color:var(--tx);cursor:pointer;flex:0 0 auto;padding:0}
 #fl-mobile-menu{
   position:fixed;left:50%;transform:translateX(-50%) translateY(-10px);top:calc(78px + env(safe-area-inset-top,0px));
   z-index:79;width:min(420px,calc(100% - 28px));max-height:0;overflow:hidden;
