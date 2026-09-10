@@ -5,6 +5,7 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
 import 'core/config/supabase_config.dart';
+import 'features/auth/data/rest_auth_repository.dart';
 import 'features/paywall/data/subscription_provider.dart';
 
 Future<void> main() async {
@@ -24,7 +25,23 @@ Future<void> main() async {
   // If not configured, the app still launches - the splash screen shows a
   // clear on-screen error instead of hanging, so this is safe either way.
 
-  runApp(const ProviderScope(child: FluencyApp()));
+  // Restore a previously saved session (from RestAuthRepository's own
+  // storage, not the Supabase SDK's) so a signed-in user stays signed in
+  // across app restarts. Built here and handed to the provider below via
+  // override, so the rest of the app shares this exact instance instead of
+  // Riverpod lazily creating a fresh, session-less one on first read.
+  final authRepository = RestAuthRepository();
+  try {
+    await authRepository.restoreSession().timeout(const Duration(seconds: 5));
+  } catch (_) {
+    // No saved session, or a network hiccup restoring it - just start
+    // logged out, same as a first-ever launch.
+  }
+
+  runApp(ProviderScope(
+    overrides: [authRepositoryProvider.overrideWithValue(authRepository)],
+    child: const FluencyApp(),
+  ));
 }
 
 class FluencyApp extends ConsumerStatefulWidget {
