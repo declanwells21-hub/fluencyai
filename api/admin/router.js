@@ -64,6 +64,21 @@ module.exports = async (req, res) => {
     if (route === 'send-email' && req.method === 'POST') {
       return handleSendEmail(auth, req, res);
     }
+    if (route === 'creators' && req.method === 'GET') {
+      return handleCreators(auth, res);
+    }
+    if (route === 'creator-create' && req.method === 'POST') {
+      return handleCreatorCreate(auth, req, res);
+    }
+    if (route === 'creator-update' && req.method === 'POST') {
+      return handleCreatorUpdate(auth, req, res);
+    }
+    if (route === 'applications' && req.method === 'GET') {
+      return handleApplications(auth, req, res);
+    }
+    if (route === 'application-decide' && req.method === 'POST') {
+      return handleApplicationDecide(auth, req, res);
+    }
 
     return res.status(404).json({ error: 'Unknown admin route: ' + route });
   } catch (err) {
@@ -312,6 +327,196 @@ async function handleSendEmail(auth, req, res) {
   const failed = results.length - sent;
 
   res.status(200).json({ ok: true, sent, failed, total: recipients.length });
+}
+
+// ---------- Fluency Creator Program ----------
+//
+// creators / creator_applications / referral_events all live behind RLS
+// with zero public policies (see scripts/supabase_migration_creators.sql)
+// - auth.supabase here is the service-role client from requireAdmin(),
+// same as every other handler in this file, so it bypasses that RLS same
+// as everything else.
+
+async function handleCreators(auth, res) {
+  const { data, error } = await auth.supabase.rpc('admin_get_creator_stats');
+  if (error) {
+    console.error('admin/creators: admin_get_creator_stats failed:', error.message);
+    return res.status(500).json({ error: error.message });
+  }
+  res.status(200).json({ creators: data });
+}
+
+// Codes are short, URL-safe, and unique - used directly in referral links
+// as https://fluencyai.app/?ref=CODE. If the caller doesn't supply one,
+// one is generated from the creator's name plus a random suffix, retrying
+// on the rare collision.
+function slugifyCode(name) {
+  const base = String(name || 'creator')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, '')
+    .slice(0, 12) || 'CREATOR';
+  return base;
+}
+
+async function generateUniqueCode(supabase, name) {
+  const base = slugifyCode(name);
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const suffix = Math.floor(100 + Math.random() * 900); // 3 digits
+    const candidate = attempt === 0 ? base : `${base}${suffix}`;
+    const { data } = await supabase.from('creators').select('id').eq('code', candidate).maybeSingle();
+    if (!data) return candidate;
+  }
+  // Astronomically unlikely to be reached, but never loop forever.
+  return `${base}${Date.now().toString().slice(-6)}`;
+}
+
+async function handleCreatorCreate(auth, req, res) {
+  const { name, code, niche, contactEmail, commissionRate, notes } = req.body || {};
+  if (!name || !String(name).trim()) {
+    return res.status(400).json({ error: 'Body must include name' });
+  }
+
+  let finalCode = code && String(code).trim().toUpperCase();
+  if (finalCode) {
+    if (!/^[A-Za-z0-9_-]{3,32}$/.test(finalCode)) {
+      return res.status(400).json({ error: 'code must be 3-32 letters, numbers, - or _' });
+    }
+    const { data: existing } = await auth.supabase.from('creators').select('id').eq('code', finalCode).maybeSingle();
+    if (existing) {
+      return res.status(400).json({ error: `Code "${finalCode}" is already in use` });
+    }
+  } else {
+    finalCode = await generateUniqueCode(auth.supabase, name);
+  }
+
+  const rate = Number.isFinite(commissionRate) ? commissionRate : 0.2;
+  if (rate < 0 || rate > 1) {
+    return res.status(400).json({ error: 'commissionRate must be between 0 and 1 (e.g. 0.2 for 20%)' });
+  }
+
+  const { data, error } = await auth.supabase
+    .from('creators')
+    .insert({
+      name: String(name).trim(),
+      code: finalCode,
+      niche: niche || null,
+      contact_email: contactEmail || null,
+      commission_rate: rate,
+      notes: notes || null,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('admin/creator-create: insert failed:', error.message);
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.status(200).json({ ok: true, creator: data });
+}
+
+async function handleCreatorUpdate(auth, req, res) {
+  const { creatorId, status, commissionRate, notes } = req.body || {};
+  if (!creatorId) {
+    return res.status(400).json({ error: 'Body must include creatorId' });
+  }
+
+  const update = {};
+  if (status !== undefined) {
+    if (!['active', 'paused'].includes(status)) {
+      return res.status(400).json({ error: 'status must be "active" or "paused"' });
+    }
+    update.status = status;
+  }
+  if (commissionRate !== undefined) {
+    const rate = Number(commissionRate);
+    if (!Number.isFinite(rate) || rate < 0 || rate > 1) {
+      return res.status(400).json({ error: 'commissionRate must be between 0 and 1' });
+    }
+    update.commission_rate = rate;
+  }
+  if (notes !== undefined) update.notes = notes;
+
+  if (Object.keys(update).length === 0) {
+    return res.status(400).json({ error: 'Nothing to update - include status, commissionRate, and/or notes' });
+  }
+
+  const { error } = await auth.supabase.from('creators').update(update).eq('id', creatorId);
+  if (error) {
+    console.error('admin/creator-update: update failed:', error.message);
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.status(200).json({ ok: true, creatorId, update });
+}
+
+async function handleApplications(auth, req, res) {
+  const status = req.query.status || 'pending';
+  let query = auth.supabase
+    .from('creator_applications')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  if (status !== 'all') query = query.eq('status', status);
+
+  const { data, error } = await query;
+  if (error) {
+    console.error('admin/applications: select failed:', error.message);
+    return res.status(500).json({ error: error.message });
+  }
+  res.status(200).json({ applications: data });
+}
+
+async function handleApplicationDecide(auth, req, res) {
+  const { applicationId, decision, commissionRate } = req.body || {};
+  if (!applicationId || !['approve', 'reject'].includes(decision)) {
+    return res.status(400).json({ error: 'Body must include applicationId and decision ("approve" or "reject")' });
+  }
+
+  const { data: application, error: fetchErr } = await auth.supabase
+    .from('creator_applications')
+    .select('*')
+    .eq('id', applicationId)
+    .maybeSingle();
+  if (fetchErr) return res.status(500).json({ error: fetchErr.message });
+  if (!application) return res.status(404).json({ error: 'Application not found' });
+  if (application.status !== 'pending') {
+    return res.status(400).json({ error: `Application was already ${application.status}` });
+  }
+
+  let createdCreator = null;
+  if (decision === 'approve') {
+    const code = await generateUniqueCode(auth.supabase, application.name);
+    const rate = Number.isFinite(commissionRate) ? commissionRate : 0.2;
+    const { data, error: createErr } = await auth.supabase
+      .from('creators')
+      .insert({
+        name: application.name,
+        code,
+        niche: application.niche,
+        contact_email: application.email,
+        commission_rate: rate,
+        notes: `Approved from application. ${application.platform} - ${application.handle}`,
+      })
+      .select()
+      .single();
+    if (createErr) {
+      console.error('admin/application-decide: creator insert failed:', createErr.message);
+      return res.status(500).json({ error: createErr.message });
+    }
+    createdCreator = data;
+  }
+
+  const { error: updateErr } = await auth.supabase
+    .from('creator_applications')
+    .update({ status: decision === 'approve' ? 'approved' : 'rejected', decided_at: new Date().toISOString() })
+    .eq('id', applicationId);
+  if (updateErr) {
+    console.error('admin/application-decide: application update failed:', updateErr.message);
+    return res.status(500).json({ error: updateErr.message });
+  }
+
+  res.status(200).json({ ok: true, applicationId, decision, creator: createdCreator });
 }
 
 function buildEmailHtml(subject, message) {
