@@ -2,267 +2,953 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fluency AI — Admin</title>
-<meta name="robots" content="noindex, nofollow">
-<link rel="icon" href="/assets/logo-appicon.png">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="google-site-verification" content="FsCTu0DfhRUCeQ9tsIXHBuZo99hUFWmd4LTmtGvuGj4" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fluency AI">
+<link rel="apple-touch-icon" href="assets/logo-appicon.png">
+<link rel="manifest" href="manifest.json">
+<title>Fluency AI — Stop freezing. Start speaking.</title>
+<meta name="description" content="Fluency AI is the AI language app you talk out loud to. Have real spoken conversations in 40 languages, get corrected mid-sentence, and finally speak with confidence. Free 3-day trial.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://fluencyai.app/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Fluency AI">
+<meta property="og:title" content="Fluency AI — Stop freezing. Start speaking.">
+<meta property="og:description" content="An AI you talk out loud to. Real spoken conversations in 40 languages, corrected as you go, so you stop freezing when it matters.">
+<meta property="og:url" content="https://fluencyai.app/">
+<meta property="og:image" content="https://fluencyai.app/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Fluency AI — Stop freezing. Start speaking.">
+<meta name="twitter:description" content="An AI you talk out loud to. Real spoken conversations in 40 languages, corrected as you go, so you stop freezing when it matters.">
+<meta name="twitter:image" content="https://fluencyai.app/assets/og-image.png">
+
+<meta name="theme-color" content="#04121B">
+<link rel="icon" href="assets/logo-appicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Manrope:wght@400..800&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.js"></script>
+
+<!-- Structured data: what the app is -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MobileApplication",
+  "name": "Fluency AI",
+  "url": "https://fluencyai.app/",
+  "description": "Fluency AI is an AI language-learning app for real spoken conversation practice in 40 languages, with live correction and pronunciation feedback.",
+  "applicationCategory": "EducationApplication",
+  "operatingSystem": "iOS, Android, Web",
+  "offers": [
+    {
+      "@type": "Offer",
+      "name": "Weekly plan",
+      "price": "5.99",
+      "priceCurrency": "USD",
+      "description": "Billed weekly after a 3-day free trial"
+    },
+    {
+      "@type": "Offer",
+      "name": "Yearly plan",
+      "price": "39.99",
+      "priceCurrency": "USD",
+      "description": "Billed yearly after a 3-day free trial"
+    }
+  ]
+}
+</script>
+
+<!-- Structured data: FAQ content (mirrors the FAQ section rendered by data.js) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do I need to be at a certain level?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Say one sentence — badly is fine — and it works out where you are. There is no placement test." }
+    },
+    {
+      "@type": "Question",
+      "name": "What if I freeze halfway through?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Say \"again\" or just stop. It waits, offers the phrase you were reaching for, and picks the thread back up." }
+    },
+    {
+      "@type": "Question",
+      "name": "Will it correct everything I say?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Only if you ask it to. Live, after, or off — you set it inside the conversation and change it any time." }
+    },
+    {
+      "@type": "Question",
+      "name": "How much does it cost?",
+      "acceptedAnswer": { "@type": "Answer", "text": "$39.99 a year, or $5.99 a week if you'd rather stay flexible — both start with a 3-day free trial. Cancel any time from inside the app before your trial ends and you won't be charged." }
+    },
+    {
+      "@type": "Question",
+      "name": "Where do I actually use it?",
+      "acceptedAnswer": { "@type": "Answer", "text": "In the Fluency AI app on iOS or Android. Register here, download it, and your account is already waiting when you open it." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this instead of a teacher?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It's the practice between lessons. Most people use it for the speaking hours a teacher can't give them." }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens to my recordings?",
+      "acceptedAnswer": { "@type": "Answer", "text": "They're yours. Delete a conversation and the model forgets it too — including the mistakes it learned from it." }
+    }
+  ]
+}
+</script>
+
 <style>
+/* ============ TOKENS ============ */
 :root{
-  --teal-400:#22CFCB;--teal-500:#10B8B8;--teal-600:#0E9A9C;
-  --indigo-400:#7A75D0;--indigo-500:#5B55B8;--indigo-600:#4A459C;
-  --mint-400:#25D79B;--coral-400:#FF6A6A;--amber-400:#F7B23B;
-  --ink-950:#04121B;--ink-900:#0B2233;--pg:#04121B;--pg-2:#08202D;--pg-3:#0B2233;
-  --tx:#FFFFFF;--tx-2:#B7CCD6;--tx-3:#6E93A6;--hair:rgba(255,255,255,.09);
-  --glass:rgba(255,255,255,.055);--glass-2:rgba(255,255,255,.09);--glass-bd:rgba(255,255,255,.12);
-  --font-display:"Figtree",system-ui,sans-serif;--font-mono:"JetBrains Mono",monospace;
+  --teal-50:#E8FBFA;--teal-100:#C6F5F2;--teal-200:#93ECE8;--teal-300:#54DFDB;
+  --teal-400:#22CFCB;--teal-500:#10B8B8;--teal-600:#0E9A9C;--teal-700:#0E7B7E;
+  --teal-800:#0F6265;--teal-900:#10484C;
+  --mint-50:#E6FCF4;--mint-100:#C2F7E4;--mint-200:#8CEECB;--mint-300:#4FE3B0;
+  --mint-400:#25D79B;--mint-500:#12BE85;--mint-600:#0E9D6E;--mint-700:#0C7B58;
+  --indigo-100:#E1E0F7;--indigo-200:#C0BEEE;--indigo-300:#9A96E0;--indigo-400:#7A75D0;
+  --indigo-500:#5B55B8;--indigo-600:#4A459C;--indigo-700:#3A3680;--indigo-800:#2B2A61;
+  --cyan-300:#7EE9FF;--cyan-400:#35DDFB;--cyan-500:#12C4E8;
+  --ink-950:#04121B;--ink-900:#0B2233;--ink-800:#153345;--ink-700:#22485C;
+  --ink-600:#3A6478;--ink-500:#5B8497;--ink-400:#8CACBB;--ink-300:#B7CCD6;
+  --ink-200:#D8E4EA;--ink-100:#EDF3F6;--ink-50:#F6FAFB;--white:#FFFFFF;
+  --amber-100:#FFF0D1;--amber-400:#F7B23B;--amber-600:#C8801A;
+  --coral-100:#FFE4E4;--coral-400:#FF6A6A;--coral-600:#D93D46;
+
+  --font-display:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-numeric:"Manrope",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,monospace;
+  --fw-regular:400;--fw-medium:500;--fw-semibold:600;--fw-bold:700;--fw-black:800;
+
+  --type-title-l:var(--fw-bold) 26px/1.18 var(--font-display);
+  --type-title-m:var(--fw-bold) 20px/1.25 var(--font-display);
+  --type-title-s:var(--fw-semibold) 17px/1.3 var(--font-display);
+  --type-body-l:var(--fw-regular) 17px/1.5 var(--font-body);
+  --type-body-m:var(--fw-regular) 15px/1.55 var(--font-body);
+  --type-body-s:var(--fw-regular) 13px/1.5 var(--font-body);
+  --type-label:var(--fw-semibold) 13px/1.2 var(--font-body);
+  --type-caption:var(--fw-medium) 12px/1.35 var(--font-body);
+  --type-overline:var(--fw-bold) 11px/1.2 var(--font-body);
+  --ls-overline:.12em;
+
+  --ease-standard:cubic-bezier(.2,.7,.2,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --ease-breathe:cubic-bezier(.45,.05,.55,.95);
+  --shadow-s:0 2px 6px rgba(11,34,51,.07),0 1px 2px rgba(11,34,51,.04);
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--pg);color:var(--tx);font-family:var(--font-display);min-height:100vh}
-a{color:var(--teal-400)}
-.wrap{max-width:1180px;margin:0 auto;padding:32px 24px 80px}
-header.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px}
-.logo{font-weight:800;font-size:20px;letter-spacing:-.03em}
-.logo span{color:var(--teal-400)}
-.tag{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tx-3);border:1px solid var(--hair);padding:4px 10px;border-radius:999px}
-#signout-btn{background:none;border:1px solid var(--hair);color:var(--tx-2);padding:8px 16px;border-radius:999px;cursor:pointer;font:inherit;font-size:13px}
-#signout-btn:hover{border-color:var(--teal-400);color:var(--tx)}
+html,body{margin:0;padding:0}
+body{
+  --pg:#04121B; --pg-2:#08202D; --pg-3:#0B2233;
+  --tx:#FFFFFF; --tx-2:#B7CCD6; --tx-3:#6E93A6;
+  --glass:rgba(255,255,255,.055); --glass-2:rgba(255,255,255,.09); --glass-bd:rgba(255,255,255,.12);
+  --hair:rgba(255,255,255,.09);
+  --nav-bg:rgba(8,32,45,.72); --brand-ink:var(--indigo-300);
+  --hero-bg:radial-gradient(120% 95% at 50% -10%, #16495E 0%, #08202D 42%, #04121B 78%);
+  background:#04121B;
+  color:var(--tx);
+  font-family:var(--font-body);
+  overflow-x:hidden;
+  position:relative;
+  transition:background .45s var(--ease-standard),color .45s var(--ease-standard);
+}
+body[data-fl-theme="light"]{
+  --pg:#F6FAFB; --pg-2:#FFFFFF; --pg-3:#EDF3F6;
+  --tx:#0B2233; --tx-2:#2B5164; --tx-3:#2F5A6E;
+  --glass:rgba(255,255,255,.72); --glass-2:#FFFFFF; --glass-bd:#DCE7EC;
+  --hair:#DCE7EC;
+  --nav-bg:rgba(255,255,255,.78); --brand-ink:var(--indigo-700);
+  --hero-bg:radial-gradient(120% 95% at 50% -10%, #DFF6F5 0%, #F1F9FA 45%, #F6FAFB 80%);
+  background:#F6FAFB;
+  /* Bright teal-300/400 read fine on dark surfaces but wash out to near-invisible on
+     light ones. Deepen them here so every eyebrow label, badge, caption and icon that
+     references these tokens stays legible — and reads as a deliberate deep teal rather
+     than a washed-out mint. */
+  --teal-300:#0F6265; --teal-400:#0E7B7E; --teal-500:#0E7B7E;
+}
+a{color:var(--teal-400);text-decoration:none}
+a:hover{color:var(--teal-300)}
+body[data-fl-theme="light"] a{color:var(--teal-600)}
+body[data-fl-theme="light"] a:hover{color:var(--teal-700)}
+/* .fl-btn links (both CTA buttons) carry their own text color and must never inherit
+   the theme's link-color rule above — that specificity clash was why "Start speaking
+   free" rendered in low-contrast teal-on-purple in light mode instead of white. */
+a.fl-btn-accent,body[data-fl-theme="light"] a.fl-btn-accent{color:#fff}
+a.fl-btn-accent:hover,body[data-fl-theme="light"] a.fl-btn-accent:hover{color:#fff}
+a.fl-btn-inverse,body[data-fl-theme="light"] a.fl-btn-inverse{color:var(--tx)}
+body[data-fl-theme="light"] .fl-btn-accent{
+  background:var(--indigo-600);
+  box-shadow:inset 0 -3px 0 var(--indigo-800), var(--shadow-s);
+}
+button{font-family:inherit}
 
-.card{background:var(--glass);border:1px solid var(--hair);border-radius:20px;padding:22px}
-.grid-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:28px}
-.stat-num{font:800 2rem/1 "Manrope",sans-serif;letter-spacing:-.03em}
-.stat-label{font-size:12px;color:var(--tx-3);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-top:6px}
+@keyframes fl-drift{0%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-14px,0)}100%{transform:translate3d(0,0,0)}}
+@keyframes fl-ring{0%{transform:scale(.82);opacity:.55}100%{transform:scale(1.5);opacity:0}}
+@keyframes fl-bar{0%,100%{transform:scaleY(.28)}50%{transform:scaleY(1)}}
+@keyframes fl-marquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+@keyframes fl-float{
+  0%{transform:translate3d(0,0,0) rotate(var(--r0))}
+  25%{transform:translate3d(var(--x1),var(--y1),0) rotate(var(--r1))}
+  50%{transform:translate3d(var(--x2),var(--y2),0) rotate(var(--r0))}
+  75%{transform:translate3d(var(--x3),var(--y3),0) rotate(var(--r1))}
+  100%{transform:translate3d(0,0,0) rotate(var(--r0))}
+}
+@keyframes fl-fadein{from{opacity:0}to{opacity:var(--o)}}
+@keyframes fl-aura{
+  0%{transform:translate3d(-6%,-3%,0) scale(1);opacity:.5}
+  50%{transform:translate3d(6%,4%,0) scale(1.14);opacity:.78}
+  100%{transform:translate3d(-6%,-3%,0) scale(1);opacity:.5}
+}
+@keyframes fl-breathe{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.06);opacity:1}}
+.fl-word{position:absolute;white-space:nowrap;will-change:transform,opacity;animation:fl-float var(--d) cubic-bezier(.37,0,.63,1) var(--dl) infinite,fl-fadein 1.6s ease-out var(--dl) both}
+[data-rv-on] .rv{opacity:0;transform:translate3d(0,34px,0);transition:opacity 1.05s cubic-bezier(.16,1,.3,1),transform 1.05s cubic-bezier(.16,1,.3,1)}
+[data-rv-on] .rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  [data-rv-on] .rv{opacity:1;transform:none;transition:none}
+  .fl-anim{animation:none !important}
+}
 
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
-@media (max-width:800px){.grid-2{grid-template-columns:1fr}}
-.bar-row{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px}
-.bar-label{width:90px;flex:0 0 auto;color:var(--tx-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bar-track{flex:1;height:10px;border-radius:999px;background:var(--pg-3);overflow:hidden}
-.bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--teal-500),var(--indigo-500))}
-.bar-count{width:34px;text-align:right;color:var(--tx-3);font:600 12px var(--font-mono)}
+/* Buttons */
+.fl-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:0;border-radius:999px;cursor:pointer;font:var(--fw-bold) 15px/1 var(--font-body);letter-spacing:-.01em;padding:0 26px;height:52px;transition:transform .25s var(--ease-standard),filter .25s;white-space:nowrap}
+.fl-btn:hover{filter:brightness(1.08)}
+.fl-btn:active{transform:scale(.97)}
+.fl-btn-s{height:40px;padding:0 18px;font-size:13px}
+.fl-btn-accent{background:var(--indigo-500);color:#fff;box-shadow:inset 0 -3px 0 var(--indigo-700), var(--shadow-s)}
+.fl-btn-inverse{background:var(--glass-2);color:var(--tx);border:1px solid var(--glass-bd)}
 
-.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
-.toolbar input{background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);border-radius:12px;padding:10px 14px;font:inherit;font-size:14px;flex:1;min-width:180px}
-.tab{background:none;border:1px solid var(--hair);color:var(--tx-2);padding:8px 14px;border-radius:999px;cursor:pointer;font:inherit;font-size:13px}
-.tab.active{background:var(--indigo-500);border-color:var(--indigo-400);color:#fff}
+/* Icon chip helper */
+.fl-icon{display:inline-flex;align-items:center;justify-content:center}
+.fl-icon svg{display:block}
 
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;color:var(--tx-3);text-transform:uppercase;font-size:11px;letter-spacing:.06em;padding:10px 12px;border-bottom:1px solid var(--hair)}
-td{padding:12px;border-bottom:1px solid var(--hair);color:var(--tx-2);vertical-align:middle}
-td.email{color:var(--tx);font-weight:600}
-.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
-.pill-admin{background:rgba(91,85,184,.25);color:#C0BEEE}
-.pill-user{background:var(--glass);color:var(--tx-3)}
-.pill-active{background:rgba(37,215,155,.18);color:var(--mint-400)}
-.pill-trialing{background:rgba(34,207,203,.18);color:var(--teal-400)}
-.pill-free{background:var(--glass);color:var(--tx-3)}
-.pill-canceled,.pill-past_due,.pill-unpaid,.pill-suspended{background:rgba(255,106,106,.15);color:var(--coral-400)}
-.pill-ok{background:rgba(37,215,155,.18);color:var(--mint-400)}
-.pill-paused{background:var(--glass);color:var(--tx-3)}
-.pill-pending{background:rgba(247,178,59,.18);color:var(--amber-400)}
-.pill-approved{background:rgba(37,215,155,.18);color:var(--mint-400)}
-.pill-rejected{background:rgba(255,106,106,.15);color:var(--coral-400)}
-.copy-link{font:600 12px var(--font-mono);color:var(--teal-400);background:none;border:1px solid var(--hair);border-radius:8px;padding:4px 8px;cursor:pointer}
-.copy-link:hover{border-color:var(--teal-400)}
-.mini-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
-.mini-form input,.mini-form select{height:42px;padding:0 12px;border-radius:10px;background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);font:inherit;font-size:13px}
-.mini-form button{height:42px;border-radius:10px;background:var(--indigo-500);color:#fff;border:0;font:700 13px inherit;cursor:pointer;padding:0 18px}
-.row-btn{background:none;border:1px solid var(--hair);color:var(--tx-2);padding:5px 10px;border-radius:8px;cursor:pointer;font:inherit;font-size:12px;margin-right:4px}
-.row-btn:hover{border-color:var(--teal-400);color:var(--tx)}
-.pager{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:14px;font-size:13px;color:var(--tx-3)}
-.pager button{background:none;border:1px solid var(--hair);color:var(--tx-2);padding:6px 12px;border-radius:8px;cursor:pointer;font:inherit}
-.pager button:disabled{opacity:.4;cursor:default}
+/* Nav */
+#fl-nav{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:80;width:min(1180px,calc(100% - 28px));display:flex;align-items:center;gap:20px;padding:11px 11px 11px 22px;border-radius:999px;background:var(--nav-bg);border:1px solid var(--glass-bd);backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);box-shadow:0 20px 60px rgba(4,18,27,.34);transition:width .55s cubic-bezier(.16,1,.3,1),padding .55s cubic-bezier(.16,1,.3,1),box-shadow .4s ease,background .45s ease}
+.fl-logo{display:inline-flex;align-items:flex-end;text-decoration:none;color:var(--tx);font:var(--fw-black) 21px/1 var(--font-display);letter-spacing:-.035em;flex:0 0 auto}
+.fl-logo .ai{position:relative;display:inline-block}
+.fl-logo .ai span{position:absolute;left:calc(100% + 4px);bottom:46%;font:var(--fw-black) 10px/1 var(--font-display);letter-spacing:.1em;color:var(--teal-400)}
+.r-navlinks{display:flex;align-items:center;gap:26px;margin-left:10px}
+.r-navlinks a{font:var(--fw-medium) 14px/1 var(--font-body);color:var(--tx-2);text-decoration:none;transition:color .2s}
+.r-navlinks a:hover{color:var(--tx)}
+#fl-theme-toggle,#fl-theme-toggle-m{position:relative;width:58px;height:31px;border-radius:999px;border:1px solid var(--glass-bd);background:var(--glass);cursor:pointer;flex:0 0 auto;padding:0;transition:background .3s ease}
+.r-cta-short{display:none}
+#fl-knob,#fl-knob-m{position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:999px;background:linear-gradient(150deg,var(--teal-300),var(--teal-600));box-shadow:0 0 0 1px rgba(255,255,255,.18),0 0 18px 2px rgba(16,184,184,.55);transition:transform .42s cubic-bezier(.34,1.56,.64,1)}
+#fl-sun,#fl-sun-m{position:absolute;right:8px;top:8px;width:15px;height:15px;opacity:.5;color:var(--tx-2);transition:opacity .3s}
 
-#login-screen{max-width:380px;margin:120px auto;padding:36px 30px;background:var(--glass-2);border:1px solid var(--hair);border-radius:24px}
-#login-screen h1{font-size:22px;margin:0 0 6px}
-#login-screen p{color:var(--tx-3);font-size:14px;margin:0 0 22px}
-#login-screen label{display:grid;gap:6px;font-size:13px;color:var(--tx-2);margin-bottom:14px}
-#login-screen input{height:46px;padding:0 14px;border-radius:12px;background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);font:inherit}
-#login-screen button{width:100%;height:48px;border-radius:12px;background:var(--indigo-500);color:#fff;border:0;font:700 14px inherit;cursor:pointer;margin-top:6px}
-.err{color:var(--coral-400);font-size:13px;min-height:18px;margin-top:8px}
-.hidden{display:none !important}
-.loading{color:var(--tx-3);font-size:14px;text-align:center;padding:60px 0}
+/* Marquee mask */
+.fl-mask{mask-image:linear-gradient(to right,transparent,#000 10%,#000 90%,transparent);-webkit-mask-image:linear-gradient(to right,transparent,#000 10%,#000 90%,transparent)}
+
+/* Chips */
+.repair-chip{display:flex;align-items:center;gap:9px;padding:11px 18px;border-radius:999px;cursor:pointer;font:var(--type-label);transition:background .3s var(--ease-standard),border-color .3s,color .3s;background:var(--glass);border:1px solid var(--hair);color:var(--tx-2)}
+.repair-chip.active{background:var(--indigo-500);border-color:var(--indigo-400);color:#fff}
+
+/* stage tabs */
+.stage-tab{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;padding:16px 18px;border-radius:20px;cursor:pointer;text-align:left;transition:background .35s var(--ease-standard),border-color .35s;background:transparent;border:1px solid var(--hair)}
+.stage-tab:hover{border-color:var(--teal-400)}
+.stage-tab.active{background:var(--glass-2);border-color:var(--indigo-400)}
+.stage-dot{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;flex:0 0 auto;transition:background .35s,color .35s;background:var(--glass);color:var(--tx-2)}
+.stage-tab.active .stage-dot{background:var(--indigo-500);color:#fff}
+
+/* feature / lang cards hover */
+.fl-hover-card{transition:transform .45s var(--ease-standard),background .45s,border-color .45s}
+.fl-hover-card:hover{transform:translateY(-6px);background:var(--glass-2);border-color:var(--teal-400)}
+.fl-hover-card-sm:hover{transform:translateY(-4px);background:var(--glass-2)}
+.fl-lang-card{transition:transform .35s var(--ease-standard),border-color .35s}
+.fl-lang-card:hover{transform:translateY(-3px);border-color:var(--teal-400)}
+
+/* app store links */
+.store-link{display:flex;align-items:center;gap:10px;padding:12px 20px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;font:var(--type-label);text-decoration:none;transition:background .3s,border-color .3s}
+.store-link:hover{background:rgba(255,255,255,.12);border-color:var(--teal-400);color:#fff}
+
+/* voice orb */
+.voice-orb{position:relative;display:grid;place-items:center;border-radius:50%}
+.voice-orb .ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid currentColor;animation:fl-ring 2.4s var(--ease-breathe) infinite}
+.voice-orb .ring2{animation-delay:.8s}
+.voice-orb .core{border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,currentColor 70%);box-shadow:0 0 30px currentColor;transition:transform .12s ease}
+
+/* waveform */
+.waveform{display:flex;align-items:flex-end;gap:3px}
+.waveform i{display:block;border-radius:2px;background:currentColor;animation:fl-bar .9s var(--ease-breathe) infinite}
+
+/* FAQ */
+.faq-item{border-bottom:1px solid var(--hair)}
+.faq-q{width:100%;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 4px;background:transparent;border:0;cursor:pointer;text-align:left;color:var(--tx);font:var(--type-title-s);font-size:17px}
+.faq-q:hover{color:var(--teal-400)}
+.faq-plus{font:400 26px/1 var(--font-display);color:var(--teal-400);flex:0 0 auto;transition:transform .35s var(--ease-spring)}
+.faq-item.open .faq-plus{transform:rotate(135deg)}
+.faq-a{overflow:hidden;transition:max-height .45s var(--ease-standard),opacity .35s ease;max-height:0;opacity:0}
+.faq-item.open .faq-a{max-height:240px;opacity:1}
+
+/* Auth modal */
+.auth-overlay{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(4,18,27,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .3s var(--ease-standard)}
+.auth-overlay.open{opacity:1;pointer-events:auto}
+.auth-modal{position:relative;width:min(420px,100%);max-height:88vh;overflow-y:auto;padding:36px 30px 30px;border-radius:26px;background:var(--pg-2);border:1px solid var(--glass-bd);box-shadow:0 40px 100px rgba(4,18,27,.5);transform:translateY(14px) scale(.98);transition:transform .35s var(--ease-spring)}
+.auth-overlay.open .auth-modal{transform:translateY(0) scale(1)}
+.auth-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:999px;border:1px solid var(--hair);background:var(--glass);color:var(--tx-2);font:400 20px/1 var(--font-body);cursor:pointer;display:grid;place-items:center}
+.auth-close:hover{color:var(--tx);border-color:var(--teal-400)}
+.auth-step h3{margin:14px 0 6px;font:var(--type-title-l);font-size:1.4rem;color:var(--tx)}
+.auth-sub{margin:0 0 22px;font:var(--type-body-m);color:var(--tx-2)}
+.auth-step form{display:grid;gap:14px}
+.auth-step label{display:grid;gap:7px;font:var(--type-label);color:var(--tx-2)}
+.auth-step input{height:48px;padding:0 16px;border-radius:14px;background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);font:var(--type-body-m);outline:none;transition:border-color .2s}
+.auth-step input:focus{border-color:var(--teal-400)}
+.auth-error{min-height:0;font:var(--type-body-s);color:var(--coral-400);display:none}
+.auth-error.show{display:block}
+.auth-footnote{margin:18px 0 0;text-align:center;font:var(--type-body-s);color:var(--tx-3)}
+.auth-link-btn{background:none;border:0;padding:0;color:var(--teal-400);font:inherit;cursor:pointer;text-decoration:underline}
+.auth-link-btn:hover{color:var(--teal-300)}
+.auth-step{display:none}
+.auth-step.active{display:block}
+.fl-btn[disabled]{opacity:.6;cursor:default;pointer-events:none}
+
+/* responsive */
+@media (max-width:1040px){
+  .r-2col{grid-template-columns:1fr !important}
+  .r-hero{grid-template-columns:1fr !important;gap:8px !important}
+  .r-heroart{position:relative !important;height:auto !important;margin-top:8px;display:block}
+  .r-heroart img{position:relative !important;inset:auto !important;left:auto !important;right:auto !important;bottom:auto !important;top:auto !important;width:min(300px,62%) !important;margin:0 auto;display:block}
+  .r-abs{position:relative !important;inset:auto !important;left:auto !important;right:auto !important;top:auto !important;bottom:auto !important;transform:none !important;width:auto !important;max-width:520px;margin:0 auto 14px}
+  .r-5col{grid-template-columns:repeat(2,1fr) !important}
+  .r-4col{grid-template-columns:repeat(2,1fr) !important}
+  .r-3col{grid-template-columns:1fr !important}
+  .r-navlinks{display:none !important}
+  .r-stage{grid-template-columns:1fr !important}
+  .r-pad{padding-left:20px !important;padding-right:20px !important}
+  .r-hide{display:none !important}
+  #fl-hamburger{display:inline-flex}
+}
+#fl-hamburger{display:none;align-items:center;justify-content:center;width:40px;height:40px;border-radius:999px;border:1px solid var(--glass-bd);background:var(--glass);color:var(--tx);cursor:pointer;flex:0 0 auto;padding:0}
+#fl-mobile-menu{
+  position:fixed;left:50%;transform:translateX(-50%) translateY(-10px);top:calc(78px + env(safe-area-inset-top,0px));
+  z-index:79;width:min(420px,calc(100% - 28px));max-height:0;overflow:hidden;
+  border-radius:24px;background:var(--nav-bg);border:1px solid var(--glass-bd);
+  backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);
+  box-shadow:0 20px 60px rgba(4,18,27,.34);
+  opacity:0;pointer-events:none;
+  transition:max-height .38s var(--ease-standard),opacity .28s ease,transform .32s var(--ease-standard);
+}
+#fl-mobile-menu.open{max-height:80vh;opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+#fl-mobile-menu nav{display:flex;flex-direction:column;padding:10px}
+#fl-mobile-menu a.r-mm-link{display:flex;align-items:center;padding:14px 16px;border-radius:14px;color:var(--tx);font:var(--fw-medium) 16px/1 var(--font-body);text-decoration:none;transition:background .2s}
+#fl-mobile-menu a.r-mm-link:hover{background:var(--glass)}
+#fl-mobile-menu .r-mm-hair{margin:6px 12px;border-top:1px solid var(--hair)}
+#fl-mobile-menu .r-mm-appearance{display:flex;align-items:center;justify-content:space-between;padding:14px 16px}
+#fl-mobile-menu .r-mm-appearance span{font:var(--fw-medium) 16px/1 var(--font-body);color:var(--tx)}
+@media (max-width:640px){
+  .r-5col,.r-4col{grid-template-columns:1fr !important}
+  .r-stack{flex-direction:column !important;align-items:stretch !important}
+
+  /* --- Nav: fix the CTA button overflowing off-screen on phones --- */
+  #fl-nav{
+    top:calc(10px + env(safe-area-inset-top,0px));
+    width:calc(100% - 20px);
+    gap:8px;
+    padding:8px 8px 8px 16px;
+  }
+  .fl-logo{font-size:17px}
+  #fl-theme-toggle{display:none}
+  #fl-hamburger{width:36px;height:36px}
+  .r-cta-full{display:none}
+  .r-cta-short{display:inline}
+  #fl-nav .fl-btn-s{height:40px;padding:0 16px;min-height:40px}
+}
+
+/* --- Native app feel: safe areas, no rubber-band overscroll flash, no stuck hover states --- */
+body{
+  overflow-x:hidden;
+  overscroll-behavior-y:none;
+  -webkit-tap-highlight-color:transparent;
+  padding-left:env(safe-area-inset-left,0px);
+  padding-right:env(safe-area-inset-right,0px);
+}
+a,button{-webkit-tap-highlight-color:transparent}
+@media (hover:none){
+  .fl-hover-card:hover,.fl-hover-card-sm:hover,.fl-lang-card:hover,.store-link:hover{
+    transform:none;
+  }
+}
+@media (max-width:640px){
+  a,button,.fl-btn,.store-link,.repair-chip,.stage-tab,.faq-q{min-height:44px}
+  .fl-btn-s{min-height:40px}
+}
 </style>
 </head>
 <body>
 
-<div id="login-screen">
-  <h1>Admin sign in</h1>
-  <p>Fluency<span style="color:var(--teal-400)">AI</span> dashboard — admin accounts only.</p>
-  <form id="login-form">
-    <label>Email<input type="email" id="login-email" required autocomplete="email"></label>
-    <label>Password<input type="password" id="login-password" required autocomplete="current-password"></label>
-    <div class="err" id="login-err"></div>
-    <button type="submit" id="login-submit">Sign in</button>
-  </form>
+<div id="top">
+
+<nav id="fl-nav">
+  <a href="#top" class="fl-logo"><span>Fluenc</span><span class="ai">y<span>AI</span></span></a>
+  <div class="r-navlinks">
+    <a href="#problem">The freeze</a>
+    <a href="#how">How it works</a>
+    <a href="#product">Product</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+    <a href="/creators">Creators</a>
+    <a href="#" class="js-login-trigger">Log in</a>
+  </div>
+  <div style="flex:1"></div>
+  <button type="button" id="fl-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="fl-mobile-menu">
+    <span class="fl-icon" data-icon="menu" data-size="20"></span>
+  </button>
+  <button type="button" id="fl-theme-toggle" aria-label="Switch colour theme">
+    <span id="fl-knob"></span>
+    <span id="fl-sun" class="fl-icon" data-icon="sun" data-size="15"></span>
+  </button>
+  <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent fl-btn-s js-auth-trigger"><span class="fl-icon" data-icon="mic" data-size="15"></span><span class="r-cta-full">Start speaking free</span><span class="r-cta-short">Start free</span></a>
+</nav>
+
+<div id="fl-mobile-menu" role="dialog" aria-label="Menu" aria-hidden="true">
+  <nav>
+    <a href="#problem" class="r-mm-link">The freeze</a>
+    <a href="#how" class="r-mm-link">How it works</a>
+    <a href="#product" class="r-mm-link">Product</a>
+    <a href="#pricing" class="r-mm-link">Pricing</a>
+    <a href="#faq" class="r-mm-link">FAQ</a>
+    <a href="/creators" class="r-mm-link">Creators</a>
+    <div class="r-mm-hair"></div>
+    <a href="#" class="r-mm-link js-login-trigger">Log in</a>
+    <div class="r-mm-hair"></div>
+    <div class="r-mm-appearance">
+      <span>Dark mode</span>
+      <button type="button" id="fl-theme-toggle-m" aria-label="Switch colour theme">
+        <span id="fl-knob-m"></span>
+        <span id="fl-sun-m" class="fl-icon" data-icon="sun" data-size="15"></span>
+      </button>
+    </div>
+  </nav>
 </div>
 
-<div id="dashboard" class="hidden">
-  <div class="wrap">
-    <header class="top">
-      <div class="logo">Fluency<span>AI</span> — Admin</div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <span class="tag" id="whoami"></span>
-        <button id="signout-btn">Sign out</button>
+<!-- ===================== HERO ===================== -->
+<section style="position:relative;background:var(--hero-bg);padding:170px 34px 0;overflow:hidden;transition:background .45s var(--ease-standard)">
+  <div class="fl-anim" aria-hidden="true" style="position:absolute;left:50%;top:-24%;width:120%;height:110%;transform:translateX(-50%);background:radial-gradient(48% 44% at 42% 40%,rgba(16,184,184,.24),rgba(16,184,184,0) 68%),radial-gradient(42% 40% at 66% 58%,rgba(91,85,184,.2),rgba(91,85,184,0) 70%);filter:blur(24px);animation:fl-aura 26s var(--ease-breathe) infinite;pointer-events:none"></div>
+  <div id="fl-words" aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;overflow:hidden"></div>
+  <div class="r-hero" style="position:relative;max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.02fr .98fr;gap:40px;align-items:end;min-height:640px">
+
+    <div style="display:grid;gap:26px;justify-items:start;padding-bottom:96px;position:relative;z-index:3">
+      <span style="display:inline-flex;align-items:center;gap:9px;padding:7px 14px 7px 11px;border-radius:999px;border:1px solid var(--glass-bd);background:var(--glass);font:var(--fw-bold) 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300)">
+        An AI you talk out loud to
+      </span>
+      <h1 style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(3rem,6.4vw,6.1rem);line-height:.94;letter-spacing:-.045em;color:var(--tx)">Stop freezing.<br><span style="color:var(--teal-400)">Start speaking.</span></h1>
+      <p style="margin:0;font:var(--type-body-l);font-size:clamp(1rem,1.25vw,1.15rem);color:var(--tx-2);max-width:470px">Fluency AI hears how you actually speak — the hesitation, the accent, the word you nearly said — answers like a person, and teaches you the fix while it still matters.</p>
+      <div class="r-stack" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+        <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent js-auth-trigger" style="height:52px"><span class="fl-icon" data-icon="mic" data-size="18"></span>Start speaking free</a>
+        <a href="#product" class="fl-btn fl-btn-inverse" style="height:52px"><span class="fl-icon" data-icon="play" data-size="18"></span>Hear a conversation</a>
       </div>
-    </header>
-
-    <div id="content-loading" class="loading">Loading dashboard…</div>
-
-    <div id="content" class="hidden">
-      <div class="grid-cards" id="stat-cards"></div>
-
-      <div class="grid-2">
-        <div class="card">
-          <div style="font-weight:700;margin-bottom:10px">Users by country</div>
-          <div id="by-country"></div>
+      <div style="display:grid;gap:8px">
+        <div style="display:flex;gap:9px;align-items:center;font:var(--type-caption);color:var(--tx-3)">
+          <span class="fl-icon" data-icon="check" data-size="14"></span>
+          No placement test. No streaks. Speak within ten seconds.
         </div>
-        <div class="card">
-          <div style="font-weight:700;margin-bottom:10px">Users by device</div>
-          <div id="by-device"></div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom:28px">
-        <div style="font-weight:700;margin-bottom:10px">Subscription breakdown</div>
-        <div id="by-subscription"></div>
-      </div>
-
-      <div class="card" style="margin-bottom:28px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-          <div style="font-weight:700">Fluency Creator Program</div>
-          <span class="tag" id="creator-totals"></span>
-        </div>
-        <p style="color:var(--tx-3);font-size:13px;margin:0 0 14px">
-          Each creator's referral link is <code style="color:var(--tx-2)">fluencyai.app/?ref=CODE</code>.
-          Clicks are logged the moment someone lands on that link; signups and paid conversions are matched
-          automatically once they create an account and subscribe.
-        </p>
-
-        <form id="creator-add-form" class="mini-form">
-          <input type="text" id="creator-name" placeholder="Creator name" required>
-          <input type="text" id="creator-code" placeholder="Code (optional, auto-generated)">
-          <input type="text" id="creator-niche" placeholder="Niche (e.g. German TikTok)">
-          <input type="email" id="creator-email" placeholder="Contact email">
-          <input type="number" id="creator-rate" placeholder="Commission %" min="0" max="100" step="1" value="20">
-          <button type="submit">Add creator</button>
-        </form>
-        <div class="err" id="creator-add-err" style="min-height:18px"></div>
-
-        <div style="overflow-x:auto">
-          <table>
-            <thead>
-              <tr>
-                <th>Creator</th><th>Code</th><th>Niche</th><th>Clicks</th><th>Signups</th>
-                <th>Conversions</th><th>Commission owed</th><th>Status</th><th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="creators-tbody"></tbody>
-          </table>
+        <div style="display:flex;gap:9px;align-items:center;font:var(--type-caption);color:var(--tx-3)">
+          <span class="fl-icon" data-icon="smartphone" data-size="14"></span>
+          Free on iOS and Android — the conversation happens in the app.
         </div>
       </div>
+    </div>
 
-      <div class="card" style="margin-bottom:28px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-          <div style="font-weight:700">Creator applications</div>
-          <div class="toolbar" style="margin:0">
-            <button class="tab active" data-app-filter="pending">Pending</button>
-            <button class="tab" data-app-filter="approved">Approved</button>
-            <button class="tab" data-app-filter="rejected">Rejected</button>
-            <button class="tab" data-app-filter="all">All</button>
+    <div class="r-heroart" style="position:relative;height:640px">
+      <img src="assets/cast-speaking.png" alt="Fluency AI character mid-sentence" style="position:absolute;right:6%;bottom:0;width:min(430px,74%);display:block;filter:drop-shadow(0 34px 70px rgba(4,18,27,.6));pointer-events:none">
+
+      <div id="fl-card-a" class="r-abs fl-anim" style="animation:fl-drift 13s var(--ease-breathe) infinite;transition:translate .8s cubic-bezier(.16,1,.3,1);position:absolute;left:-118px;bottom:214px;width:330px;padding:18px 20px;border-radius:24px;background:rgba(8,32,45,.82);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 28px 70px rgba(4,18,27,.5);z-index:4">
+        <span style="display:inline-flex;align-items:center;gap:7px;font:var(--fw-bold) 10px/1 var(--font-body);letter-spacing:.13em;text-transform:uppercase;color:var(--cyan-400)">
+          <span class="waveform" style="height:11px;color:var(--cyan-400)">
+            <i style="width:2px;height:100%;animation-delay:0s"></i>
+            <i style="width:2px;height:100%;animation-delay:.15s"></i>
+            <i style="width:2px;height:100%;animation-delay:.3s"></i>
+          </span>
+          Listening
+        </span>
+        <p style="margin:11px 0 0;font:var(--fw-semibold) 17px/1.35 var(--font-display);letter-spacing:-.015em;color:#fff">Ich möchte einen <span style="border-bottom:2px solid var(--cyan-400);padding-bottom:1px">Tisch</span> <span style="color:rgba(255,255,255,.42)">reservieren</span></p>
+        <p style="margin:8px 0 0;font:var(--type-body-s);font-style:italic;color:var(--ink-400,#8CACBB)">I'd like to reserve a table</p>
+        <p style="margin:12px 0 0;font:var(--fw-medium) 11px/1 var(--font-mono);color:var(--ink-500,#5B8497)">heard "Tisch" at 61% · article checked</p>
+      </div>
+
+      <div id="fl-card-b" class="r-abs fl-anim" style="animation:fl-drift 17s var(--ease-breathe) 1.4s infinite;transition:translate .8s cubic-bezier(.16,1,.3,1);position:absolute;right:-34px;top:60px;width:268px;padding:16px 18px;border-radius:22px;background:rgba(91,85,184,.16);border:1px solid rgba(154,150,224,.34);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 22px 60px rgba(4,18,27,.42);z-index:4">
+        <span style="font:var(--fw-bold) 10px/1 var(--font-body);letter-spacing:.13em;text-transform:uppercase;color:var(--brand-ink)">Grammar · fixed quietly</span>
+        <p style="margin:10px 0 0;font:var(--fw-medium) 14px/1.4 var(--font-body);color:rgba(255,255,255,.5);text-decoration:line-through">Ich will ein Kaffee.</p>
+        <p style="margin:5px 0 0;font:var(--fw-bold) 15px/1.4 var(--font-display);color:#fff">Ich möchte einen Kaffee.</p>
+        <p style="margin:8px 0 0;font:var(--type-body-s);color:var(--ink-400,#8CACBB)">"Kaffee" is masculine, so "ein" becomes "einen".</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:relative;margin-top:52px;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,var(--pg) 46%)">
+    <div style="max-width:1180px;margin:0 auto;padding:34px 0 0;border-top:1px solid var(--hair)">
+      <div class="r-2col" style="display:grid;grid-template-columns:.62fr 1.38fr;gap:36px;align-items:start">
+        <div style="display:grid;gap:12px;align-content:start">
+          <span style="display:inline-flex;padding:6px 14px;border-radius:999px;background:rgba(91,85,184,.2);border:1px solid var(--indigo-400);font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--brand-ink);justify-self:start">When you get stuck</span>
+          <h3 style="margin:0;font:var(--fw-bold) clamp(1.25rem,1.9vw,1.65rem)/1.15 var(--font-display);letter-spacing:-.028em;color:var(--tx)">Four things you can say instead of giving up.</h3>
+          <p style="margin:0;font:var(--type-body-s);color:var(--tx-3);max-width:280px">Every conversation carries these. Tap one to see what happens.</p>
+        </div>
+        <div style="display:grid;gap:16px">
+          <div class="r-stack" id="repair-chips" style="display:flex;gap:9px;flex-wrap:wrap"></div>
+          <div style="display:grid;gap:12px;padding:20px 22px;border-radius:22px;background:var(--glass);border:1px solid var(--hair);min-height:132px;align-content:start">
+            <span id="repair-tag" style="font:var(--fw-medium) 11px/1 var(--font-mono);color:var(--brand-ink);letter-spacing:.06em"></span>
+            <p id="repair-said" style="margin:0;font:var(--fw-semibold) clamp(1rem,1.4vw,1.2rem)/1.35 var(--font-display);letter-spacing:-.015em;color:var(--tx)"></p>
+            <p id="repair-does" style="margin:0;font:var(--type-body-m);color:var(--tx-2);max-width:600px"></p>
           </div>
         </div>
-        <p style="color:var(--tx-3);font-size:13px;margin:0 0 14px">
-          Submitted from the "Apply to join" form on fluencyai.app/creators. Approving one generates a
-          referral code automatically and adds them to the table above.
-        </p>
-        <div style="overflow-x:auto">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th><th>Email</th><th>Platform</th><th>Handle</th><th>Niche</th>
-                <th>Followers</th><th>Applied</th><th>Status</th><th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="applications-tbody"></tbody>
-          </table>
+      </div>
+      <div aria-hidden="true" class="fl-mask" style="position:relative;margin:30px -34px 0;padding:14px 0 30px;overflow:hidden">
+        <div class="fl-anim" id="phrase-marquee" style="display:flex;gap:48px;width:max-content;animation:fl-marquee 72s linear infinite;will-change:transform"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PROBLEM ===================== -->
+<section id="problem" class="r-pad" style="background:var(--pg);padding:20px 34px 120px;position:relative">
+  <div style="max-width:1180px;margin:0 auto;display:grid;gap:64px">
+    <div class="r-2col rv" style="display:grid;grid-template-columns:1.35fr .65fr;gap:40px;align-items:end">
+      <div style="display:grid;gap:22px;max-width:760px">
+        <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--teal-400)">The freeze</span>
+        <h2 style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(2.1rem,4.4vw,4rem);line-height:1.02;letter-spacing:-.035em;color:var(--tx)">You know the word. It just won't come out of your mouth.</h2>
+        <p style="margin:0;font:var(--type-body-l);font-size:1.08rem;color:var(--tx-2);max-width:600px">Twelve years of lessons. Six months of an app. Then somebody at a counter asks you one ordinary question and your mind goes flat white.</p>
+      </div>
+      <div style="position:relative;justify-self:end;width:min(300px,100%)">
+        <img src="assets/cast-frozen.png" alt="A Fluency AI character frozen mid-conversation" style="width:100%;display:block;filter:drop-shadow(0 24px 50px rgba(4,18,27,.45))">
+        <span style="position:absolute;left:-14px;top:16%;padding:9px 15px;border-radius:16px 16px 16px 4px;background:var(--glass-2);border:1px solid var(--hair);font:var(--fw-semibold) 14px/1 var(--font-display);color:var(--tx-3)">…</span>
+      </div>
+    </div>
+    <div class="r-3col rv" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <div class="fl-hover-card-sm" style="padding:28px;border-radius:24px;background:var(--glass);border:1px solid var(--hair);display:grid;gap:12px;align-content:start">
+        <span style="font:var(--fw-black) 34px/1 var(--font-numeric);color:var(--teal-500);opacity:.5">01</span>
+        <span style="font:var(--type-title-m);color:var(--tx)">Memorising isn't speaking</span>
+        <span style="font:var(--type-body-m);color:var(--tx-2)">You can recall 3,000 words and still not build one sentence in real time.</span>
+      </div>
+      <div class="fl-hover-card-sm" style="padding:28px;border-radius:24px;background:var(--glass);border:1px solid var(--hair);display:grid;gap:12px;align-content:start">
+        <span style="font:var(--fw-black) 34px/1 var(--font-numeric);color:var(--brand-ink)">02</span>
+        <span style="font:var(--type-title-m);color:var(--tx)">Grammar isn't confidence</span>
+        <span style="font:var(--type-body-m);color:var(--tx-2)">Knowing the rule and reaching for it mid-sentence are two different skills.</span>
+      </div>
+      <div class="fl-hover-card-sm" style="padding:28px;border-radius:24px;background:var(--glass);border:1px solid var(--hair);display:grid;gap:12px;align-content:start">
+        <span style="font:var(--fw-black) 34px/1 var(--font-numeric);color:var(--cyan-400);opacity:.6">03</span>
+        <span style="font:var(--type-title-m);color:var(--tx)">Reading isn't hearing</span>
+        <span style="font:var(--type-body-m);color:var(--tx-2)">Clean textbook audio is nothing like a tired waiter at native speed.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== OTHER WAY ROUND ===================== -->
+<section style="background:var(--pg-3);padding:0;position:relative;overflow:hidden">
+  <div style="height:120px;background:linear-gradient(to bottom,var(--pg),var(--pg-3))"></div>
+  <div class="r-pad" style="max-width:1180px;margin:0 auto;padding:20px 34px 110px;position:relative">
+    <div class="rv" style="display:grid;gap:20px;max-width:760px;margin-bottom:52px">
+      <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--mint-400)">The other way round</span>
+      <h2 style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,3.8vw,3.4rem);line-height:1.04;letter-spacing:-.032em;color:var(--tx)">Say it badly first. Get it right second.</h2>
+      <p style="margin:0;font:var(--type-body-l);color:var(--tx-2);max-width:560px">Fluency puts the conversation first and the correction second — so you never lose the thread of what you were trying to say.</p>
+    </div>
+    <div class="r-2col rv" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch">
+      <div style="padding:32px;border-radius:28px;border:1px dashed var(--hair);background:transparent;display:grid;gap:16px;align-content:start">
+        <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--tx-3)">Traditional</span>
+        <span style="font:var(--type-title-l);color:var(--tx-3)">Study → test → forget → repeat</span>
+        <span style="font:var(--type-body-m);color:var(--tx-3);max-width:380px">Points for finishing units. Silence where the speaking should be.</span>
+      </div>
+      <div style="padding:32px;border-radius:28px;background:linear-gradient(150deg,rgba(91,85,184,.24),rgba(16,184,184,.12));border:1px solid var(--indigo-400);display:grid;gap:16px;align-content:start;box-shadow:0 24px 60px rgba(4,18,27,.28)">
+        <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--brand-ink)">Fluency AI</span>
+        <span style="font:var(--type-title-l);color:var(--tx)">Speak → be understood → be corrected → speak again</span>
+        <span style="font:var(--type-body-m);color:var(--tx-2);max-width:400px">Two minutes of talking beats an hour of scrolling. Every correction is tied to a sentence you actually said.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== HOW IT WORKS ===================== -->
+<section id="how" class="r-pad" style="background:var(--pg-3);padding:0 34px 120px">
+  <div style="max-width:1180px;margin:0 auto">
+    <div class="r-2col rv" style="display:grid;grid-template-columns:1fr auto;gap:32px;align-items:end;margin-bottom:44px">
+      <div style="display:grid;gap:18px;max-width:700px">
+        <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--teal-400)">How it works</span>
+        <h2 style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,3.8vw,3.4rem);line-height:1.04;letter-spacing:-.032em;color:var(--tx)">Five things happen between your sentence and the reply.</h2>
+      </div>
+      <img src="assets/cast-listening.png" alt="A Fluency AI character listening, head tilted" style="width:min(220px,24vw);display:block;justify-self:end;filter:drop-shadow(0 20px 44px rgba(4,18,27,.4))">
+    </div>
+    <div class="r-stage rv" style="display:grid;grid-template-columns:.86fr 1.14fr;gap:28px;align-items:start">
+      <div id="stage-tabs" style="display:grid;gap:8px"></div>
+      <div style="position:relative;padding:34px;border-radius:28px;background:radial-gradient(120% 100% at 20% 0%,#123A4C 0%,#04121B 72%);border:1px solid rgba(255,255,255,.11);box-shadow:0 34px 90px rgba(4,18,27,.45);min-height:420px;display:grid;align-content:start;gap:22px;overflow:hidden">
+        <span id="stage-label" style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--cyan-400)"></span>
+        <p id="stage-headline" style="margin:0;font:var(--fw-bold) clamp(1.35rem,2.1vw,1.9rem)/1.18 var(--font-display);letter-spacing:-.022em;color:#fff;max-width:520px"></p>
+        <div style="display:grid;place-items:center;padding:14px 0 6px">
+          <div id="stage-orb" class="voice-orb" style="width:150px;height:150px;color:var(--cyan-400)">
+            <span class="ring" style="border-color:currentColor"></span>
+            <span class="ring ring2" style="border-color:currentColor"></span>
+            <span class="core" style="width:64px;height:64px"></span>
+          </div>
+        </div>
+        <div style="padding:18px 20px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.11)">
+          <p id="stage-words" style="margin:0 0 6px;font:var(--fw-semibold) 18px/1.4 var(--font-display);color:#fff"></p>
+          <p id="stage-translation" style="margin:0;font:var(--type-body-s);font-style:italic;color:var(--ink-400,#8CACBB)"></p>
+        </div>
+        <p id="stage-detail" style="margin:0;font:var(--type-body-m);color:var(--ink-400,#8CACBB);max-width:520px"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PRODUCT ===================== -->
+<section id="product" style="background:var(--pg);position:relative;overflow:hidden">
+  <div style="height:120px;background:linear-gradient(to bottom,var(--pg-3),var(--pg))"></div>
+  <div class="r-pad" style="max-width:1180px;margin:0 auto;padding:10px 34px 120px">
+    <div class="rv" style="display:grid;gap:18px;max-width:700px;margin-bottom:52px">
+      <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--mint-400)">Inside the app</span>
+      <h2 style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,3.8vw,3.4rem);line-height:1.04;letter-spacing:-.032em;color:var(--tx)">What you get back after two minutes of talking.</h2>
+    </div>
+    <div class="r-2col rv" style="display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center">
+      <div style="position:relative;min-height:520px">
+        <div style="position:absolute;left:0;top:0;width:min(300px,88%);border-radius:32px;padding:14px;background:rgba(8,32,45,.9);border:1px solid rgba(255,255,255,.13);box-shadow:0 40px 90px rgba(4,18,27,.55);z-index:2">
+          <div style="border-radius:22px;background:radial-gradient(120% 90% at 50% 0%,#123A4C 0%,#04121B 72%);padding:24px 18px;display:grid;gap:16px;justify-items:center">
+            <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--cyan-400)">Listening</span>
+            <div class="voice-orb" style="width:132px;height:132px;color:var(--cyan-400)">
+              <span class="ring" style="border-color:currentColor"></span>
+              <span class="ring ring2" style="border-color:currentColor"></span>
+              <span class="core" style="width:56px;height:56px"></span>
+            </div>
+            <div class="waveform" style="height:26px;width:180px;justify-content:center;color:var(--cyan-400)" id="mini-waveform"></div>
+            <span style="font:var(--fw-medium) 11px/1.4 var(--font-mono);color:var(--ink-500,#5B8497);text-align:center">00:02:14 spoken today</span>
+          </div>
+        </div>
+        <div class="r-hide" style="position:absolute;right:0;top:66px;width:min(330px,92%);z-index:3;padding:18px 20px;border-radius:22px;background:rgba(91,85,184,.16);border:1px solid rgba(154,150,224,.34);backdrop-filter:blur(18px);box-shadow:0 22px 60px rgba(4,18,27,.42)">
+          <span style="font:var(--fw-bold) 10px/1 var(--font-body);letter-spacing:.13em;text-transform:uppercase;color:var(--brand-ink)">Grammar · fixed quietly</span>
+          <p style="margin:10px 0 0;font:var(--fw-medium) 14px/1.4 var(--font-body);color:rgba(255,255,255,.5);text-decoration:line-through">Ich will ein Kaffee.</p>
+          <p style="margin:5px 0 0;font:var(--fw-bold) 15px/1.4 var(--font-display);color:#fff">Ich möchte einen Kaffee.</p>
+          <p style="margin:8px 0 0;font:var(--type-body-s);color:var(--ink-400,#8CACBB)">"Kaffee" is masculine, so "ein" becomes "einen" as the object of möchte.</p>
+          <p style="margin:8px 0 0;font:var(--type-caption);color:var(--teal-300)">Einen Kaffee, bitte.</p>
+        </div>
+        <div class="r-hide" style="position:absolute;left:52px;bottom:0;width:min(340px,94%);z-index:4;padding:18px 20px;border-radius:22px;background:rgba(37,215,155,.14);border:1px solid rgba(79,227,176,.35);backdrop-filter:blur(18px);box-shadow:0 22px 60px rgba(4,18,27,.42)">
+          <span style="font:var(--fw-bold) 10px/1 var(--font-body);letter-spacing:.13em;text-transform:uppercase;color:var(--mint-400)">More natural</span>
+          <p style="margin:10px 0 0;font:var(--fw-medium) 14px/1.4 var(--font-body);color:rgba(255,255,255,.5);text-decoration:line-through">Ich bin fertig mit essen.</p>
+          <p style="margin:5px 0 0;font:var(--fw-bold) 15px/1.4 var(--font-display);color:#fff">Ich bin satt, danke.</p>
+          <p style="margin:8px 0 0;font:var(--type-body-s);color:var(--ink-400,#8CACBB)">Yours means you finished a task. "Satt" is what people actually say.</p>
         </div>
       </div>
-
-      <div class="card">
-        <div style="font-weight:700;margin-bottom:14px">Communication center</div>
-        <p style="color:var(--tx-3);font-size:13px;margin:0 0 14px">Sends a branded email through your configured email provider — not through Supabase Auth, so this works for any message, not just account-related ones.</p>
-        <div style="display:grid;gap:12px;max-width:560px">
-          <label style="display:grid;gap:6px;font-size:13px;color:var(--tx-2)">
-            Audience
-            <select id="comm-audience" style="height:44px;padding:0 12px;border-radius:10px;background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);font:inherit">
-              <option value="all">All users</option>
-              <option value="subscribed">Subscribed users</option>
-              <option value="free">Free users</option>
-              <option value="suspended">Suspended users</option>
-              <option value="specific">Specific user (by email)</option>
-            </select>
-          </label>
-          <label id="comm-specific-wrap" style="display:none;display:grid;gap:6px;font-size:13px;color:var(--tx-2)">
-            User email
-            <input type="email" id="comm-specific-email" placeholder="someone@example.com" style="height:44px;padding:0 12px;border-radius:10px;background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);font:inherit">
-          </label>
-          <label style="display:grid;gap:6px;font-size:13px;color:var(--tx-2)">
-            Template
-            <select id="comm-template" style="height:44px;padding:0 12px;border-radius:10px;background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);font:inherit">
-              <option value="general">General announcement</option>
-              <option value="subscription">Subscription status / billing</option>
-              <option value="info">Product info / update</option>
-              <option value="custom">Custom (blank)</option>
-            </select>
-          </label>
-          <label style="display:grid;gap:6px;font-size:13px;color:var(--tx-2)">
-            Subject
-            <input type="text" id="comm-subject" style="height:44px;padding:0 12px;border-radius:10px;background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);font:inherit">
-          </label>
-          <label style="display:grid;gap:6px;font-size:13px;color:var(--tx-2)">
-            Message
-            <textarea id="comm-message" rows="7" style="padding:12px;border-radius:10px;background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);font:inherit;resize:vertical"></textarea>
-          </label>
-          <div class="err" id="comm-result" style="min-height:18px"></div>
-          <button id="comm-send-btn" style="width:fit-content;padding:0 22px;height:46px;border-radius:12px;background:var(--indigo-500);color:#fff;border:0;font:700 14px inherit;cursor:pointer">Send email</button>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:28px">
-        <div style="font-weight:700;margin-bottom:14px">All users</div>
-        <div class="toolbar">
-          <input type="text" id="search-input" placeholder="Search by email…">
-          <button class="tab active" data-filter="all">All</button>
-          <button class="tab" data-filter="subscribed">Subscribed</button>
-          <button class="tab" data-filter="free">Free</button>
-          <button class="tab" data-filter="admins">Admins</button>
-          <button class="tab" data-filter="suspended">Suspended</button>
-        </div>
-        <div style="overflow-x:auto">
-          <table>
-            <thead>
-              <tr>
-                <th>Email</th><th>Joined</th><th>Role</th><th>Subscription</th>
-                <th>Ends</th><th>Last active</th><th>Country</th><th>Device</th><th>Status</th><th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="users-tbody"></tbody>
-          </table>
-        </div>
-        <div class="pager">
-          <span id="pager-info"></span>
-          <button id="prev-page">Prev</button>
-          <button id="next-page">Next</button>
+      <div style="display:grid;gap:16px">
+        <div style="padding:22px 24px;border-radius:24px;background:var(--glass);border:1px solid var(--hair);display:grid;gap:14px">
+          <span style="font:var(--type-title-s);color:var(--tx)">Ability, not points</span>
+          <div style="display:grid;gap:10px">
+            <div>
+              <div style="display:flex;justify-content:space-between;font:var(--type-body-s);color:var(--tx-2);margin-bottom:6px"><span>Speaking</span><span style="color:var(--teal-400)">68% <span style="color:var(--mint-400)">▲4</span></span></div>
+              <div style="height:8px;border-radius:999px;background:var(--hair);overflow:hidden"><div style="width:68%;height:100%;border-radius:999px;background:var(--teal-400)"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font:var(--type-body-s);color:var(--tx-2);margin-bottom:6px"><span>Listening</span><span style="color:var(--cyan-400)">54% <span style="color:var(--mint-400)">▲6</span></span></div>
+              <div style="height:8px;border-radius:999px;background:var(--hair);overflow:hidden"><div style="width:54%;height:100%;border-radius:999px;background:var(--cyan-400)"></div></div>
+              <span style="font:var(--type-caption);color:var(--tx-3)">Drops when people speak fast.</span>
+            </div>
+          </div>
+          <div style="padding:14px 16px;border-radius:16px;background:var(--pg-3);display:grid;gap:6px">
+            <span style="font:var(--type-overline);color:var(--cyan-400);text-transform:uppercase;letter-spacing:var(--ls-overline)">Pronunciation · recurring</span>
+            <span style="font:var(--type-title-s);color:var(--tx)">"sch" pronounced as "s"</span>
+            <span style="font:var(--type-body-s);color:var(--tx-2)">e.g. "Entsuldigung" · seen 9 times · trending down</span>
+          </div>
+          <p style="margin:0;font:var(--type-body-m);color:var(--tx-2);max-width:420px">Mistakes are quoted back in your own words, with how often they recurred — so you can hear the habit, not read a grade.</p>
         </div>
       </div>
     </div>
   </div>
+</section>
+
+<!-- ===================== FEATURES ===================== -->
+<section class="r-pad" style="background:var(--pg-2);padding:100px 34px;position:relative">
+  <div style="max-width:1180px;margin:0 auto;display:grid;gap:44px">
+    <div class="rv" style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap">
+      <h2 style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,3.6vw,3.2rem);line-height:1.04;letter-spacing:-.032em;color:var(--tx);max-width:620px">Five things it does that a lesson can't.</h2>
+      <span style="font:var(--type-body-m);color:var(--tx-3);max-width:280px">Every one of them needs to hear you first.</span>
+    </div>
+    <div class="r-5col rv" id="features-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px"></div>
+  </div>
+</section>
+
+<!-- ===================== LISTENING EXPLAINER ===================== -->
+<section class="r-pad" style="background:var(--pg);padding:110px 34px;position:relative">
+  <div style="max-width:1180px;margin:0 auto;display:grid;gap:48px">
+    <div class="rv" style="display:grid;gap:18px;max-width:680px">
+      <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--cyan-400)">How the listening actually works</span>
+      <h2 style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,3.6vw,3.2rem);line-height:1.04;letter-spacing:-.032em;color:var(--tx)">No black box. You can see what it heard.</h2>
+    </div>
+    <div class="r-3col rv" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--hair)">
+      <div style="padding:30px 26px 30px 0;border-right:1px solid var(--hair);display:grid;gap:12px;align-content:start">
+        <span style="font:var(--fw-medium) 11px/1 var(--font-mono);color:var(--teal-400)">01 / CONFIDENCE</span>
+        <span style="font:var(--type-title-m);color:var(--tx)">Uncertain words are marked</span>
+        <span style="font:var(--type-body-m);color:var(--tx-2)">If the recogniser is only 61% sure of a word, it underlines it rather than guessing silently.</span>
+      </div>
+      <div style="padding:30px 26px;border-right:1px solid var(--hair);display:grid;gap:12px;align-content:start">
+        <span style="font:var(--fw-medium) 11px/1 var(--font-mono);color:var(--brand-ink)">02 / INTENT</span>
+        <span style="font:var(--type-title-m);color:var(--tx)">Meaning before grammar</span>
+        <span style="font:var(--type-body-m);color:var(--tx-2)">It works out what you were reaching for, then decides whether the slip was worth stopping for.</span>
+      </div>
+      <div style="padding:30px 0 30px 26px;display:grid;gap:12px;align-content:start">
+        <span style="font:var(--fw-medium) 11px/1 var(--font-mono);color:var(--mint-400)">03 / MEMORY</span>
+        <span style="font:var(--type-title-m);color:var(--tx)">Your mistakes carry over</span>
+        <span style="font:var(--type-body-m);color:var(--tx-2)">Tomorrow's conversation is built around the two things you got wrong today.</span>
+      </div>
+    </div>
+    <div class="rv" style="padding:30px 32px;border-radius:26px;background:linear-gradient(140deg,rgba(91,85,184,.2),rgba(53,221,251,.07));border:1px solid var(--indigo-400);display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+      <span class="fl-icon" data-icon="shield-check" data-size="22" style="color:var(--brand-ink)"></span>
+      <span style="font:var(--type-body-l);color:var(--tx);flex:1;min-width:280px">Your recordings are yours. Delete any conversation and the model forgets it too.</span>
+      <a href="/privacy" style="font:var(--type-label);color:var(--teal-400)">Read the privacy note</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== LANGUAGES ===================== -->
+<section class="r-pad" style="background:var(--pg-2);padding:96px 34px;overflow:hidden">
+  <div style="max-width:1180px;margin:0 auto;display:grid;gap:34px">
+    <div class="rv" style="display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap">
+      <h2 style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(1.7rem,2.8vw,2.5rem);letter-spacing:-.03em;color:var(--tx)">Forty languages, all spoken.</h2>
+      <span style="font:var(--type-body-m);color:var(--tx-3);max-width:300px">The forty most-learned languages in the world. Switch between any of them without paying again.</span>
+    </div>
+    <div aria-hidden="true" class="fl-mask" style="position:relative;overflow:hidden;margin:0 -34px;padding:6px 0">
+      <div class="fl-anim" id="lang-ribbon" style="display:flex;gap:40px;width:max-content;animation:fl-marquee 42s linear infinite"></div>
+    </div>
+    <div class="r-4col rv" id="languages-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px"></div>
+  </div>
+</section>
+
+<!-- ===================== PRICING ===================== -->
+<section id="pricing" class="r-pad" style="background:var(--pg);padding:110px 34px;position:relative;overflow:hidden">
+  <img class="r-hide" src="assets/cast-pointing.png" alt="" style="position:absolute;left:4%;bottom:0;width:min(330px,24%);display:block;filter:drop-shadow(0 24px 50px rgba(4,18,27,.4));pointer-events:none">
+  <div style="max-width:1180px;margin:0 auto;display:grid;gap:44px;justify-items:center;position:relative">
+    <div class="rv" style="display:grid;gap:16px;justify-items:center;text-align:center;max-width:640px">
+      <span style="display:inline-flex;padding:7px 15px;border-radius:999px;background:rgba(91,85,184,.18);border:1px solid var(--indigo-400);font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--brand-ink)">Pricing</span>
+      <h2 style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,3.6vw,3.2rem);line-height:1.04;letter-spacing:-.032em;color:var(--tx)">Try it free. Cancel any time.</h2>
+      <p style="margin:0;font:var(--type-body-l);color:var(--tx-2)">A 3-day free trial, then one simple plan — no per-minute meter, no upsell in the middle of a sentence.</p>
+    </div>
+    <div class="rv" style="width:min(560px,100%);padding:40px;border-radius:32px;background:linear-gradient(150deg,rgba(91,85,184,.26),rgba(16,184,184,.1));border:1px solid var(--indigo-400);box-shadow:0 40px 100px rgba(4,18,27,.4);display:grid;gap:24px">
+      <span style="display:inline-flex;align-items:center;gap:9px;padding:8px 16px;border-radius:999px;background:var(--indigo-500);color:#fff;font:var(--fw-bold) 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;justify-self:start">
+        <span class="fl-icon" data-icon="sparkles" data-size="14"></span>3-day free trial
+      </span>
+      <div style="display:grid;gap:10px">
+        <div class="r-stack" style="display:flex;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:180px;padding:18px 20px;border-radius:20px;background:var(--pg-3);border:1px solid var(--hair);display:grid;gap:4px">
+            <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--tx-3)">Weekly</span>
+            <span style="font:var(--fw-black) 1.9rem/1 var(--font-numeric);color:var(--tx);letter-spacing:-.03em">$5.99<span style="font:var(--type-body-m);color:var(--tx-3)">/wk</span></span>
+          </div>
+          <div style="flex:1;min-width:180px;padding:18px 20px;border-radius:20px;background:rgba(91,85,184,.22);border:1px solid var(--indigo-400);display:grid;gap:4px;position:relative">
+            <span style="position:absolute;top:-10px;right:14px;padding:3px 10px;border-radius:999px;background:var(--indigo-500);color:#fff;font:var(--fw-bold) 10px/1.6 var(--font-body);letter-spacing:.08em;text-transform:uppercase">Best value</span>
+            <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--brand-ink)">Yearly</span>
+            <span style="font:var(--fw-black) 1.9rem/1 var(--font-numeric);color:var(--tx);letter-spacing:-.03em">$39.99<span style="font:var(--type-body-m);color:var(--tx-3)">/yr</span></span>
+          </div>
+        </div>
+        <span style="font:var(--type-body-m);color:var(--tx-2)">Pick either plan free — you're only charged once the 3-day trial ends, and you can switch or cancel from inside the app any time.</span>
+      </div>
+      <div style="display:grid;gap:11px">
+        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>Unlimited spoken conversation</span>
+        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>All forty languages, switch any time</span>
+        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>Corrections, pronunciation breakdowns, mistake memory</span>
+        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>Delete any recording, any time</span>
+      </div>
+      <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent js-auth-trigger" style="width:100%;height:52px"><span class="fl-icon" data-icon="user-plus" data-size="18"></span>Create your account</a>
+      <span style="font:var(--type-caption);color:var(--tx-3);text-align:center">Create your account, pick weekly or yearly, start your 3-day free trial. A card is required to start the trial — you won't be charged until it ends.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FAQ ===================== -->
+<section id="faq" class="r-pad" style="background:var(--pg-2);padding:100px 34px">
+  <div class="r-2col" style="max-width:1180px;margin:0 auto;display:grid;grid-template-columns:.8fr 1.2fr;gap:48px;align-items:start">
+    <h2 class="rv" style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(1.9rem,3.2vw,2.8rem);line-height:1.05;letter-spacing:-.032em;color:var(--tx)">Questions people ask before their first sentence.</h2>
+    <div class="rv" id="faq-list" style="display:grid;gap:0;border-top:1px solid var(--hair)"></div>
+  </div>
+</section>
+
+<!-- ===================== FINAL CTA ===================== -->
+<section style="position:relative;background:radial-gradient(120% 100% at 50% 0%,#16495E 0%,#08202D 45%,#04121B 82%);padding:0 0 0;overflow:hidden">
+  <div style="height:110px;background:linear-gradient(to bottom,var(--pg-2),rgba(4,18,27,0))"></div>
+  <div class="r-pad" style="max-width:1180px;margin:0 auto;padding:20px 34px 0;position:relative">
+    <div class="r-2col" style="display:grid;grid-template-columns:1.08fr .92fr;gap:24px;align-items:end;min-height:520px">
+      <div class="rv" style="display:grid;gap:26px;justify-items:start;padding-bottom:96px;position:relative;z-index:3">
+        <span style="display:inline-flex;padding:7px 15px;border-radius:999px;background:rgba(91,85,184,.28);border:1px solid var(--indigo-400);font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:#CFCCF4">Your turn</span>
+        <h2 style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(2.4rem,5.2vw,4.6rem);line-height:.98;letter-spacing:-.04em;color:#fff">Say anything.<br>Even badly.</h2>
+        <p style="margin:0;font:var(--type-body-l);color:var(--ink-300,#B7CCD6);max-width:440px">Practice smarter. Speak with confidence. Your first conversation takes ten seconds to start.</p>
+        <div class="r-stack" style="display:flex;gap:12px;flex-wrap:wrap">
+          <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent js-auth-trigger" style="height:52px"><span class="fl-icon" data-icon="user-plus" data-size="18"></span>Create your account</a>
+          <a href="#how" class="fl-btn fl-btn-inverse" style="height:52px">See how it works<span class="fl-icon" data-icon="arrow-right" data-size="18"></span></a>
+        </div>
+        <div style="display:grid;gap:10px">
+          <span style="font:var(--type-caption);color:var(--ink-400,#8CACBB)">All three open the web app for now — real store links go live at launch</span>
+          <div class="r-stack" style="display:flex;gap:10px;flex-wrap:wrap">
+            <a href="/app/auth?mode=signup" class="store-link js-auth-trigger"><span class="fl-icon" data-icon="smartphone" data-size="16"></span>Download for iOS</a>
+            <a href="/app/auth?mode=signup" class="store-link js-auth-trigger"><span class="fl-icon" data-icon="smartphone" data-size="16"></span>Get it on Android</a>
+            <a href="/app/auth?mode=signup" class="store-link js-auth-trigger"><span class="fl-icon" data-icon="mic" data-size="16"></span>Open the web app</a>
+          </div>
+        </div>
+      </div>
+      <div class="r-heroart" style="position:relative;height:520px">
+        <img src="assets/cast-confident.png" alt="A Fluency AI character standing with arms open" style="position:absolute;right:8%;bottom:0;width:min(400px,80%);display:block;filter:drop-shadow(0 30px 70px rgba(4,18,27,.55));pointer-events:none">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="r-pad" style="background:#04121B;padding:60px 34px 44px;border-top:1px solid rgba(255,255,255,.09)">
+  <div class="r-2col" style="max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.5fr repeat(3,1fr);gap:34px">
+    <div style="display:grid;gap:14px;align-content:start">
+      <span class="fl-logo" style="color:#fff"><span>Fluenc</span><span class="ai">y<span>AI</span></span></span>
+      <span style="font:var(--type-body-s);color:var(--ink-500,#5B8497);max-width:250px">From studying a language to actually communicating in it.</span>
+    </div>
+    <div style="display:grid;gap:10px;align-content:start">
+      <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--ink-500,#5B8497)">Product</span>
+      <a href="#how" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">How it works</a>
+      <a href="#product" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">Inside the app</a>
+      <a href="#pricing" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">Pricing</a>
+    </div>
+    <div style="display:grid;gap:10px;align-content:start">
+      <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--ink-500,#5B8497)">Company</span>
+      <a href="/creators" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">Creator Program</a>
+      <a href="#" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">About</a>
+      <a href="#" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">Research</a>
+      <a href="#" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">Careers</a>
+    </div>
+    <div style="display:grid;gap:10px;align-content:start">
+      <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--ink-500,#5B8497)">Support</span>
+      <a href="#" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">Download the app</a>
+      <a href="#faq" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">FAQ</a>
+      <a href="/privacy" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">Privacy</a>
+      <a href="/terms" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">Terms</a>
+    </div>
+  </div>
+</footer>
+
+
+<div id="auth-modal-overlay" class="auth-overlay" aria-hidden="true">
+  <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+    <button type="button" class="auth-close" id="auth-close-btn" aria-label="Close">&times;</button>
+
+    <div id="auth-step-signup" class="auth-step active">
+      <span class="fl-icon" data-icon="mic" data-size="22" style="color:var(--teal-400)"></span>
+      <h3 id="auth-modal-title">Create your account</h3>
+      <p class="auth-sub">Start your 3-day free trial. No card required to sign up here — you'll pick a plan once you're in.</p>
+      <form id="auth-signup-form">
+        <label>Email
+          <input type="email" id="auth-email" required autocomplete="email" placeholder="you@example.com">
+        </label>
+        <label>Password
+          <input type="password" id="auth-password" required autocomplete="new-password" minlength="6" placeholder="At least 6 characters">
+        </label>
+        <div class="auth-error" id="auth-signup-error"></div>
+        <button type="submit" class="fl-btn fl-btn-accent" id="auth-signup-submit" style="width:100%;height:52px">
+          <span class="fl-icon" data-icon="user-plus" data-size="18"></span>Create account
+        </button>
+      </form>
+      <p class="auth-footnote">Already have an account? <button type="button" id="auth-go-to-login-from-signup" class="auth-link-btn">Log in</button> &middot; <button type="button" id="auth-forgot-link" class="auth-link-btn">Forgot password?</button></p>
+    </div>
+
+    <div id="auth-step-login" class="auth-step">
+      <span class="fl-icon" data-icon="log-in" data-size="22" style="color:var(--teal-400)"></span>
+      <h3>Log in</h3>
+      <p class="auth-sub">Welcome back.</p>
+      <form id="auth-login-form">
+        <label>Email
+          <input type="email" id="auth-login-email" required autocomplete="email" placeholder="you@example.com">
+        </label>
+        <label>Password
+          <input type="password" id="auth-login-password" required autocomplete="current-password">
+        </label>
+        <div class="auth-error" id="auth-login-error"></div>
+        <button type="submit" class="fl-btn fl-btn-accent" id="auth-login-submit" style="width:100%;height:52px">Log in</button>
+      </form>
+      <p class="auth-footnote">
+        <button type="button" id="auth-forgot-link-login" class="auth-link-btn">Forgot password?</button>
+        &middot; <button type="button" id="auth-go-to-signup" class="auth-link-btn">Need an account? Sign up</button>
+      </p>
+    </div>
+
+    <div id="auth-step-login-admin" class="auth-step">
+      <span class="fl-icon" data-icon="shield-check" data-size="22" style="color:var(--indigo-400)"></span>
+      <h3>Welcome back, admin</h3>
+      <p class="auth-sub">You're signed in with an admin account.</p>
+      <button type="button" id="auth-go-to-admin" class="fl-btn fl-btn-accent" style="width:100%;height:52px">
+        <span class="fl-icon" data-icon="layout-dashboard" data-size="18"></span>Go to admin dashboard
+      </button>
+    </div>
+
+    <div id="auth-step-login-success" class="auth-step">
+      <span class="fl-icon" data-icon="check-circle" data-size="30" style="color:var(--mint-400)"></span>
+      <h3>You're logged in</h3>
+      <p class="auth-sub">Continue to Fluency AI to start speaking.</p>
+      <button type="button" id="auth-continue-to-app" class="fl-btn fl-btn-accent" style="width:100%;height:52px">Continue to the app</button>
+    </div>
+
+    <div id="auth-step-forgot" class="auth-step">
+      <span class="fl-icon" data-icon="key-round" data-size="22" style="color:var(--teal-400)"></span>
+      <h3>Reset your password</h3>
+      <p class="auth-sub">Enter the email on your account and we'll send you a 6-digit reset code.</p>
+      <form id="auth-forgot-form">
+        <label>Email
+          <input type="email" id="auth-forgot-email" required autocomplete="email" placeholder="you@example.com">
+        </label>
+        <div class="auth-error" id="auth-forgot-error"></div>
+        <button type="submit" class="fl-btn fl-btn-accent" id="auth-forgot-submit" style="width:100%;height:52px">Send reset code</button>
+      </form>
+      <p class="auth-footnote"><button type="button" id="auth-back-to-signup" class="auth-link-btn">Back to sign up</button></p>
+    </div>
+
+    <div id="auth-step-reset" class="auth-step">
+      <span class="fl-icon" data-icon="key-round" data-size="22" style="color:var(--teal-400)"></span>
+      <h3>Check your email</h3>
+      <p class="auth-sub">We sent a 6-digit code to <strong id="auth-reset-email" style="color:var(--tx)"></strong>. Enter it below with your new password.</p>
+      <form id="auth-reset-form">
+        <label>Reset code
+          <input type="text" id="auth-reset-code" required inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="123456" style="letter-spacing:.5em;text-align:center;font:700 20px var(--font-mono)">
+        </label>
+        <label>New password
+          <input type="password" id="auth-new-password" required autocomplete="new-password" minlength="6" placeholder="At least 6 characters">
+        </label>
+        <div class="auth-error" id="auth-reset-error"></div>
+        <button type="submit" class="fl-btn fl-btn-accent" id="auth-reset-submit" style="width:100%;height:52px">Set new password</button>
+      </form>
+      <p class="auth-footnote">Didn't get it? <button type="button" id="auth-resend-reset-btn" class="auth-link-btn">Resend code</button></p>
+    </div>
+
+    <div id="auth-step-reset-success" class="auth-step">
+      <span class="fl-icon" data-icon="check-circle" data-size="30" style="color:var(--mint-400)"></span>
+      <h3>Password updated</h3>
+      <p class="auth-sub">Taking you to Fluency AI to log in with your new password&hellip;</p>
+    </div>
+
+    <div id="auth-step-verify" class="auth-step">
+      <span class="fl-icon" data-icon="mail" data-size="22" style="color:var(--teal-400)"></span>
+      <h3>Check your email</h3>
+      <p class="auth-sub">We sent a 6-digit code to <strong id="auth-verify-email" style="color:var(--tx)"></strong>. Enter it below to confirm your account.</p>
+      <form id="auth-verify-form">
+        <label>Confirmation code
+          <input type="text" id="auth-code" required inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="123456" style="letter-spacing:.5em;text-align:center;font:700 20px var(--font-mono)">
+        </label>
+        <div class="auth-error" id="auth-verify-error"></div>
+        <button type="submit" class="fl-btn fl-btn-accent" id="auth-verify-submit" style="width:100%;height:52px">Confirm &amp; continue</button>
+      </form>
+      <p class="auth-footnote">Didn't get it? <button type="button" id="auth-resend-btn" class="auth-link-btn">Resend code</button></p>
+    </div>
+
+    <div id="auth-step-success" class="auth-step">
+      <span class="fl-icon" data-icon="check-circle" data-size="30" style="color:var(--mint-400)"></span>
+      <h3>You're all set</h3>
+      <p class="auth-sub">Taking you to Fluency AI to log in&hellip;</p>
+    </div>
+  </div>
 </div>
 
-<script src="/config.js"></script>
+<script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/admin/admin.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="auth.js"></script>
 </body>
 </html>
