@@ -1,23 +1,19 @@
 // ============ FLUENCY AI — INLINE AUTH (site/auth.js) ============
-// REWRITTEN FROM SCRATCH to talk to Supabase's Auth REST API directly with
-// plain fetch() calls, instead of going through the @supabase/supabase-js
-// library.
+// Talks to Supabase's Auth REST API directly with plain fetch() calls,
+// instead of going through the @supabase/supabase-js library - see the
+// git history on this file for why (a confirmed upstream SDK lock bug was
+// causing correct codes to be rejected).
 //
-// Why: the supabase-js client keeps a lot of internal state under the hood
-// (a cross-tab lock via the Web Locks API, automatic token refresh timers,
-// session change listeners, etc.) to make advanced multi-tab session
-// syncing "just work." That internal machinery has a confirmed upstream
-// bug (Supabase tracks a lock-acquisition deadlock that can hang forever
-// in some browsers) which is what was causing signup/reset codes to fail
-// with "incorrect or expired" even when correct — the verify call never
-// even reached the network.
-//
-// This app doesn't need any of that multi-tab session syncing — it just
-// needs: sign up, verify a code, log in, reset a password. Each of those
-// is one explicit HTTP request with a clear success/failure. No SDK, no
-// hidden locks, no hidden retry/refresh logic, nothing that can silently
-// hang. Every request below is a plain fetch() you can watch in the
-// Network tab, every time.
+// This version adds:
+//  - A session that actually persists across visits (checked on every
+//    page load, not just right after signing in).
+//  - One shared "you're in" screen after login, signup verification, or
+//    password reset, offering Continue to app / Go to admin dashboard (if
+//    admin) / Stay on this site - instead of auto-redirecting or only
+//    offering one option.
+//  - The nav's "Log in" link turning into "My account" when a valid
+//    session already exists, so returning users see they're signed in
+//    without having to open the modal first.
 
 (function () {
   const SUPABASE_URL = (window.__SUPABASE_URL || '').replace(/\/$/, '');
@@ -66,11 +62,12 @@
     return data;
   }
 
-  // ---------- Minimal local session storage ----------
+  // ---------- Persistent local session storage ----------
   // Stored under the same key format supabase-js/supabase_flutter use by
   // default (sb-<project-ref>-auth-token), so the Flutter web app at /app
   // can pick up an existing session from the site without the user having
-  // to log in twice.
+  // to log in twice. Kept in localStorage (not sessionStorage), so it
+  // survives closing the tab/browser entirely - a real "stay logged in."
   function projectRef() {
     const m = SUPABASE_URL.match(/https?:\/\/([^.]+)\.supabase\.co/);
     return m ? m[1] : 'fluencyai';
@@ -86,8 +83,60 @@
   function clearSession() {
     localStorage.removeItem(SESSION_KEY);
   }
+  function loadSession() {
+    try {
+      const raw = localStorage.getItem(SESSION_KEY);
+      if (!raw) return null;
+      const session = JSON.parse(raw);
+      if (!session || !session.access_token) return null;
+      return session;
+    } catch (_) {
+      return null;
+    }
+  }
 
-  // ---------- DOM wiring (unchanged from before) ----------
+  /// Refreshes an expired-but-recent session using its refresh token, so
+  /// "stay logged in" actually lasts (access tokens are short-lived by
+  /// design; refresh tokens are what make persistence real).
+  async function getValidSession() {
+    const session = loadSession();
+    if (!session) return null;
+    const now = Math.floor(Date.now() / 1000);
+    if (session.expires_at && session.expires_at > now + 30) return session;
+    if (!session.refresh_token) return null;
+    try {
+      const refreshed = await authRequest('/auth/v1/token', {
+        query: { grant_type: 'refresh_token' },
+        body: { refresh_token: session.refresh_token },
+      });
+      if (refreshed && refreshed.access_token) {
+        saveSession(refreshed);
+        return refreshed;
+      }
+    } catch (_) {
+      clearSession();
+    }
+    return null;
+  }
+
+  async function checkIsAdmin(session) {
+    try {
+      const rows = await authRequest('/rest/v1/profiles', {
+        method: 'GET',
+        accessToken: session.access_token,
+        query: { id: 'eq.' + session.user.id, select: 'role' },
+      });
+      const profile = Array.isArray(rows) ? rows[0] : null;
+      return !!(profile && profile.role === 'admin');
+    } catch (err) {
+      // Logged in fine, just couldn't confirm role - fail safe by
+      // treating as a normal (non-admin) user rather than blocking access.
+      console.error('Could not check role:', err.message);
+      return false;
+    }
+  }
+
+  // ---------- DOM wiring ----------
   const overlay = document.getElementById('auth-modal-overlay');
   const closeBtn = document.getElementById('auth-close-btn');
 
@@ -100,8 +149,13 @@
   const loginForm = document.getElementById('auth-login-form');
   const loginSubmit = document.getElementById('auth-login-submit');
   const goToSignupBtn = document.getElementById('auth-go-to-signup');
+
+  const welcomeTitle = document.getElementById('auth-welcome-title');
+  const welcomeSub = document.getElementById('auth-welcome-sub');
   const goToAdminBtn = document.getElementById('auth-go-to-admin');
   const continueToAppBtn = document.getElementById('auth-continue-to-app');
+  const stayOnSiteBtn = document.getElementById('auth-stay-on-site');
+  const logOutBtn = document.getElementById('auth-log-out');
 
   const forgotLink = document.getElementById('auth-forgot-link');
   const forgotLinkFromLogin = document.getElementById('auth-forgot-link-login');
@@ -111,6 +165,8 @@
   const resetForm = document.getElementById('auth-reset-form');
   const resetSubmit = document.getElementById('auth-reset-submit');
   const resendResetBtn = document.getElementById('auth-resend-reset-btn');
+
+  const navLoginLinks = [document.getElementById('fl-nav-login'), document.getElementById('fl-nav-login-m')].filter(Boolean);
 
   // Pending emails live in sessionStorage (not just a JS variable) so a
   // reload between "code sent" and "code entered" doesn't silently lose
@@ -170,6 +226,31 @@
     return msg;
   }
 
+  // ---------- The shared "you're in" screen ----------
+  // Used after login, after confirming a signup code, and after resetting
+  // a password - the only differences are the heading/subtext and whether
+  // "Go to admin dashboard" is shown, so this is one function instead of
+  // three near-duplicate screens.
+  async function showWelcome({ title, subtitle, session }) {
+    welcomeTitle.textContent = title;
+    welcomeSub.textContent = subtitle;
+    showStep('welcome');
+
+    goToAdminBtn.classList.add('hidden');
+    const isAdmin = await checkIsAdmin(session);
+    if (isAdmin) goToAdminBtn.classList.remove('hidden');
+
+    refreshNavLoginState();
+  }
+
+  function refreshNavLoginState() {
+    const session = loadSession();
+    const loggedIn = !!(session && session.expires_at && session.expires_at > Math.floor(Date.now() / 1000));
+    navLoginLinks.forEach((el) => {
+      el.textContent = loggedIn ? 'My account' : 'Log in';
+    });
+  }
+
   function openModal(step) {
     if (!configured) {
       window.location.href = '/app/auth?mode=signup';
@@ -191,7 +272,20 @@
     el.addEventListener('click', (e) => { e.preventDefault(); openModal('signup'); });
   });
   document.querySelectorAll('.js-login-trigger').forEach((el) => {
-    el.addEventListener('click', (e) => { e.preventDefault(); openModal('login'); });
+    el.addEventListener('click', async (e) => {
+      e.preventDefault();
+      // Already signed in (from a previous visit)? Skip straight to the
+      // welcome screen instead of asking them to log in again.
+      const session = await getValidSession();
+      if (session) {
+        await showWelcome({ title: 'Welcome back', subtitle: "You're already signed in.", session });
+        overlay.classList.add('open');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      } else {
+        openModal('login');
+      }
+    });
   });
 
   // Resume mid-flow if a code was already sent and the page reloaded.
@@ -205,6 +299,7 @@
       document.getElementById('auth-reset-email').textContent = pendingReset;
       openModal('reset');
     }
+    refreshNavLoginState();
   }
 
   closeBtn.addEventListener('click', closeModal);
@@ -249,10 +344,20 @@
 
     setLoading(verifySubmit, true);
     try {
-      await authRequest('/auth/v1/verify', { body: { email, token, type: 'signup' } });
+      const session = await authRequest('/auth/v1/verify', { body: { email, token, type: 'signup' } });
       clearPendingEmail();
-      showStep('success');
-      setTimeout(() => { window.location.href = '/app/auth?mode=login'; }, 1800);
+      if (session && session.access_token) {
+        saveSession(session);
+        await showWelcome({
+          title: "You're all set",
+          subtitle: 'Your email is confirmed and you\u2019re signed in.',
+          session,
+        });
+      } else {
+        // Auto-confirm is off and this didn't return a session - fall
+        // back to asking them to log in.
+        showStep('login');
+      }
     } catch (err) {
       showError('auth-verify-error', humanizeError(err));
     } finally {
@@ -276,7 +381,7 @@
     }
   });
 
-  // ---------- Log in (with admin detection) ----------
+  // ---------- Log in ----------
 
   goToSignupBtn.addEventListener('click', () => showStep('signup'));
   document.getElementById('auth-go-to-login-from-signup').addEventListener('click', () => showStep('login'));
@@ -295,28 +400,7 @@
         body: { email, password },
       });
       saveSession(session);
-
-      // Check role directly via PostgREST - RLS already allows a user to
-      // read their own profiles row, no elevated privilege needed.
-      let profile = null;
-      try {
-        const rows = await authRequest('/rest/v1/profiles', {
-          method: 'GET',
-          accessToken: session.access_token,
-          query: { id: 'eq.' + session.user.id, select: 'role' },
-        });
-        profile = Array.isArray(rows) ? rows[0] : null;
-      } catch (profileErr) {
-        // Logged in fine, just couldn't confirm role - fail safe by
-        // treating as a normal (non-admin) user rather than blocking login.
-        console.error('Could not check role:', profileErr.message);
-      }
-
-      if (profile && profile.role === 'admin') {
-        showStep('login-admin');
-      } else {
-        showStep('login-success');
-      }
+      await showWelcome({ title: "You're logged in", subtitle: 'Pick up where you left off.', session });
     } catch (err) {
       showError('auth-login-error', humanizeError(err));
     } finally {
@@ -324,8 +408,24 @@
     }
   });
 
+  // ---------- Welcome screen actions (shared by login / signup / reset) ----------
+
   goToAdminBtn.addEventListener('click', () => { window.location.href = '/admin'; });
   continueToAppBtn.addEventListener('click', () => { window.location.href = '/app'; });
+  stayOnSiteBtn.addEventListener('click', () => { closeModal(); refreshNavLoginState(); });
+  logOutBtn.addEventListener('click', async () => {
+    const session = loadSession();
+    if (session && session.access_token) {
+      try {
+        await authRequest('/auth/v1/logout', { accessToken: session.access_token, query: { scope: 'local' } });
+      } catch (_) {
+        // Best-effort - clear locally regardless of whether this succeeded.
+      }
+    }
+    clearSession();
+    refreshNavLoginState();
+    showStep('login');
+  });
 
   // ---------- Forgot password / recovery flow ----------
 
@@ -386,17 +486,17 @@
         body: { password: newPassword },
       });
 
-      // Sign out of this temporary session - actual login still happens
-      // explicitly afterwards, same as after signup.
-      await authRequest('/auth/v1/logout', {
-        accessToken: session.access_token,
-        query: { scope: 'local' },
-      }).catch(() => {});
-      clearSession();
+      // Keep this session (rather than signing out) so "credentials
+      // persist across sessions" applies here too - a password reset now
+      // logs you in, the same as signup and login do.
+      saveSession(session);
       clearPendingResetEmail();
 
-      showStep('reset-success');
-      setTimeout(() => { window.location.href = '/app/auth?mode=login'; }, 1800);
+      await showWelcome({
+        title: 'Password updated',
+        subtitle: 'You\u2019re signed in with your new password.',
+        session,
+      });
     } catch (err) {
       showError('auth-reset-error', humanizeError(err));
     } finally {
