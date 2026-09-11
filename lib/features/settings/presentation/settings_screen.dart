@@ -13,14 +13,13 @@ import '../../../shared/data/onboarding_options.dart';
 import '../../auth/data/rest_auth_repository.dart';
 import '../../onboarding/data/onboarding_provider.dart';
 import '../../onboarding/data/profile_repository.dart';
+import 'legal_content_screen.dart';
+import 'creator_program_screen.dart';
 
-// TODO: swap these for your real links before shipping - these are
-// placeholders so the rows are wired up and functional out of the box.
-const _kSupportEmail = 'support@fluencyapp.example';
+// Matches the address used across the site (site/terms.html,
+// site/privacy.html) exactly - keep these in sync if that ever changes.
+const _kSupportEmail = 'fluencyai.support@gmail.com';
 const _kDiscordInviteUrl = 'https://discord.gg/your-invite';
-const _kCreatorProgramUrl = 'https://fluencyapp.example/creators';
-const _kTermsUrl = 'https://fluencyapp.example/terms';
-const _kPrivacyUrl = 'https://fluencyapp.example/privacy';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -245,7 +244,9 @@ class SettingsScreen extends ConsumerWidget {
                         mood: IconMood.teal,
                         title: 'Creator Program',
                         showChevron: true,
-                        onTap: () => _openUrl(context, _kCreatorProgramUrl),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const CreatorProgramScreen()),
+                        ),
                       ),
                     ]),
                     const SizedBox(height: 20),
@@ -257,14 +258,18 @@ class SettingsScreen extends ConsumerWidget {
                         mood: IconMood.teal,
                         title: 'Terms of Service',
                         showChevron: true,
-                        onTap: () => _openUrl(context, _kTermsUrl),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const TermsOfServiceScreen()),
+                        ),
                       ),
                       _SettingsRow(
                         icon: Icons.info_outline_rounded,
                         mood: IconMood.sky,
                         title: 'Privacy Policy',
                         showChevron: true,
-                        onTap: () => _openUrl(context, _kPrivacyUrl),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
+                        ),
                       ),
                     ]),
                     const SizedBox(height: 20),
