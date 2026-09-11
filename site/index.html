@@ -308,6 +308,7 @@ button{font-family:inherit}
 .auth-error{min-height:0;font:var(--type-body-s);color:var(--coral-400);display:none}
 .auth-error.show{display:block}
 .auth-footnote{margin:18px 0 0;text-align:center;font:var(--type-body-s);color:var(--tx-3)}
+.hidden{display:none !important}
 .auth-link-btn{background:none;border:0;padding:0;color:var(--teal-400);font:inherit;cursor:pointer;text-decoration:underline}
 .auth-link-btn:hover{color:var(--teal-300)}
 .auth-step{display:none}
@@ -399,7 +400,7 @@ a,button{-webkit-tap-highlight-color:transparent}
     <a href="#pricing">Pricing</a>
     <a href="#faq">FAQ</a>
     <a href="/creators">Creators</a>
-    <a href="#" class="js-login-trigger">Log in</a>
+    <a href="#" id="fl-nav-login" class="js-login-trigger">Log in</a>
   </div>
   <div style="flex:1"></div>
   <button type="button" id="fl-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="fl-mobile-menu">
@@ -421,7 +422,7 @@ a,button{-webkit-tap-highlight-color:transparent}
     <a href="#faq" class="r-mm-link">FAQ</a>
     <a href="/creators" class="r-mm-link">Creators</a>
     <div class="r-mm-hair"></div>
-    <a href="#" class="r-mm-link js-login-trigger">Log in</a>
+    <a href="#" id="fl-nav-login-m" class="r-mm-link js-login-trigger">Log in</a>
     <div class="r-mm-hair"></div>
     <div class="r-mm-appearance">
       <span>Dark mode</span>
@@ -870,20 +871,20 @@ a,button{-webkit-tap-highlight-color:transparent}
       </p>
     </div>
 
-    <div id="auth-step-login-admin" class="auth-step">
-      <span class="fl-icon" data-icon="shield-check" data-size="22" style="color:var(--indigo-400)"></span>
-      <h3>Welcome back, admin</h3>
-      <p class="auth-sub">You're signed in with an admin account.</p>
-      <button type="button" id="auth-go-to-admin" class="fl-btn fl-btn-accent" style="width:100%;height:52px">
-        <span class="fl-icon" data-icon="layout-dashboard" data-size="18"></span>Go to admin dashboard
-      </button>
-    </div>
-
-    <div id="auth-step-login-success" class="auth-step">
+    <div id="auth-step-welcome" class="auth-step">
       <span class="fl-icon" data-icon="check-circle" data-size="30" style="color:var(--mint-400)"></span>
-      <h3>You're logged in</h3>
-      <p class="auth-sub">Continue to Fluency AI to start speaking.</p>
-      <button type="button" id="auth-continue-to-app" class="fl-btn fl-btn-accent" style="width:100%;height:52px">Continue to the app</button>
+      <h3 id="auth-welcome-title">You're all set</h3>
+      <p class="auth-sub" id="auth-welcome-sub">Continue to Fluency AI to start speaking.</p>
+      <div style="display:grid;gap:10px;margin-top:6px">
+        <button type="button" id="auth-continue-to-app" class="fl-btn fl-btn-accent" style="width:100%;height:52px">
+          <span class="fl-icon" data-icon="mic" data-size="18"></span>Continue to the app
+        </button>
+        <button type="button" id="auth-go-to-admin" class="fl-btn fl-btn-inverse hidden" style="width:100%;height:52px">
+          <span class="fl-icon" data-icon="layout-dashboard" data-size="18"></span>Go to admin dashboard
+        </button>
+        <button type="button" id="auth-stay-on-site" class="fl-btn fl-btn-inverse" style="width:100%;height:52px">Stay on this site</button>
+      </div>
+      <p class="auth-footnote"><button type="button" id="auth-log-out" class="auth-link-btn">Not you? Log out</button></p>
     </div>
 
     <div id="auth-step-forgot" class="auth-step">
@@ -917,12 +918,6 @@ a,button{-webkit-tap-highlight-color:transparent}
       <p class="auth-footnote">Didn't get it? <button type="button" id="auth-resend-reset-btn" class="auth-link-btn">Resend code</button></p>
     </div>
 
-    <div id="auth-step-reset-success" class="auth-step">
-      <span class="fl-icon" data-icon="check-circle" data-size="30" style="color:var(--mint-400)"></span>
-      <h3>Password updated</h3>
-      <p class="auth-sub">Taking you to Fluency AI to log in with your new password&hellip;</p>
-    </div>
-
     <div id="auth-step-verify" class="auth-step">
       <span class="fl-icon" data-icon="mail" data-size="22" style="color:var(--teal-400)"></span>
       <h3>Check your email</h3>
@@ -935,12 +930,6 @@ a,button{-webkit-tap-highlight-color:transparent}
         <button type="submit" class="fl-btn fl-btn-accent" id="auth-verify-submit" style="width:100%;height:52px">Confirm &amp; continue</button>
       </form>
       <p class="auth-footnote">Didn't get it? <button type="button" id="auth-resend-btn" class="auth-link-btn">Resend code</button></p>
-    </div>
-
-    <div id="auth-step-success" class="auth-step">
-      <span class="fl-icon" data-icon="check-circle" data-size="30" style="color:var(--mint-400)"></span>
-      <h3>You're all set</h3>
-      <p class="auth-sub">Taking you to Fluency AI to log in&hellip;</p>
     </div>
   </div>
 </div>
