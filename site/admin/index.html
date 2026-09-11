@@ -57,8 +57,9 @@ td.email{color:var(--tx);font-weight:600}
 .pill-active{background:rgba(37,215,155,.18);color:var(--mint-400)}
 .pill-trialing{background:rgba(34,207,203,.18);color:var(--teal-400)}
 .pill-free{background:var(--glass);color:var(--tx-3)}
-.pill-canceled,.pill-past_due,.pill-unpaid,.pill-suspended{background:rgba(255,106,106,.15);color:var(--coral-400)}
-.pill-ok{background:rgba(37,215,155,.18);color:var(--mint-400)}
+.pill-canceled,.pill-past_due,.pill-unpaid,.pill-suspended,.pill-rejected{background:rgba(255,106,106,.15);color:var(--coral-400)}
+.pill-ok,.pill-approved{background:rgba(37,215,155,.18);color:var(--mint-400)}
+.pill-pending,.pill-paused{background:rgba(247,178,59,.18);color:var(--amber-400)}
 .row-btn{background:none;border:1px solid var(--hair);color:var(--tx-2);padding:5px 10px;border-radius:8px;cursor:pointer;font:inherit;font-size:12px;margin-right:4px}
 .row-btn:hover{border-color:var(--teal-400);color:var(--tx)}
 .pager{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:14px;font-size:13px;color:var(--tx-3)}
@@ -185,6 +186,67 @@ td.email{color:var(--tx);font-weight:600}
           <span id="pager-info"></span>
           <button id="prev-page">Prev</button>
           <button id="next-page">Next</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:28px">
+        <div style="font-weight:700;margin-bottom:6px">Creator program — creators</div>
+        <div id="creator-totals" style="color:var(--tx-3);font-size:13px;margin-bottom:16px"></div>
+
+        <form id="creator-add-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end;margin-bottom:8px">
+          <label style="display:grid;gap:6px;font-size:13px;color:var(--tx-2)">
+            Name
+            <input type="text" id="creator-name" required style="height:44px;padding:0 12px;border-radius:10px;background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);font:inherit">
+          </label>
+          <label style="display:grid;gap:6px;font-size:13px;color:var(--tx-2)">
+            Code <span style="color:var(--tx-3);font-weight:400">(optional)</span>
+            <input type="text" id="creator-code" placeholder="auto-generated if blank" style="height:44px;padding:0 12px;border-radius:10px;background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);font:inherit">
+          </label>
+          <label style="display:grid;gap:6px;font-size:13px;color:var(--tx-2)">
+            Niche <span style="color:var(--tx-3);font-weight:400">(optional)</span>
+            <input type="text" id="creator-niche" style="height:44px;padding:0 12px;border-radius:10px;background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);font:inherit">
+          </label>
+          <label style="display:grid;gap:6px;font-size:13px;color:var(--tx-2)">
+            Contact email <span style="color:var(--tx-3);font-weight:400">(optional)</span>
+            <input type="email" id="creator-email" style="height:44px;padding:0 12px;border-radius:10px;background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);font:inherit">
+          </label>
+          <label style="display:grid;gap:6px;font-size:13px;color:var(--tx-2)">
+            Commission %
+            <input type="number" id="creator-rate" value="20" min="0" max="100" step="1" style="height:44px;padding:0 12px;border-radius:10px;background:var(--pg-3);border:1px solid var(--hair);color:var(--tx);font:inherit">
+          </label>
+          <button type="submit" style="height:44px;padding:0 20px;border-radius:10px;background:var(--indigo-500);color:#fff;border:0;font:700 14px inherit;cursor:pointer">Add creator</button>
+        </form>
+        <div class="err" id="creator-add-err" style="margin-bottom:14px"></div>
+
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th><th>Code</th><th>Niche</th><th>Clicks</th><th>Signups</th>
+                <th>Conversions</th><th>Commission owed</th><th>Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="creators-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:28px">
+        <div style="font-weight:700;margin-bottom:14px">Creator program — applications</div>
+        <div class="toolbar">
+          <button class="tab active" data-app-filter="pending">Pending</button>
+          <button class="tab" data-app-filter="approved">Approved</button>
+          <button class="tab" data-app-filter="rejected">Rejected</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th><th>Email</th><th>Platform</th><th>Handle</th><th>Niche</th>
+                <th>Followers</th><th>Applied</th><th>Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="applications-tbody"></tbody>
+          </table>
         </div>
       </div>
     </div>
