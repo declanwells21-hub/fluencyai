@@ -369,6 +369,29 @@
   });
 
   // ---------- Fluency Creator Program: creators ----------
+  //
+  // This whole section's HTML (the "add creator" form, the creators table,
+  // the applications table) was never actually added to index.html - only
+  // this admin.js code referencing it exists. Previously that meant the
+  // very first line below (`document.getElementById('creator-add-form')`)
+  // threw immediately, since that element is null, and because this was
+  // top-level synchronous code (not inside a function or try/catch), the
+  // whole rest of admin.js's setup silently never ran - breaking the
+  // entire admin panel (dashboard, users, everything), not just this
+  // section. `creatorProgramAvailable` below guards every function in this
+  // section so a genuinely half-built feature just does nothing instead of
+  // taking the whole page down with it.
+
+  const creatorAddForm = document.getElementById('creator-add-form');
+  const creatorsTbody = document.getElementById('creators-tbody');
+  const applicationsTbody = document.getElementById('applications-tbody');
+  const creatorProgramAvailable = !!(creatorAddForm && creatorsTbody && applicationsTbody);
+  if (!creatorProgramAvailable) {
+    console.warn(
+      '[Fluency Admin] Creator Program UI elements are missing from index.html - skipping this section. ' +
+        'The rest of the admin panel (dashboard, users, communications) is unaffected.'
+    );
+  }
 
   function money(cents) {
     return '$' + ((cents || 0) / 100).toFixed(2);
@@ -378,6 +401,7 @@
   }
 
   async function loadCreators() {
+    if (!creatorProgramAvailable) return;
     const { creators } = await apiFetch('/admin/creators');
 
     const totalClicks = creators.reduce((s, c) => s + Number(c.clicks || 0), 0);
@@ -410,71 +434,74 @@
       .join('') || `<tr><td colspan="9" style="color:var(--tx-3)">No creators yet — add one above, or approve an application below.</td></tr>`;
   }
 
-  document.getElementById('creator-add-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const errEl = document.getElementById('creator-add-err');
-    errEl.textContent = '';
-    const name = document.getElementById('creator-name').value.trim();
-    const code = document.getElementById('creator-code').value.trim();
-    const niche = document.getElementById('creator-niche').value.trim();
-    const contactEmail = document.getElementById('creator-email').value.trim();
-    const ratePct = parseFloat(document.getElementById('creator-rate').value);
+  if (creatorProgramAvailable) {
+    creatorAddForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById('creator-add-err');
+      errEl.textContent = '';
+      const name = document.getElementById('creator-name').value.trim();
+      const code = document.getElementById('creator-code').value.trim();
+      const niche = document.getElementById('creator-niche').value.trim();
+      const contactEmail = document.getElementById('creator-email').value.trim();
+      const ratePct = parseFloat(document.getElementById('creator-rate').value);
 
-    if (!name) {
-      errEl.textContent = 'Creator name is required.';
-      return;
-    }
+      if (!name) {
+        errEl.textContent = 'Creator name is required.';
+        return;
+      }
 
-    try {
-      await apiFetch('/admin/creator-create', {
-        method: 'POST',
-        body: JSON.stringify({
-          name,
-          code: code || undefined,
-          niche: niche || undefined,
-          contactEmail: contactEmail || undefined,
-          commissionRate: Number.isFinite(ratePct) ? ratePct / 100 : 0.2,
-        }),
-      });
-      document.getElementById('creator-add-form').reset();
-      document.getElementById('creator-rate').value = '20';
-      await loadCreators();
-    } catch (err) {
-      errEl.textContent = err.message;
-    }
-  });
+      try {
+        await apiFetch('/admin/creator-create', {
+          method: 'POST',
+          body: JSON.stringify({
+            name,
+            code: code || undefined,
+            niche: niche || undefined,
+            contactEmail: contactEmail || undefined,
+            commissionRate: Number.isFinite(ratePct) ? ratePct / 100 : 0.2,
+          }),
+        });
+        document.getElementById('creator-add-form').reset();
+        document.getElementById('creator-rate').value = '20';
+        await loadCreators();
+      } catch (err) {
+        errEl.textContent = err.message;
+      }
+    });
 
-  document.getElementById('creators-tbody').addEventListener('click', async (e) => {
-    const copyBtn = e.target.closest('button[data-copy]');
-    if (copyBtn) {
-      navigator.clipboard.writeText(copyBtn.dataset.copy).then(() => {
-        const original = copyBtn.textContent;
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => (copyBtn.textContent = original), 1200);
-      });
-      return;
-    }
-    const actionBtn = e.target.closest('button[data-creator-action]');
-    if (!actionBtn) return;
-    const { creatorAction, id } = actionBtn.dataset;
-    actionBtn.disabled = true;
-    try {
-      await apiFetch('/admin/creator-update', {
-        method: 'POST',
-        body: JSON.stringify({ creatorId: id, status: creatorAction === 'pause' ? 'paused' : 'active' }),
-      });
-      await loadCreators();
-    } catch (err) {
-      alert(err.message);
-      actionBtn.disabled = false;
-    }
-  });
+    creatorsTbody.addEventListener('click', async (e) => {
+      const copyBtn = e.target.closest('button[data-copy]');
+      if (copyBtn) {
+        navigator.clipboard.writeText(copyBtn.dataset.copy).then(() => {
+          const original = copyBtn.textContent;
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => (copyBtn.textContent = original), 1200);
+        });
+        return;
+      }
+      const actionBtn = e.target.closest('button[data-creator-action]');
+      if (!actionBtn) return;
+      const { creatorAction, id } = actionBtn.dataset;
+      actionBtn.disabled = true;
+      try {
+        await apiFetch('/admin/creator-update', {
+          method: 'POST',
+          body: JSON.stringify({ creatorId: id, status: creatorAction === 'pause' ? 'paused' : 'active' }),
+        });
+        await loadCreators();
+      } catch (err) {
+        alert(err.message);
+        actionBtn.disabled = false;
+      }
+    });
+  }
 
   // ---------- Fluency Creator Program: applications ----------
 
   let currentAppFilter = 'pending';
 
   async function loadApplications() {
+    if (!creatorProgramAvailable) return;
     const { applications } = await apiFetch('/admin/applications?status=' + currentAppFilter);
     document.getElementById('applications-tbody').innerHTML =
       applications
@@ -511,28 +538,30 @@
     });
   });
 
-  document.getElementById('applications-tbody').addEventListener('click', async (e) => {
-    const btn = e.target.closest('button[data-app-action]');
-    if (!btn) return;
-    const { appAction, id } = btn.dataset;
-    if (appAction === 'reject' && !confirm('Reject this application?')) return;
+  if (creatorProgramAvailable) {
+    applicationsTbody.addEventListener('click', async (e) => {
+      const btn = e.target.closest('button[data-app-action]');
+      if (!btn) return;
+      const { appAction, id } = btn.dataset;
+      if (appAction === 'reject' && !confirm('Reject this application?')) return;
 
-    btn.disabled = true;
-    try {
-      const result = await apiFetch('/admin/application-decide', {
-        method: 'POST',
-        body: JSON.stringify({ applicationId: id, decision: appAction }),
-      });
-      if (appAction === 'approve' && result.creator) {
-        alert(`Approved! Referral code: ${result.creator.code}\nLink: https://fluencyai.app/?ref=${result.creator.code}`);
+      btn.disabled = true;
+      try {
+        const result = await apiFetch('/admin/application-decide', {
+          method: 'POST',
+          body: JSON.stringify({ applicationId: id, decision: appAction }),
+        });
+        if (appAction === 'approve' && result.creator) {
+          alert(`Approved! Referral code: ${result.creator.code}\nLink: https://fluencyai.app/?ref=${result.creator.code}`);
+        }
+        await loadApplications();
+        await loadCreators();
+      } catch (err) {
+        alert(err.message);
+        btn.disabled = false;
       }
-      await loadApplications();
-      await loadCreators();
-    } catch (err) {
-      alert(err.message);
-      btn.disabled = false;
-    }
-  });
+    });
+  }
 
   function escapeHtml(str) {
     return String(str == null ? '' : str)
