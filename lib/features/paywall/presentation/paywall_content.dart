@@ -198,15 +198,9 @@ class _PaywallContentState extends ConsumerState<PaywallContent> {
 
           // --- Tier 2 & 3: inactive placeholders, no logic - purely
           // informational "coming soon" cards.
-          const _InactiveTierCard(
-            title: 'Team Mastery',
-            description: 'Shared team workspaces and progress dashboards. Pricing not yet available.',
-          ),
+          const _InactiveTierCard(title: 'Team Mastery'),
           const SizedBox(height: 12),
-          const _InactiveTierCard(
-            title: 'Exam Prep Suite',
-            description: 'Placeholder pricing · Placeholder daily free window. No logic active in this prototype.',
-          ),
+          const _InactiveTierCard(title: 'Exam Prep Suite'),
           const SizedBox(height: 16),
 
           SizedBox(
@@ -278,12 +272,12 @@ class _PlanChip extends StatelessWidget {
 }
 
 /// Tier 2 / Tier 3 placeholder card - greyed out, no onTap, "COMING SOON"
-/// tag. Uses the app's own purple-tinted surface instead of the reference
-/// mock's light blue, so it still reads as part of the same brand palette.
+/// tag only, no description. Uses the app's own purple-tinted surface
+/// instead of the reference mock's light blue, so it still reads as part
+/// of the same brand palette.
 class _InactiveTierCard extends StatelessWidget {
   final String title;
-  final String description;
-  const _InactiveTierCard({required this.title, required this.description});
+  const _InactiveTierCard({required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -297,22 +291,15 @@ class _InactiveTierCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: purple.withOpacity(0.25)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(title,
-                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: purple.withOpacity(0.75))),
-              ),
-              Text('COMING SOON',
-                  style: TextStyle(
-                      fontSize: 10.5, fontWeight: FontWeight.w800, letterSpacing: 0.4, color: purple.withOpacity(0.6))),
-            ],
+          Expanded(
+            child: Text(title,
+                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: purple.withOpacity(0.75))),
           ),
-          const SizedBox(height: 6),
-          Text(description, style: TextStyle(fontSize: 12.5, color: purple.withOpacity(0.55), height: 1.35)),
+          Text('COMING SOON',
+              style: TextStyle(
+                  fontSize: 10.5, fontWeight: FontWeight.w800, letterSpacing: 0.4, color: purple.withOpacity(0.6))),
         ],
       ),
     );
