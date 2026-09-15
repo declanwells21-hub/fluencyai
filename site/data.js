@@ -102,7 +102,7 @@ const FAQS = [
   ["Do I need to be at a certain level?", "No. Say one sentence — badly is fine — and it works out where you are. There is no placement test."],
   ["What if I freeze halfway through?", "Say \u201cagain\u201d or just stop. It waits, offers the phrase you were reaching for, and picks the thread back up."],
   ["Will it correct everything I say?", "Only if you ask it to. Live, after, or off — you set it inside the conversation and change it any time."],
-  ["How much does it cost?", "$39.99 a year, or $5.99 a week if you'd rather stay flexible — both start with a 3-day free trial. Cancel any time from inside the app before your trial ends and you won't be charged."],
+  ["How much does it cost?", "$40, once — not a subscription. Everyone who joins before launch keeps lifetime access at that price; afterwards Fluency AI moves to a yearly subscription for new users, and founding accounts stay on the one-time price permanently."],
   ["Where do I actually use it?", "In the Fluency AI app on iOS or Android. Register here, download it, and your account is already waiting when you open it."],
   ["Is this instead of a teacher?", "It's the practice between lessons. Most people use it for the speaking hours a teacher can't give them."],
   ["What happens to my recordings?", "They're yours. Delete a conversation and the model forgets it too — including the mistakes it learned from it."],
