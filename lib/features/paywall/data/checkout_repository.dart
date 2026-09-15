@@ -5,14 +5,21 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/config/env.dart';
 
-enum CheckoutPlan { weekly, yearly }
+enum CheckoutPlan { founding, weekly, yearly }
 
-/// Starts a Stripe Checkout Session for the "Fluency Builder (Pro)" plan and
-/// opens it in the browser - Stripe's hosted checkout page handles the
-/// actual card entry and the 3-day free trial, so no payment details ever
-/// pass through this app. See api/create-checkout-session.js for the
-/// server side of this call (requires Stripe keys to be configured - see
-/// that file's header comment).
+/// Starts a Stripe Checkout Session and opens it in the browser - Stripe's
+/// hosted checkout page handles the actual card entry, so no payment
+/// details ever pass through this app.
+///
+/// `CheckoutPlan.founding` is a one-time lifetime payment (currently the
+/// only option shown in the paywall). `weekly`/`yearly` are the original
+/// recurring-subscription-with-3-day-trial flow - fully working below,
+/// just not currently surfaced in the UI (see
+/// lib/features/paywall/presentation/paywall_content.dart's
+/// kShowSubscriptionPricing flag to bring it back). See
+/// api/create-checkout-session.js for the server side of this call
+/// (requires Stripe keys to be configured - see that file's header
+/// comment).
 abstract class CheckoutRepository {
   /// Returns false (never throws) if checkout couldn't be started - e.g.
   /// the proxy isn't signed in, or Stripe isn't configured yet - so the UI
@@ -34,7 +41,7 @@ class ProxyCheckoutRepository implements CheckoutRepository {
         Uri.parse('$baseUrl/create-checkout-session'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'plan': plan.name, // 'weekly' | 'yearly'
+          'plan': plan.name, // 'founding' | 'weekly' | 'yearly'
           'userId': user.id,
           'email': user.email,
         }),
