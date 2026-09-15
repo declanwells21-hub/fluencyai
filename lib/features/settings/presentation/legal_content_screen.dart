@@ -178,12 +178,12 @@ class TermsOfServiceScreen extends StatelessWidget {
           ],
         ]),
         const LegalSection(
-          '5. Subscriptions, trial, and billing',
+          '5. Pricing and billing',
           [],
           bullets: [
-            [TextRun.text('Fluency AI offers a 3-day free trial, after which a paid subscription begins automatically (currently \$5.99/week or \$39.99/year).')],
-            [TextRun.text('A payment method is required to start the trial. You will not be charged until the trial ends, unless you cancel first.')],
-            [TextRun.text("Subscriptions renew automatically until cancelled. You can cancel any time from inside the app; cancelling stops future renewals but doesn't refund the current billing period unless required by law.")],
+            [TextRun.text('Fluency AI is currently offered to founding users for a one-time payment of \$40, granting lifetime access with no recurring charges.')],
+            [TextRun.text("You can create an account and try the App for free before deciding whether to pay - you're only charged the \$40 if and when you choose to unlock full access.")],
+            [TextRun.text('This founding price is temporary. After launch, new users will be moved to a yearly subscription; anyone who already paid the one-time founding price keeps that lifetime access and is never moved onto a subscription.')],
             [TextRun.text("We don't store your full card details ourselves — payment is handled by a secure third-party payment processor.")],
           ],
         ),
