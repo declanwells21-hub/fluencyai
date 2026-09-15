@@ -133,11 +133,22 @@ module.exports = async (req, res) => {
       case 'checkout.session.completed': {
         const session = event.data.object;
         const userId = session.client_reference_id;
-        // The Subscription's own status (trialing/active) arrives more
-        // precisely via customer.subscription.* below - set 'trialing'
-        // here as a safe immediate default so the paywall clears right
-        // after checkout even if that event lags slightly behind this one.
-        await setStatus(userId, 'trialing');
+        if (session.mode === 'payment') {
+          // One-time "founding user" purchase - there's no Subscription
+          // object for this at all, so there's no follow-up
+          // customer.subscription.* event the way the weekly/yearly flow
+          // gets. This webhook call is the ONLY signal we'll ever get for
+          // this purchase, so it grants Pro directly and permanently
+          // (null period end = never expires).
+          await setStatus(userId, 'active', null);
+        } else {
+          // Subscription mode (weekly/yearly) - the Subscription's own
+          // status (trialing/active) arrives more precisely via
+          // customer.subscription.* below - set 'trialing' here as a safe
+          // immediate default so the paywall clears right after checkout
+          // even if that event lags slightly behind this one.
+          await setStatus(userId, 'trialing');
+        }
         await recordReferralConversion(supabase, userId, session, event.id);
         break;
       }
