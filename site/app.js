@@ -98,34 +98,21 @@ window.addEventListener('scroll', () => {
   nav.style.boxShadow = s ? '0 14px 44px rgba(4,18,27,.42)' : '0 20px 60px rgba(4,18,27,.34)';
 }, { passive: true });
 
-// ============ HERO FLOATING GREETING WORDS ============
-function spawnWords() {
-  const host = document.getElementById('fl-words');
+// ============ FLOATING GREETING WORDS (hero + other sections) ============
+// Same drifting, multi-language background effect, reusable across any
+// section that gives it a host element + a set of lanes to scatter within.
+// Each call draws its own random slice of GREETINGS, so different sections
+// naturally show different languages.
+function spawnWordsIn(hostId, lanesDesktop, lanesMobile, sizeRangeDesktop, sizeRangeMobile) {
+  const host = document.getElementById(hostId);
   if (!host || host.childElementCount) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   const isMobile = window.innerWidth <= 1040;
-  // Lanes assume a two-column hero (text on the left, product card on the
-  // right) on desktop, scattered around that layout. On mobile the hero
-  // stacks into a single column, so these lanes stay confined to the
-  // badge/headline band at the very top (roughly the first quarter of the
-  // hero's height) - kept well clear of the "No placement test..." /
-  // "Free on iOS and Android..." checklist further down, which was
-  // previously getting words drifting behind it and hurting legibility.
-  const lanes = isMobile ? [
-    [4, 30, 1, 5], [36, 30, 2, 6], [70, 26, 1, 5],
-    [6, 26, 8, 5], [42, 24, 9, 6], [72, 24, 10, 5],
-    [4, 24, 15, 5], [38, 28, 16, 5], [68, 28, 17, 5],
-    [10, 30, 21, 4],
-  ] : [
-    [2, 12, 4, 78], [2, 14, 6, 82], [3, 13, 10, 70],
-    [20, 62, 2, 12], [28, 58, 3, 10],
-    [66, 30, 8, 74], [72, 26, 4, 66], [70, 28, 14, 60],
-    [40, 30, 2, 9], [52, 24, 84, 12],
-  ];
+  const lanes = isMobile ? lanesMobile : lanesDesktop;
   const pool = GREETINGS.slice().sort(() => Math.random() - 0.5).slice(0, lanes.length);
   const rnd = (a, b) => a + Math.random() * (b - a);
-  const sizeRange = isMobile ? [12, 21] : [13, 30];
+  const sizeRange = isMobile ? sizeRangeMobile : sizeRangeDesktop;
 
   pool.forEach(([text], i) => {
     const [lx, lw, ly, lh] = lanes[i];
@@ -152,6 +139,61 @@ function spawnWords() {
     }
     host.appendChild(el);
   });
+}
+
+function spawnWords() {
+  // Hero: lanes assume a two-column hero (text on the left, product card on
+  // the right) on desktop, scattered around that layout. On mobile the hero
+  // stacks into a single column, so these lanes stay confined to the
+  // badge/headline band at the very top (roughly the first quarter of the
+  // hero's height) - kept well clear of the "No placement test..." /
+  // "Free on iOS and Android..." checklist further down, which was
+  // previously getting words drifting behind it and hurting legibility.
+  spawnWordsIn('fl-words',
+    [
+      [2, 12, 4, 78], [2, 14, 6, 82], [3, 13, 10, 70],
+      [20, 62, 2, 12], [28, 58, 3, 10],
+      [66, 30, 8, 74], [72, 26, 4, 66], [70, 28, 14, 60],
+      [40, 30, 2, 9], [52, 24, 84, 12],
+    ],
+    [
+      [4, 30, 1, 5], [36, 30, 2, 6], [70, 26, 1, 5],
+      [6, 26, 8, 5], [42, 24, 9, 6], [72, 24, 10, 5],
+      [4, 24, 15, 5], [38, 28, 16, 5], [68, 28, 17, 5],
+      [10, 30, 21, 4],
+    ],
+    [13, 30], [12, 21]
+  );
+
+  // Pricing section: content is centred, so keep words to the left/right
+  // margins and the top edge, clear of the pricing card and the pointing
+  // parrot at bottom-left.
+  spawnWordsIn('fl-words-pricing',
+    [
+      [1, 9, 8, 56], [2, 9, 20, 50], [90, 9, 6, 56], [89, 9, 18, 50],
+      [18, 16, 2, 8], [64, 16, 2, 8], [40, 20, 90, 7],
+    ],
+    [
+      [4, 28, 2, 6], [36, 28, 1, 6], [70, 26, 2, 6],
+      [6, 24, 10, 5], [42, 24, 11, 5], [70, 24, 12, 5],
+    ],
+    [13, 26], [12, 19]
+  );
+
+  // Bottom CTA: same two-column shape as the hero (text left, parrot art
+  // right), so mirror the hero's lane logic there.
+  spawnWordsIn('fl-words-cta',
+    [
+      [2, 12, 4, 58], [2, 13, 9, 62], [4, 12, 16, 48],
+      [62, 30, 4, 56], [68, 26, 2, 48], [66, 28, 10, 44],
+      [40, 28, 2, 8], [50, 24, 84, 10],
+    ],
+    [
+      [4, 30, 1, 5], [36, 30, 2, 6], [70, 26, 1, 5],
+      [6, 26, 8, 5], [42, 24, 9, 6], [72, 24, 10, 5],
+    ],
+    [13, 28], [12, 20]
+  );
 }
 
 // ============ HERO CARD PARALLAX ============
