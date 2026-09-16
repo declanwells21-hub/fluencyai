@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Fluency AI">
 <link rel="apple-touch-icon" href="assets/logo-appicon.png">
 <link rel="manifest" href="manifest.json">
-<title>Fluency AI — Stop freezing. Start speaking.</title>
+<title>Fluency AI: Stop freezing. Start speaking.</title>
 <meta name="description" content="Fluency AI is the AI language app you talk out loud to. Have real spoken conversations in 40 languages, get corrected mid-sentence, and finally speak with confidence. $40 once for founding users.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://fluencyai.app/">
@@ -18,7 +18,7 @@
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Fluency AI">
-<meta property="og:title" content="Fluency AI — Stop freezing. Start speaking.">
+<meta property="og:title" content="Fluency AI: Stop freezing. Start speaking.">
 <meta property="og:description" content="An AI you talk out loud to. Real spoken conversations in 40 languages, corrected as you go, so you stop freezing when it matters.">
 <meta property="og:url" content="https://fluencyai.app/">
 <meta property="og:image" content="https://fluencyai.app/assets/og-image.png">
@@ -28,7 +28,7 @@
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Fluency AI — Stop freezing. Start speaking.">
+<meta name="twitter:title" content="Fluency AI: Stop freezing. Start speaking.">
 <meta name="twitter:description" content="An AI you talk out loud to. Real spoken conversations in 40 languages, corrected as you go, so you stop freezing when it matters.">
 <meta name="twitter:image" content="https://fluencyai.app/assets/og-image.png">
 
@@ -68,7 +68,7 @@
     {
       "@type": "Question",
       "name": "Do I need to be at a certain level?",
-      "acceptedAnswer": { "@type": "Answer", "text": "No. Say one sentence — badly is fine — and it works out where you are. There is no placement test." }
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Say one sentence, badly is fine, and it works out where you are. There is no placement test." }
     },
     {
       "@type": "Question",
@@ -78,12 +78,12 @@
     {
       "@type": "Question",
       "name": "Will it correct everything I say?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Only if you ask it to. Live, after, or off — you set it inside the conversation and change it any time." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Only if you ask it to. Live, after, or off: you set it inside the conversation and change it any time." }
     },
     {
       "@type": "Question",
       "name": "How much does it cost?",
-      "acceptedAnswer": { "@type": "Answer", "text": "$40, once — not a subscription. Everyone who joins before launch keeps lifetime access at that price; afterwards Fluency AI moves to a yearly subscription for new users, and founding accounts stay on the one-time price permanently." }
+      "acceptedAnswer": { "@type": "Answer", "text": "$40, once, not a subscription. Everyone who joins before launch keeps lifetime access at that price; afterwards Fluency AI moves to a yearly subscription for new users, and founding accounts stay on the one-time price permanently." }
     },
     {
       "@type": "Question",
@@ -98,7 +98,7 @@
     {
       "@type": "Question",
       "name": "What happens to my recordings?",
-      "acceptedAnswer": { "@type": "Answer", "text": "They're yours. Delete a conversation and the model forgets it too — including the mistakes it learned from it." }
+      "acceptedAnswer": { "@type": "Answer", "text": "They're yours. Delete a conversation and the model forgets it too, including the mistakes it learned from it." }
     }
   ]
 }
@@ -324,6 +324,12 @@ button{font-family:inherit}
   .r-pad{padding-left:20px !important;padding-right:20px !important}
   .r-hide{display:none !important}
   #fl-hamburger{display:inline-flex}
+  /* Product collage: the two side-note cards hide above (.r-hide), leaving only
+     the listening orb card. Without this it stays pinned top-left inside a
+     520px-tall reserved box sized for the full desktop collage, which reads
+     as off-centre with a large empty gap beneath it. */
+  .r-collage{min-height:auto !important}
+  .r-collage-card{position:relative !important;left:auto !important;top:auto !important;right:auto !important;bottom:auto !important;margin:0 auto !important}
 }
 #fl-mobile-menu{
   position:fixed;left:50%;transform:translateX(-50%) translateY(-10px);top:calc(78px + env(safe-area-inset-top,0px));
@@ -352,7 +358,7 @@ button{font-family:inherit}
     gap:8px;
     padding:8px 8px 8px 16px;
   }
-  .fl-logo{font-size:17px;align-self:center;line-height:1;margin-top:-28px}
+  #fl-nav .fl-logo{font-size:17px;align-self:center;line-height:1;margin-top:-28px}
   #fl-theme-toggle{display:none}
   #fl-hamburger{width:36px;height:36px}
   .r-cta-full{display:none}
@@ -442,7 +448,7 @@ a,button{-webkit-tap-highlight-color:transparent}
         An AI you talk out loud to
       </span>
       <h1 style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(3rem,6.4vw,6.1rem);line-height:.94;letter-spacing:-.045em;color:var(--tx)">Stop freezing.<br><span style="color:var(--teal-400)">Start speaking.</span></h1>
-      <p style="margin:0;font:var(--type-body-l);font-size:clamp(1rem,1.25vw,1.15rem);color:var(--tx-2);max-width:470px">Fluency AI hears how you actually speak — the hesitation, the accent, the word you nearly said — answers like a person, and teaches you the fix while it still matters.</p>
+      <p style="margin:0;font:var(--type-body-l);font-size:clamp(1rem,1.25vw,1.15rem);color:var(--tx-2);max-width:470px">Fluency AI hears how you actually speak: the hesitation, the accent, the word you nearly said. Then it answers like a person, and teaches you the fix while it still matters.</p>
       <div class="r-stack" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
         <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent js-auth-trigger" style="height:52px"><span class="fl-icon" data-icon="mic" data-size="18"></span>Start speaking free</a>
         <a href="#product" class="fl-btn fl-btn-inverse" style="height:52px"><span class="fl-icon" data-icon="play" data-size="18"></span>Hear a conversation</a>
@@ -454,7 +460,7 @@ a,button{-webkit-tap-highlight-color:transparent}
         </div>
         <div style="display:flex;gap:9px;align-items:center;font:var(--type-caption);color:var(--tx-3);background:var(--pg);padding:2px 8px 2px 2px;border-radius:8px;width:fit-content">
           <span class="fl-icon" data-icon="smartphone" data-size="14"></span>
-          Free on iOS and Android — the conversation happens in the app.
+          Free on iOS and Android. The conversation happens in the app.
         </div>
       </div>
     </div>
@@ -550,7 +556,7 @@ a,button{-webkit-tap-highlight-color:transparent}
     <div class="rv" style="display:grid;gap:20px;max-width:760px;margin-bottom:52px">
       <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--mint-400)">The other way round</span>
       <h2 style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,3.8vw,3.4rem);line-height:1.04;letter-spacing:-.032em;color:var(--tx)">Say it badly first. Get it right second.</h2>
-      <p style="margin:0;font:var(--type-body-l);color:var(--tx-2);max-width:560px">Fluency puts the conversation first and the correction second — so you never lose the thread of what you were trying to say.</p>
+      <p style="margin:0;font:var(--type-body-l);color:var(--tx-2);max-width:560px">Fluency puts the conversation first and the correction second, so you never lose the thread of what you were trying to say.</p>
     </div>
     <div class="r-2col rv" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch">
       <div style="padding:32px;border-radius:28px;border:1px dashed var(--hair);background:transparent;display:grid;gap:16px;align-content:start">
@@ -608,8 +614,8 @@ a,button{-webkit-tap-highlight-color:transparent}
       <h2 style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,3.8vw,3.4rem);line-height:1.04;letter-spacing:-.032em;color:var(--tx)">What you get back after two minutes of talking.</h2>
     </div>
     <div class="r-2col rv" style="display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center">
-      <div style="position:relative;min-height:520px">
-        <div style="position:absolute;left:0;top:0;width:min(300px,88%);border-radius:32px;padding:14px;background:rgba(8,32,45,.9);border:1px solid rgba(255,255,255,.13);box-shadow:0 40px 90px rgba(4,18,27,.55);z-index:2">
+      <div class="r-collage" style="position:relative;min-height:520px">
+        <div class="r-collage-card" style="position:absolute;left:0;top:0;width:min(300px,88%);border-radius:32px;padding:14px;background:rgba(8,32,45,.9);border:1px solid rgba(255,255,255,.13);box-shadow:0 40px 90px rgba(4,18,27,.55);z-index:2">
           <div style="border-radius:22px;background:radial-gradient(120% 90% at 50% 0%,#123A4C 0%,#04121B 72%);padding:24px 18px;display:grid;gap:16px;justify-items:center">
             <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--cyan-400)">Listening</span>
             <div class="voice-orb" style="width:132px;height:132px;color:var(--cyan-400)">
@@ -654,7 +660,7 @@ a,button{-webkit-tap-highlight-color:transparent}
             <span style="font:var(--type-title-s);color:var(--tx)">"sch" pronounced as "s"</span>
             <span style="font:var(--type-body-s);color:var(--tx-2)">e.g. "Entsuldigung" · seen 9 times · trending down</span>
           </div>
-          <p style="margin:0;font:var(--type-body-m);color:var(--tx-2);max-width:420px">Mistakes are quoted back in your own words, with how often they recurred — so you can hear the habit, not read a grade.</p>
+          <p style="margin:0;font:var(--type-body-m);color:var(--tx-2);max-width:420px">Mistakes are quoted back in your own words, with how often they recurred, so you can hear the habit, not read a grade.</p>
         </div>
       </div>
     </div>
@@ -720,6 +726,7 @@ a,button{-webkit-tap-highlight-color:transparent}
 
 <!-- ===================== PRICING ===================== -->
 <section id="pricing" class="r-pad" style="background:var(--pg);padding:110px 34px;position:relative;overflow:hidden">
+  <div id="fl-words-pricing" aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;overflow:hidden"></div>
   <img class="r-hide fl-anim" src="assets/parrot-pointing.png" alt="" style="position:absolute;left:4%;bottom:0;width:min(330px,24%);display:block;filter:drop-shadow(0 24px 50px rgba(4,18,27,.4));pointer-events:none;animation:fl-drift 11s var(--ease-breathe) infinite">
   <div style="max-width:1180px;margin:0 auto;display:grid;gap:44px;justify-items:center;position:relative">
     <div class="rv" style="display:grid;gap:16px;justify-items:center;text-align:center;max-width:640px">
@@ -734,7 +741,7 @@ a,button{-webkit-tap-highlight-color:transparent}
       <div style="display:grid;gap:8px">
         <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
           <span class="fl-tabnum" style="font:var(--fw-black) clamp(3rem,6vw,4.6rem)/1 var(--font-numeric);color:var(--tx);letter-spacing:-.04em">$40</span>
-          <span style="font:var(--type-body-l);color:var(--tx);padding-bottom:12px;font-weight:600">once — not a year</span>
+          <span style="font:var(--type-body-l);color:var(--tx);padding-bottom:12px;font-weight:600">once, not a year</span>
         </div>
         <span style="font:var(--type-body-m);color:var(--tx-2)">Everyone who joins before launch keeps lifetime access at this price. Afterwards Fluency AI becomes a yearly subscription, and founding accounts are never moved onto it.</span>
       </div>
@@ -760,6 +767,7 @@ a,button{-webkit-tap-highlight-color:transparent}
 
 <!-- ===================== FINAL CTA ===================== -->
 <section style="position:relative;background:radial-gradient(120% 100% at 50% 0%,#16495E 0%,#08202D 45%,#04121B 82%);padding:0 0 0;overflow:hidden">
+  <div id="fl-words-cta" aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;overflow:hidden"></div>
   <div style="height:110px;background:linear-gradient(to bottom,var(--pg-2),rgba(4,18,27,0))"></div>
   <div class="r-pad" style="max-width:1180px;margin:0 auto;padding:20px 34px 0;position:relative">
     <div class="r-2col" style="display:grid;grid-template-columns:1.08fr .92fr;gap:24px;align-items:end;min-height:520px">
@@ -772,7 +780,7 @@ a,button{-webkit-tap-highlight-color:transparent}
           <a href="#how" class="fl-btn fl-btn-inverse" style="height:52px">See how it works<span class="fl-icon" data-icon="arrow-right" data-size="18"></span></a>
         </div>
         <div style="display:grid;gap:10px">
-          <span style="font:var(--type-caption);color:var(--ink-400,#8CACBB)">All three open the web app for now — real store links go live at launch</span>
+          <span style="font:var(--type-caption);color:var(--ink-400,#8CACBB)">All three open the web app for now; real store links go live at launch</span>
           <div class="r-stack" style="display:flex;gap:10px;flex-wrap:wrap">
             <a href="/app/auth?mode=signup" class="store-link js-auth-trigger"><span class="fl-icon" data-icon="smartphone" data-size="16"></span>Download for iOS</a>
             <a href="/app/auth?mode=signup" class="store-link js-auth-trigger"><span class="fl-icon" data-icon="smartphone" data-size="16"></span>Get it on Android</a>
@@ -791,7 +799,7 @@ a,button{-webkit-tap-highlight-color:transparent}
 <footer class="r-pad" style="background:#04121B;padding:60px 34px 44px;border-top:1px solid rgba(255,255,255,.09)">
   <div class="r-2col" style="max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.5fr repeat(3,1fr);gap:34px">
     <div style="display:grid;gap:14px;align-content:start">
-      <span class="fl-logo" style="color:#fff"><span>Fluenc</span><span class="ai">y<span>AI</span></span></span>
+      <span class="fl-logo" style="color:#fff"><span>Fluenc</span><span class="ai" style="color:#fff">y<span style="font-size:10px">AI</span></span></span>
       <span style="font:var(--type-body-s);color:var(--ink-500,#5B8497);max-width:250px">From studying a language to actually communicating in it.</span>
     </div>
     <div style="display:grid;gap:10px;align-content:start">
