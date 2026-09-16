@@ -5,7 +5,7 @@ const STAGES = [
     headline: "It hears the sentence you actually said, not the one the textbook expected.",
     words: "Ich möchte einen Tisch reservieren",
     translation: "I'd like to reserve a table", orb: "listening",
-    detail: "Low-confidence words are underlined in cyan so you can see exactly what was misheard — no silent guessing." },
+    detail: "Low-confidence words are underlined in cyan so you can see exactly what was misheard. No silent guessing." },
   { icon: "mic", title: "Speak", blurb: "No script, no prompt to read", label: "Stage 02 · Speaking",
     headline: "You talk. It waits for you the way a patient person would.",
     words: "Äh… einen Tisch für zwei",
@@ -19,12 +19,12 @@ const STAGES = [
   { icon: "audio-lines", title: "Improve", blurb: "Syllable by syllable", label: "Stage 04 · Pronunciation",
     headline: "A physical instruction, not a score out of ten.",
     words: "Entschuldigung",
-    translation: "/ɛntˈʃʊldɪɡʊŋ/ — \u201csch\u201d is one sound, tongue back", orb: "speaking",
+    translation: "/ɛntˈʃʊldɪɡʊŋ/: \u201csch\u201d is one sound, tongue back", orb: "speaking",
     detail: "It tells you where the tongue goes. Then you say it again, and it tells you whether that landed." },
   { icon: "brain", title: "Become confident", blurb: "Tomorrow builds on today", label: "Stage 05 · Memory",
     headline: "The next conversation is built from the two things you got wrong in this one.",
     words: "Einen Tisch für zwei, bitte.",
-    translation: "Fourth time this week — no hesitation.", orb: "speaking",
+    translation: "Fourth time this week, no hesitation.", orb: "speaking",
     detail: "Progress is measured in minutes spoken and how often you were understood first time. There are no points." },
 ];
 
@@ -99,13 +99,13 @@ const LANGUAGES = [
 ];
 
 const FAQS = [
-  ["Do I need to be at a certain level?", "No. Say one sentence — badly is fine — and it works out where you are. There is no placement test."],
+  ["Do I need to be at a certain level?", "No. Say one sentence, badly is fine, and it works out where you are. There is no placement test."],
   ["What if I freeze halfway through?", "Say \u201cagain\u201d or just stop. It waits, offers the phrase you were reaching for, and picks the thread back up."],
-  ["Will it correct everything I say?", "Only if you ask it to. Live, after, or off — you set it inside the conversation and change it any time."],
-  ["How much does it cost?", "$40, once — not a subscription. Everyone who joins before launch keeps lifetime access at that price; afterwards Fluency AI moves to a yearly subscription for new users, and founding accounts stay on the one-time price permanently."],
+  ["Will it correct everything I say?", "Only if you ask it to. Live, after, or off: you set it inside the conversation and change it any time."],
+  ["How much does it cost?", "$40, once, not a subscription. Everyone who joins before launch keeps lifetime access at that price; afterwards Fluency AI moves to a yearly subscription for new users, and founding accounts stay on the one-time price permanently."],
   ["Where do I actually use it?", "In the Fluency AI app on iOS or Android. Register here, download it, and your account is already waiting when you open it."],
   ["Is this instead of a teacher?", "It's the practice between lessons. Most people use it for the speaking hours a teacher can't give them."],
-  ["What happens to my recordings?", "They're yours. Delete a conversation and the model forgets it too — including the mistakes it learned from it."],
+  ["What happens to my recordings?", "They're yours. Delete a conversation and the model forgets it too, including the mistakes it learned from it."],
 ];
 
 const GREETINGS = [
@@ -119,7 +119,7 @@ const GREETINGS = [
 const REPAIRS = [
   ["repeat", "Say again", "REPAIR · SAY AGAIN",
     "\u201c¿Me lo repite, por favor?\u201d",
-    "It repeats the exact same sentence — same words, same speed — so you can find the part you missed rather than hear a new attempt."],
+    "It repeats the exact same sentence (same words, same speed) so you can find the part you missed rather than hear a new attempt."],
   ["gauge", "Slower", "REPAIR · SLOWER",
     "\u201cUn peu plus lentement ?\u201d",
     "Native rhythm is kept, the tempo drops. It never switches to the flat textbook voice, because that isn't what you'll hear in the street."],
