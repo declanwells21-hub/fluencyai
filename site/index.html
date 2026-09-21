@@ -10,15 +10,15 @@
 <meta name="apple-mobile-web-app-title" content="Fluency AI">
 <link rel="apple-touch-icon" href="assets/logo-appicon.png">
 <link rel="manifest" href="manifest.json">
-<title>Fluency AI: Stop freezing. Start speaking.</title>
-<meta name="description" content="Fluency AI is an AI language learning app you talk out loud to. Practise speaking in 40 languages and get live corrections. $40 once for founding users.">
+<title>Fluency AI app: Stop freezing. Start speaking.</title>
+<meta name="description" content="Fluency AI is an AI language learning app you talk out loud to. Practice speaking in 40 languages and get live corrections. $40 once for founding users.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://fluencyai.app/">
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Fluency AI">
-<meta property="og:title" content="Fluency AI: Stop freezing. Start speaking.">
+<meta property="og:title" content="Fluency AI app: Stop freezing. Start speaking.">
 <meta property="og:description" content="An AI you talk out loud to. Real spoken conversations in 40 languages, corrected as you go, so you stop freezing when it matters.">
 <meta property="og:url" content="https://fluencyai.app/">
 <meta property="og:image" content="https://fluencyai.app/assets/og-image.png">
@@ -28,7 +28,7 @@
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Fluency AI: Stop freezing. Start speaking.">
+<meta name="twitter:title" content="Fluency AI app: Stop freezing. Start speaking.">
 <meta name="twitter:description" content="An AI you talk out loud to. Real spoken conversations in 40 languages, corrected as you go, so you stop freezing when it matters.">
 <meta name="twitter:image" content="https://fluencyai.app/assets/og-image.png">
 
@@ -41,31 +41,33 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": "https://fluencyai.app/#organization",
-      "name": "Fluency AI",
-      "url": "https://fluencyai.app/",
-      "logo": "https://fluencyai.app/assets/logo-appicon.png",
-      "description": "Fluency AI makes an AI language-learning app for speaking practice, developed and operated by an independent developer.",
-      "email": "fluencyai.support@gmail.com",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "contactType": "customer support",
-        "email": "fluencyai.support@gmail.com"
-      }
-    },
-    {
-      "@type": "WebSite",
-      "@id": "https://fluencyai.app/#website",
-      "name": "Fluency AI",
-      "url": "https://fluencyai.app/",
-      "publisher": {
-        "@id": "https://fluencyai.app/#organization"
-      }
-    }
-  ]
+  "@type": "Organization",
+  "@id": "https://fluencyai.app/#organization",
+  "name": "Fluency AI",
+  "url": "https://fluencyai.app/",
+  "logo": "https://fluencyai.app/assets/logo-appicon.png",
+  "description": "Fluency AI makes an AI language-learning app for speaking practice, developed and operated by an independent developer.",
+  "email": "fluencyai.support@gmail.com",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer support",
+    "email": "fluencyai.support@gmail.com"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://fluencyai.app/#website",
+  "name": "Fluency AI",
+  "url": "https://fluencyai.app/",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Fluency AI",
+    "url": "https://fluencyai.app/"
+  }
 }
 </script>
 
@@ -78,7 +80,7 @@
   "url": "https://fluencyai.app/",
   "description": "Fluency AI is an AI language-learning app for real spoken conversation practice in 40 languages, with live correction and pronunciation feedback.",
   "applicationCategory": "EducationApplication",
-  "operatingSystem": "iOS, Android, Web",
+  "operatingSystem": "iOS, Android",
   "featureList": [
     "Spoken conversation practice in 40 languages",
     "Live or after-the-fact corrections that explain the reason for each fix",
@@ -104,6 +106,30 @@
 }
 </script>
 
+<!-- Structured data: the service and its price -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Fluency AI spoken language practice",
+  "serviceType": "AI language learning and speaking practice",
+  "description": "Real-time spoken conversation practice with an AI language tutor in 40 languages, with live correction and pronunciation feedback.",
+  "url": "https://fluencyai.app/",
+  "provider": {
+    "@type": "Organization",
+    "name": "Fluency AI",
+    "url": "https://fluencyai.app/"
+  },
+  "offers": {
+    "@type": "Offer",
+    "name": "Founding user price",
+    "price": "40",
+    "priceCurrency": "USD",
+    "description": "One-time lifetime access, offered to users who join before launch"
+  }
+}
+</script>
+
 <!-- Structured data: FAQ content. Must match the FAQS list in data.js word for word. -->
 <script type="application/ld+json">
 {
@@ -116,6 +142,22 @@
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Fluency AI is an AI language learning app for speaking practice. You talk out loud in one of 40 languages, it answers like a person, and it corrects what you said while the conversation is still fresh."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does Fluency AI work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Five things happen between your sentence and the reply. It listens to the sentence you actually said, waits while you speak at your own pace, shows what you said and what to say instead and why, tells you where your tongue goes for tricky sounds, and builds tomorrow's conversation around today's mistakes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I talk to an AI in another language?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Fluency AI is an AI language tutor you talk to out loud, in 40 languages. You speak, it answers in the language you're learning the way a person would, and it corrects you along the way."
       }
     },
     {
@@ -136,6 +178,14 @@
     },
     {
       "@type": "Question",
+      "name": "How to stop freezing when speaking a foreign language?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Practice speaking out loud, in short sessions, with a partner that waits for you. Fluency AI gives you time when you stall, hands you the phrase you were reaching for, and lets you carry on, so freezing stops feeling like failing."
+      }
+    },
+    {
+      "@type": "Question",
       "name": "Will it correct everything I say?",
       "acceptedAnswer": {
         "@type": "Answer",
@@ -152,7 +202,15 @@
     },
     {
       "@type": "Question",
-      "name": "Which languages can I practise?",
+      "name": "Can Fluency AI help with my accent?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It listens to your accent as it actually is, and its pronunciation feedback tells you where your tongue and mouth should go for sounds you keep getting wrong. Recurring sounds are counted, so you can spot the habit."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which languages can I practice?",
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Forty, including Spanish, French, German, Mandarin, Japanese, Italian, Korean, Portuguese, Arabic and Hindi. The full list is on this page, and you can switch between languages without paying again."
@@ -160,10 +218,10 @@
     },
     {
       "@type": "Question",
-      "name": "Can I choose what to practise?",
+      "name": "Can I choose what to practice?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Describe any situation you're dreading, such as reserving a table or ordering at a counter, and practise that conversation."
+        "text": "Yes. Describe any situation you're dreading, such as reserving a table or ordering at a counter, and practice that conversation."
       }
     },
     {
@@ -179,7 +237,7 @@
       "name": "Where do I actually use it?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "In the Fluency AI app on iOS or Android, or in your browser with the web app. Register here, open the app, and your account is already waiting."
+        "text": "In the Fluency AI app on iOS or Android. Register here, download it, and your account is already waiting when you open it."
       }
     },
     {
@@ -196,6 +254,22 @@
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Traditional apps are built around studying and tests, with points for finishing units and little speaking. Fluency AI puts the conversation first and the correction second, ties every correction to a sentence you actually said, and measures progress in minutes spoken instead of points."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I learn a language without lessons?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Fluency AI is language learning without lessons: no placement test, no streaks and no points for finishing units. You talk, it answers, and every correction comes from a sentence you actually said."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long should I practice each day?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "There is no required amount and no streak to protect. Two minutes of talking is enough to get a report of what to fix, so a spare few minutes works."
       }
     },
     {
@@ -830,13 +904,13 @@ a,button{-webkit-tap-highlight-color:transparent}
     <div class="rv" style="display:grid;gap:18px;max-width:720px">
       <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--teal-400)">Speaking practice, in detail</span>
       <h2 style="margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,3.6vw,3.2rem);line-height:1.04;letter-spacing:-.032em;color:var(--tx)">An AI language tutor built for speaking out loud.</h2>
-      <p style="margin:0;font:var(--type-body-l);color:var(--tx-2)">Fluency AI is a language learning app where the whole point is talking. Here is what that looks like.</p>
+      <p style="margin:0;font:var(--type-body-l);color:var(--tx-2)">Fluency AI is an AI language learning app built for language conversation practice. You talk to AI in another language, out loud, and it answers like a person, so you can practice speaking out loud instead of studying in silence.</p>
     </div>
     <div class="r-3col rv" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
       <div class="fl-hover-card-sm" style="padding:28px;border-radius:24px;background:var(--glass);border:1px solid var(--hair);display:grid;gap:12px;align-content:start">
         <span style="font:var(--fw-medium) 11px/1 var(--font-mono);color:var(--teal-400);letter-spacing:.06em">CORRECTION</span>
         <h3 style="margin:0;font:var(--type-title-m);color:var(--tx)">Real-time correction as you speak</h3>
-        <p style="margin:0;font:var(--type-body-m);color:var(--tx-2)">Choose live corrections, corrections after you finish, or none at all. Every fix shows what you said, what to say instead, and why.</p>
+        <p style="margin:0;font:var(--type-body-m);color:var(--tx-2)">Live language correction while you talk, corrections after you finish, or none at all: you choose. It’s an AI that corrects your speaking and shows what you said, what to say instead, and why.</p>
       </div>
       <div class="fl-hover-card-sm" style="padding:28px;border-radius:24px;background:var(--glass);border:1px solid var(--hair);display:grid;gap:12px;align-content:start">
         <span style="font:var(--fw-medium) 11px/1 var(--font-mono);color:var(--cyan-400);letter-spacing:.06em">PRONUNCIATION</span>
@@ -851,25 +925,29 @@ a,button{-webkit-tap-highlight-color:transparent}
       <div class="fl-hover-card-sm" style="padding:28px;border-radius:24px;background:var(--glass);border:1px solid var(--hair);display:grid;gap:12px;align-content:start">
         <span style="font:var(--fw-medium) 11px/1 var(--font-mono);color:var(--amber-400);letter-spacing:.06em">LANGUAGES</span>
         <h3 style="margin:0;font:var(--type-title-m);color:var(--tx)">Speaking practice in 40 languages</h3>
-        <p style="margin:0;font:var(--type-body-m);color:var(--tx-2)">Practise Spanish, French, German, Mandarin, Japanese and 35 more, all included in one price. Switch between languages any time.</p>
+        <p style="margin:0;font:var(--type-body-m);color:var(--tx-2)">Speak 40 languages out loud, including Spanish, French, German, Mandarin and Japanese. Our examples show German conversation practice, from ordering a coffee to reserving a table, and you can practice the same kinds of situations in any language you choose.</p>
       </div>
       <div class="fl-hover-card-sm" style="padding:28px;border-radius:24px;background:var(--glass);border:1px solid var(--hair);display:grid;gap:12px;align-content:start">
         <span style="font:var(--fw-medium) 11px/1 var(--font-mono);color:var(--mint-400);letter-spacing:.06em">MEMORY</span>
         <h3 style="margin:0;font:var(--type-title-m);color:var(--tx)">An AI language tutor that remembers</h3>
-        <p style="margin:0;font:var(--type-body-m);color:var(--tx-2)">Tomorrow’s conversation is built around the two things you got wrong today. Your recordings stay yours: delete a conversation and the model forgets it too.</p>
+        <p style="margin:0;font:var(--type-body-m);color:var(--tx-2)">Like a good AI language coach, it builds tomorrow’s conversation around the two things you got wrong today. Your recordings stay yours: delete a conversation and the model forgets it too.</p>
       </div>
       <div class="fl-hover-card-sm" style="padding:28px;border-radius:24px;background:var(--glass);border:1px solid var(--hair);display:grid;gap:12px;align-content:start">
         <span style="font:var(--fw-medium) 11px/1 var(--font-mono);color:var(--teal-300);letter-spacing:.06em">CONFIDENCE</span>
         <h3 style="margin:0;font:var(--type-title-m);color:var(--tx)">Overcome the fear of speaking</h3>
-        <p style="margin:0;font:var(--type-body-m);color:var(--tx-2)">Freeze mid-sentence? Say “again”, ask for it slower, or ask for the phrase. There are no streaks and no points, just a patient partner, so you can speak with confidence.</p>
+        <p style="margin:0;font:var(--type-body-m);color:var(--tx-2)">Freeze mid-sentence? Say “again”, ask for it slower, or ask for the phrase. There are no streaks and no points, just a patient partner to help you overcome fear of speaking and speak with confidence.</p>
       </div>
+    </div>
+    <div class="rv" style="display:grid;gap:14px;max-width:760px">
+      <h3 style="margin:0;font:var(--type-title-l);color:var(--tx)">How to stop freezing when speaking</h3>
+      <p style="margin:0;font:var(--type-body-l);color:var(--tx-2)">Freezing is a practice problem, not a knowledge problem. You know the word; it just won’t come out while someone is waiting for it. The way to stop freezing when speaking is to practice speaking out loud, often, with nobody watching. Fluency AI gives you exactly that: it waits for you, hands you the phrase you were reaching for, and lets you carry on.</p>
     </div>
     <div class="rv" style="overflow-x:auto;border-radius:24px;border:1px solid var(--hair);background:var(--glass)">
       <table style="width:100%;border-collapse:collapse;min-width:600px">
-        <caption style="caption-side:top;text-align:left;padding:22px 22px 4px;font:var(--type-title-s);color:var(--tx)">How Fluency AI differs from typical lesson-based language apps</caption>
+        <caption style="caption-side:top;text-align:left;padding:22px 22px 4px;font:var(--type-title-s);color:var(--tx)">Language learning without lessons: how Fluency AI differs from typical lesson-based apps</caption>
         <thead><tr><th scope="col" style="padding:16px 22px;font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;text-align:left;color:var(--tx-3)"><span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Feature</span></th><th scope="col" style="padding:16px 22px;font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;text-align:left;color:var(--tx-3)">Typical lesson-based apps</th><th scope="col" style="padding:16px 22px;font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;text-align:left;color:var(--teal-400)">Fluency AI</th></tr></thead>
         <tbody>
-          <tr><th scope="row" style="padding:18px 22px;border-top:1px solid var(--hair);font:var(--type-label);color:var(--tx);text-align:left;vertical-align:top;white-space:nowrap">What you practise</th><td style="padding:18px 22px;border-top:1px solid var(--hair);font:var(--type-body-m);color:var(--tx-2);vertical-align:top">Reading, tapping and memorising units</td><td style="padding:18px 22px;border-top:1px solid var(--hair);font:var(--type-body-m);color:var(--tx);vertical-align:top">Speaking out loud in a real conversation</td></tr>
+          <tr><th scope="row" style="padding:18px 22px;border-top:1px solid var(--hair);font:var(--type-label);color:var(--tx);text-align:left;vertical-align:top;white-space:nowrap">What you practise</th><td style="padding:18px 22px;border-top:1px solid var(--hair);font:var(--type-body-m);color:var(--tx-2);vertical-align:top">Reading, tapping and memorizing units</td><td style="padding:18px 22px;border-top:1px solid var(--hair);font:var(--type-body-m);color:var(--tx);vertical-align:top">Speaking out loud in a real conversation</td></tr>
           <tr><th scope="row" style="padding:18px 22px;border-top:1px solid var(--hair);font:var(--type-label);color:var(--tx);text-align:left;vertical-align:top;white-space:nowrap">How you are corrected</th><td style="padding:18px 22px;border-top:1px solid var(--hair);font:var(--type-body-m);color:var(--tx-2);vertical-align:top">After a test, on a generic exercise</td><td style="padding:18px 22px;border-top:1px solid var(--hair);font:var(--type-body-m);color:var(--tx);vertical-align:top">On the sentence you actually said, with the reason</td></tr>
           <tr><th scope="row" style="padding:18px 22px;border-top:1px solid var(--hair);font:var(--type-label);color:var(--tx);text-align:left;vertical-align:top;white-space:nowrap">How progress is measured</th><td style="padding:18px 22px;border-top:1px solid var(--hair);font:var(--type-body-m);color:var(--tx-2);vertical-align:top">Points and streaks for finishing units</td><td style="padding:18px 22px;border-top:1px solid var(--hair);font:var(--type-body-m);color:var(--tx);vertical-align:top">Minutes spoken and how often you were understood first time</td></tr>
           <tr><th scope="row" style="padding:18px 22px;border-top:1px solid var(--hair);font:var(--type-label);color:var(--tx);text-align:left;vertical-align:top;white-space:nowrap">Getting started</th><td style="padding:18px 22px;border-top:1px solid var(--hair);font:var(--type-body-m);color:var(--tx-2);vertical-align:top">Often a placement test or a fixed course path</td><td style="padding:18px 22px;border-top:1px solid var(--hair);font:var(--type-body-m);color:var(--tx);vertical-align:top">No placement test; speak within ten seconds</td></tr>
@@ -881,7 +959,7 @@ a,button{-webkit-tap-highlight-color:transparent}
       <ul style="margin:0;padding-left:20px;display:grid;gap:10px;font:var(--type-body-m);color:var(--tx-2)">
         <li>Learners who can read a language but freeze when they have to speak it.</li>
         <li>People who have used apps for months and still can’t hold a conversation.</li>
-        <li>Travellers and people moving abroad who need to cope with real conversations at native speed.</li>
+        <li>Travelers and people moving abroad who need to cope with real conversations at native speed.</li>
         <li>Students who want the speaking hours a teacher can’t give them.</li>
       </ul>
     </div>
@@ -943,16 +1021,22 @@ a,button{-webkit-tap-highlight-color:transparent}
     <!-- The questions below are a plain-HTML copy for search and AI crawlers. JavaScript replaces them with the interactive list built from data.js. Keep both in sync. -->
     <div class="rv" id="faq-list" style="display:grid;gap:0;border-top:1px solid var(--hair)">
       <div class="faq-item"><button type="button" class="faq-q">What is Fluency AI?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">Fluency AI is an AI language learning app for speaking practice. You talk out loud in one of 40 languages, it answers like a person, and it corrects what you said while the conversation is still fresh.</p></div></div>
+      <div class="faq-item"><button type="button" class="faq-q">How does Fluency AI work?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">Five things happen between your sentence and the reply. It listens to the sentence you actually said, waits while you speak at your own pace, shows what you said and what to say instead and why, tells you where your tongue goes for tricky sounds, and builds tomorrow's conversation around today's mistakes.</p></div></div>
+      <div class="faq-item"><button type="button" class="faq-q">Can I talk to an AI in another language?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">Yes. Fluency AI is an AI language tutor you talk to out loud, in 40 languages. You speak, it answers in the language you're learning the way a person would, and it corrects you along the way.</p></div></div>
       <div class="faq-item"><button type="button" class="faq-q">Can complete beginners use Fluency AI?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">Yes. There is no placement test. Say one sentence, badly is fine, and it works out where you are. If you get stuck you can ask it to repeat, slow down, explain differently or hand you the phrase.</p></div></div>
       <div class="faq-item"><button type="button" class="faq-q">What if I freeze halfway through?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">Say “again” or just stop. It waits, offers the phrase you were reaching for, and picks the thread back up.</p></div></div>
+      <div class="faq-item"><button type="button" class="faq-q">How to stop freezing when speaking a foreign language?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">Practice speaking out loud, in short sessions, with a partner that waits for you. Fluency AI gives you time when you stall, hands you the phrase you were reaching for, and lets you carry on, so freezing stops feeling like failing.</p></div></div>
       <div class="faq-item"><button type="button" class="faq-q">Will it correct everything I say?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">Only if you ask it to. Live, after, or off: you set it inside the conversation and change it any time.</p></div></div>
       <div class="faq-item"><button type="button" class="faq-q">How does the pronunciation correction work?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">It listens to how you actually say a word, tells you where your tongue and mouth should go, then hears your next attempt and tells you whether it landed. Sounds you get wrong repeatedly are counted, so you can hear the habit instead of just reading a score.</p></div></div>
-      <div class="faq-item"><button type="button" class="faq-q">Which languages can I practise?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">Forty, including Spanish, French, German, Mandarin, Japanese, Italian, Korean, Portuguese, Arabic and Hindi. The full list is on this page, and you can switch between languages without paying again.</p></div></div>
-      <div class="faq-item"><button type="button" class="faq-q">Can I choose what to practise?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">Yes. Describe any situation you're dreading, such as reserving a table or ordering at a counter, and practise that conversation.</p></div></div>
+      <div class="faq-item"><button type="button" class="faq-q">Can Fluency AI help with my accent?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">It listens to your accent as it actually is, and its pronunciation feedback tells you where your tongue and mouth should go for sounds you keep getting wrong. Recurring sounds are counted, so you can spot the habit.</p></div></div>
+      <div class="faq-item"><button type="button" class="faq-q">Which languages can I practice?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">Forty, including Spanish, French, German, Mandarin, Japanese, Italian, Korean, Portuguese, Arabic and Hindi. The full list is on this page, and you can switch between languages without paying again.</p></div></div>
+      <div class="faq-item"><button type="button" class="faq-q">Can I choose what to practice?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">Yes. Describe any situation you're dreading, such as reserving a table or ordering at a counter, and practice that conversation.</p></div></div>
       <div class="faq-item"><button type="button" class="faq-q">How much does it cost?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">You can register and speak your first sentence free, and pay only when you decide to stay. The founding user price is $40, once, not a subscription. Everyone who joins before launch keeps lifetime access at that price; afterwards Fluency AI moves to a yearly subscription for new users, and founding accounts stay on the one-time price permanently.</p></div></div>
-      <div class="faq-item"><button type="button" class="faq-q">Where do I actually use it?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">In the Fluency AI app on iOS or Android, or in your browser with the web app. Register here, open the app, and your account is already waiting.</p></div></div>
+      <div class="faq-item"><button type="button" class="faq-q">Where do I actually use it?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">In the Fluency AI app on iOS or Android. Register here, download it, and your account is already waiting when you open it.</p></div></div>
       <div class="faq-item"><button type="button" class="faq-q">Does Fluency AI work offline?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">No. Speech recognition and the AI's replies happen online, so you need an internet connection to have a conversation.</p></div></div>
       <div class="faq-item"><button type="button" class="faq-q">How is it different from traditional language apps?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">Traditional apps are built around studying and tests, with points for finishing units and little speaking. Fluency AI puts the conversation first and the correction second, ties every correction to a sentence you actually said, and measures progress in minutes spoken instead of points.</p></div></div>
+      <div class="faq-item"><button type="button" class="faq-q">Can I learn a language without lessons?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">Fluency AI is language learning without lessons: no placement test, no streaks and no points for finishing units. You talk, it answers, and every correction comes from a sentence you actually said.</p></div></div>
+      <div class="faq-item"><button type="button" class="faq-q">How long should I practice each day?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">There is no required amount and no streak to protect. Two minutes of talking is enough to get a report of what to fix, so a spare few minutes works.</p></div></div>
       <div class="faq-item"><button type="button" class="faq-q">Is this instead of a teacher?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">It's the practice between lessons. Most people use it for the speaking hours a teacher can't give them.</p></div></div>
       <div class="faq-item"><button type="button" class="faq-q">What happens to my recordings?<span class="faq-plus">+</span></button><div class="faq-a"><p style="margin:0;padding:0 40px 24px 4px;font:var(--type-body-m);color:var(--tx-2);max-width:620px">They're yours. Delete a conversation and the model forgets it too, including the mistakes it learned from it.</p></div></div>
     </div>
@@ -995,6 +1079,7 @@ a,button{-webkit-tap-highlight-color:transparent}
     <div style="display:grid;gap:14px;align-content:start">
       <span class="fl-logo" style="color:#fff"><span>Fluenc</span><span class="ai" style="color:#fff">y<span style="font-size:10px">AI</span></span></span>
       <span style="font:var(--type-body-s);color:var(--ink-500,#5B8497);max-width:250px">From studying a language to actually communicating in it.</span>
+      <span style="font:var(--type-body-s);color:var(--ink-500,#5B8497);max-width:250px">Fluency AI is an independent AI language learning app. Contact: <a href="mailto:fluencyai.support@gmail.com" style="color:var(--ink-300,#B7CCD6)">fluencyai.support@gmail.com</a></span>
     </div>
     <div style="display:grid;gap:10px;align-content:start">
       <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--ink-500,#5B8497)">Product</span>
@@ -1009,11 +1094,11 @@ a,button{-webkit-tap-highlight-color:transparent}
     </div>
     <div style="display:grid;gap:10px;align-content:start">
       <span style="font:var(--type-overline);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--ink-500,#5B8497)">Support</span>
-      <a href="/app/auth?mode=signup" class="js-auth-trigger" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">Open the app</a>
+      <a href="/app/auth?mode=signup" class="js-auth-trigger" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">Get started</a>
       <a href="mailto:fluencyai.support@gmail.com" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">Contact</a>
       <a href="#faq" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">FAQ</a>
-      <a href="/privacy" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">Privacy</a>
-      <a href="/terms" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">Terms</a>
+      <a href="/privacy" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">Privacy Policy</a>
+      <a href="/terms" style="font:var(--type-body-s);color:var(--ink-300,#B7CCD6);font-weight:500">Terms of Service</a>
     </div>
   </div>
 </footer>
