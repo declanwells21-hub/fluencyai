@@ -99,11 +99,17 @@ const LANGUAGES = [
 ];
 
 const FAQS = [
-  ["Do I need to be at a certain level?", "No. Say one sentence, badly is fine, and it works out where you are. There is no placement test."],
-  ["What if I freeze halfway through?", "Say \u201cagain\u201d or just stop. It waits, offers the phrase you were reaching for, and picks the thread back up."],
+  ["What is Fluency AI?", "Fluency AI is an AI language learning app for speaking practice. You talk out loud in one of 40 languages, it answers like a person, and it corrects what you said while the conversation is still fresh."],
+  ["Can complete beginners use Fluency AI?", "Yes. There is no placement test. Say one sentence, badly is fine, and it works out where you are. If you get stuck you can ask it to repeat, slow down, explain differently or hand you the phrase."],
+  ["What if I freeze halfway through?", "Say “again” or just stop. It waits, offers the phrase you were reaching for, and picks the thread back up."],
   ["Will it correct everything I say?", "Only if you ask it to. Live, after, or off: you set it inside the conversation and change it any time."],
-  ["How much does it cost?", "$40, once, not a subscription. Everyone who joins before launch keeps lifetime access at that price; afterwards Fluency AI moves to a yearly subscription for new users, and founding accounts stay on the one-time price permanently."],
-  ["Where do I actually use it?", "In the Fluency AI app on iOS or Android. Register here, download it, and your account is already waiting when you open it."],
+  ["How does the pronunciation correction work?", "It listens to how you actually say a word, tells you where your tongue and mouth should go, then hears your next attempt and tells you whether it landed. Sounds you get wrong repeatedly are counted, so you can hear the habit instead of just reading a score."],
+  ["Which languages can I practise?", "Forty, including Spanish, French, German, Mandarin, Japanese, Italian, Korean, Portuguese, Arabic and Hindi. The full list is on this page, and you can switch between languages without paying again."],
+  ["Can I choose what to practise?", "Yes. Describe any situation you're dreading, such as reserving a table or ordering at a counter, and practise that conversation."],
+  ["How much does it cost?", "You can register and speak your first sentence free, and pay only when you decide to stay. The founding user price is $40, once, not a subscription. Everyone who joins before launch keeps lifetime access at that price; afterwards Fluency AI moves to a yearly subscription for new users, and founding accounts stay on the one-time price permanently."],
+  ["Where do I actually use it?", "In the Fluency AI app on iOS or Android, or in your browser with the web app. Register here, open the app, and your account is already waiting."],
+  ["Does Fluency AI work offline?", "No. Speech recognition and the AI's replies happen online, so you need an internet connection to have a conversation."],
+  ["How is it different from traditional language apps?", "Traditional apps are built around studying and tests, with points for finishing units and little speaking. Fluency AI puts the conversation first and the correction second, ties every correction to a sentence you actually said, and measures progress in minutes spoken instead of points."],
   ["Is this instead of a teacher?", "It's the practice between lessons. Most people use it for the speaking hours a teacher can't give them."],
   ["What happens to my recordings?", "They're yours. Delete a conversation and the model forgets it too, including the mistakes it learned from it."],
 ];
