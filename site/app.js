@@ -106,7 +106,6 @@ window.addEventListener('scroll', () => {
 function spawnWordsIn(hostId, lanesDesktop, lanesMobile, sizeRangeDesktop, sizeRangeMobile) {
   const host = document.getElementById(hostId);
   if (!host || host.childElementCount) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   const isMobile = window.innerWidth <= 1040;
   const lanes = isMobile ? lanesMobile : lanesDesktop;
@@ -122,6 +121,7 @@ function spawnWordsIn(hostId, lanesDesktop, lanesMobile, sizeRangeDesktop, sizeR
     const size = Math.round(rnd(sizeRange[0], sizeRange[1]));
     const op = +(0.1 + Math.random() * 0.24).toFixed(3);
     const s = el.style;
+    s.opacity = op; // visible immediately even if the fade-in animation is disabled
     s.left = rnd(lx, lx + lw).toFixed(2) + '%';
     s.top = rnd(ly, ly + lh).toFixed(2) + '%';
     s.font = '600 ' + size + 'px/1 var(--font-display)';
