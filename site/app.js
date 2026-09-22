@@ -365,21 +365,36 @@ function setupScrollReveal() {
 // ============ INIT ============
 document.addEventListener('DOMContentLoaded', () => {
   document.body.setAttribute('data-fl-theme', 'dark');
-  syncKnob();
-  renderRepairs();
-  renderRepairDetail();
-  renderPhraseMarquee();
-  renderStageTabs();
-  renderStageDetail();
-  renderFeatures();
-  renderLanguages();
-  renderFAQ();
-  renderMiniWaveform();
-  renderIcons();
-  spawnWords();
-  setupScrollReveal();
-  spawnReferralCapture();
-  spawnWaitlistForm();
+
+  // `run()` isolates each init step: if one throws (a bad selector, a
+  // future data.js edit that doesn't line up with a render function,
+  // etc.), the error is logged to the console instead of stopping every
+  // step queued after it - including spawnWords(), which is why the
+  // floating background words could go dark site-wide over something
+  // unrelated breaking earlier in this list.
+  const run = (fn) => {
+    try {
+      fn();
+    } catch (err) {
+      console.error('[FluencyAI] "' + fn.name + '" failed to run:', err);
+    }
+  };
+
+  run(syncKnob);
+  run(renderRepairs);
+  run(renderRepairDetail);
+  run(renderPhraseMarquee);
+  run(renderStageTabs);
+  run(renderStageDetail);
+  run(renderFeatures);
+  run(renderLanguages);
+  run(renderFAQ);
+  run(renderMiniWaveform);
+  run(renderIcons);
+  run(spawnWords);
+  run(setupScrollReveal);
+  run(spawnReferralCapture);
+  run(spawnWaitlistForm);
 });
 
 // ============ FLUENCY CREATOR PROGRAM: REFERRAL CAPTURE ============
