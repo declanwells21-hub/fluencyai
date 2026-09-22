@@ -32,6 +32,7 @@
 // URLs (/api/admin/stats etc.), the rewrite handles the redirection.
 
 const { requireAdmin } = require('../_lib/adminAuth');
+const { sendBrandedEmail } = require('../_lib/emailTemplate');
 
 module.exports = async (req, res) => {
   try {
@@ -78,6 +79,12 @@ module.exports = async (req, res) => {
     }
     if (route === 'application-decide' && req.method === 'POST') {
       return handleApplicationDecide(auth, req, res);
+    }
+    if (route === 'waitlist-stats' && req.method === 'GET') {
+      return handleWaitlistStats(auth, res);
+    }
+    if (route === 'waitlist-notify-launch' && req.method === 'POST') {
+      return handleWaitlistNotifyLaunch(auth, req, res);
     }
 
     return res.status(404).json({ error: 'Unknown admin route: ' + route });
@@ -517,6 +524,101 @@ async function handleApplicationDecide(auth, req, res) {
   }
 
   res.status(200).json({ ok: true, applicationId, decision, creator: createdCreator });
+}
+
+// ---------- Waitlist ----------
+//
+// waitlist_signups is filled by the public api/waitlist.js endpoint (see
+// scripts/supabase_migration_waitlist.sql) - RLS enabled, zero public
+// policies, so auth.supabase (service-role, from requireAdmin() above) is
+// the only way to read or update it, same as creators/applications above.
+
+async function handleWaitlistStats(auth, res) {
+  const { count: total, error: totalErr } = await auth.supabase
+    .from('waitlist_signups')
+    .select('id', { count: 'exact', head: true });
+  if (totalErr) {
+    console.error('admin/waitlist-stats: total query failed:', totalErr.message);
+    return res.status(500).json({ error: totalErr.message });
+  }
+
+  const { count: notified, error: notifiedErr } = await auth.supabase
+    .from('waitlist_signups')
+    .select('id', { count: 'exact', head: true })
+    .not('notified_at', 'is', null);
+  if (notifiedErr) {
+    console.error('admin/waitlist-stats: notified query failed:', notifiedErr.message);
+    return res.status(500).json({ error: notifiedErr.message });
+  }
+
+  const totalCount = total || 0;
+  const notifiedCount = notified || 0;
+  res.status(200).json({ total: totalCount, notified: notifiedCount, pending: totalCount - notifiedCount });
+}
+
+function waitlistLaunchBody(iosUrl, androidUrl, note) {
+  const links = [iosUrl ? `- iOS: ${iosUrl}` : null, androidUrl ? `- Android: ${androidUrl}` : null]
+    .filter(Boolean)
+    .join('\n');
+
+  return `It's here. Fluency AI is live, and you're one of the first to know.
+
+Download it now:
+${links}
+
+Thank you for waiting for us. We built Fluency AI so you can stop freezing and start speaking, in 40 languages, and we're glad you'll be trying it.${note ? '\n\n' + note : ''}
+
+If you have any questions getting started, just reply to this email.
+
+\u2014 The Fluency AI team`;
+}
+
+// Fired once, manually, from the admin dashboard's Waitlist card - there is
+// no automatic trigger for "the app is live" because that's a decision a
+// person makes, not an event this code can detect on its own. Sends to
+// everyone not yet notified, marks only the successful sends as notified
+// (so a retry after a partial failure doesn't skip or double-email anyone).
+async function handleWaitlistNotifyLaunch(auth, req, res) {
+  const { iosUrl, androidUrl, note } = req.body || {};
+  if (!iosUrl && !androidUrl) {
+    return res.status(400).json({ error: 'Provide at least one of iosUrl or androidUrl.' });
+  }
+
+  const { data: rows, error } = await auth.supabase
+    .from('waitlist_signups')
+    .select('email')
+    .is('notified_at', null);
+  if (error) {
+    console.error('admin/waitlist-notify-launch: select failed:', error.message);
+    return res.status(500).json({ error: error.message });
+  }
+
+  const recipients = (rows || []).map((r) => r.email);
+  if (recipients.length === 0) {
+    return res.status(200).json({ ok: true, sent: 0, failed: 0, total: 0 });
+  }
+
+  const subject = "Fluency AI is live \u2014 here are your download links";
+  const body = waitlistLaunchBody(iosUrl, androidUrl, note);
+
+  const results = await Promise.allSettled(
+    recipients.map((email) => sendBrandedEmail({ to: email, subject, textBody: body }).then(() => email))
+  );
+
+  const succeeded = results.filter((r) => r.status === 'fulfilled').map((r) => r.value);
+  const failed = results.length - succeeded.length;
+
+  if (succeeded.length > 0) {
+    const { error: updateErr } = await auth.supabase
+      .from('waitlist_signups')
+      .update({ notified_at: new Date().toISOString() })
+      .in('email', succeeded);
+    if (updateErr) {
+      console.error('admin/waitlist-notify-launch: marking notified failed:', updateErr.message);
+    }
+  }
+
+  res.status(200).json({ ok: true, sent: succeeded.length, failed, total: recipients.length });
 }
 
 function buildEmailHtml(subject, message) {
