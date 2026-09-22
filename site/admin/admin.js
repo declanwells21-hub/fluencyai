@@ -99,6 +99,12 @@
       await loadUsers();
       await loadCreators();
       await loadApplications();
+      try {
+        await loadWaitlistStats();
+      } catch (err) {
+        const el = document.getElementById('waitlist-result');
+        if (el) el.textContent = 'Waitlist tools unavailable: ' + err.message + ' (has scripts/supabase_migration_waitlist.sql been run in Supabase yet?)';
+      }
       content.classList.remove('hidden');
       contentLoading.classList.add('hidden');
     } catch (err) {
@@ -566,6 +572,51 @@
       } catch (err) {
         alert(err.message);
         btn.disabled = false;
+      }
+    });
+  }
+
+  async function loadWaitlistStats() {
+    const stats = await apiFetch('/admin/waitlist-stats');
+    document.getElementById('waitlist-totals').textContent =
+      `${stats.total} on the waitlist \u00b7 ${stats.pending} waiting to hear from you \u00b7 ${stats.notified} already notified`;
+  }
+
+  const waitlistSendBtn = document.getElementById('waitlist-send-btn');
+  if (waitlistSendBtn) {
+    waitlistSendBtn.addEventListener('click', async () => {
+      const resultEl = document.getElementById('waitlist-result');
+      resultEl.style.color = '';
+      resultEl.textContent = '';
+
+      const iosUrl = document.getElementById('waitlist-ios-url').value.trim();
+      const androidUrl = document.getElementById('waitlist-android-url').value.trim();
+      const note = document.getElementById('waitlist-note').value.trim();
+
+      if (!iosUrl && !androidUrl) {
+        resultEl.textContent = 'Add at least one store link first.';
+        return;
+      }
+      if (!confirm('This emails everyone on the waitlist who has not already been notified, right now. This cannot be undone. Continue?')) return;
+
+      waitlistSendBtn.disabled = true;
+      const originalLabel = waitlistSendBtn.textContent;
+      waitlistSendBtn.textContent = 'Sending\u2026';
+
+      try {
+        const result = await apiFetch('/admin/waitlist-notify-launch', {
+          method: 'POST',
+          body: JSON.stringify({ iosUrl: iosUrl || undefined, androidUrl: androidUrl || undefined, note: note || undefined }),
+        });
+        resultEl.style.color = 'var(--teal-400)';
+        resultEl.textContent = `Sent to ${result.sent} of ${result.total}.` + (result.failed ? ` ${result.failed} failed \u2014 check Vercel function logs.` : '');
+        await loadWaitlistStats();
+      } catch (err) {
+        resultEl.style.color = '#ef4444';
+        resultEl.textContent = err.message;
+      } finally {
+        waitlistSendBtn.disabled = false;
+        waitlistSendBtn.textContent = originalLabel;
       }
     });
   }
