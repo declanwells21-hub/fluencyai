@@ -379,6 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
   spawnWords();
   setupScrollReveal();
   spawnReferralCapture();
+  spawnWaitlistForm();
 });
 
 // ============ FLUENCY CREATOR PROGRAM: REFERRAL CAPTURE ============
@@ -390,6 +391,54 @@ document.addEventListener('DOMContentLoaded', () => {
 // /app/auth - where the Flutter app reads it and reports it back via
 // api/track-activity.js once the account exists. See
 // scripts/supabase_migration_creators.sql for the full chain.
+// ============ JOIN THE WAITLIST ============
+//
+// Posts to api/waitlist.js, which saves the email (see
+// scripts/supabase_migration_waitlist.sql) and sends the confirmation
+// email right away. The later "we're live" email is sent in one batch
+// from the admin dashboard (site/admin) when the app actually launches,
+// not from here.
+function spawnWaitlistForm() {
+  const form = document.getElementById('waitlist-form');
+  if (!form) return;
+  const emailInput = document.getElementById('waitlist-email');
+  const submitBtn = document.getElementById('waitlist-submit');
+  const msg = document.getElementById('waitlist-msg');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = emailInput.value.trim();
+    msg.style.color = 'var(--tx-2)';
+    msg.textContent = '';
+
+    submitBtn.disabled = true;
+    const originalLabel = submitBtn.textContent;
+    submitBtn.textContent = 'Joining\u2026';
+
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'landing_waitlist' }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
+
+      form.reset();
+      msg.style.color = 'var(--teal-400)';
+      msg.textContent = data.alreadyJoined
+        ? "You're already on the waitlist \u2014 we'll email you the moment we launch."
+        : "You're on the list. Check your inbox for a confirmation email.";
+    } catch (err) {
+      msg.style.color = '#f87171';
+      msg.textContent = err.message;
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalLabel;
+    }
+  });
+}
+
 function spawnReferralCapture() {
   try {
     const CODE_RE = /^[A-Za-z0-9_-]{3,32}$/;
