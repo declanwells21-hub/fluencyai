@@ -126,6 +126,7 @@ const GREETINGS = [
   ["guten Tag", "de"], ["bonjour", "fr"], ["obrigado", "pt"], ["你好", "zh"], ["안녕하세요", "ko"],
   ["こんにちは", "ja"], ["cześć", "pl"], ["merhaba", "tr"], ["mrekba", "ar"], ["hoi", "nl"],
   ["buongiorno", "it"], ["de nada", "es"], ["s'il vous plaît", "fr"], ["dziękuję", "pl"],
+  ["asante", "sw"], ["karibu", "sw"],
 ];
 
 const REPAIRS = [
