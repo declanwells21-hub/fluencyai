@@ -129,7 +129,7 @@ function spawnWordsIn(hostId, lanesDesktop, lanesMobile, sizeRangeDesktop, sizeR
     s.letterSpacing = '-.01em';
     s.filter = size < 17 ? 'blur(.6px)' : 'none';
     s.setProperty('--o', op);
-    s.setProperty('--d', rnd(10, 18).toFixed(1) + 's');
+    s.setProperty('--d', rnd(22, 34).toFixed(1) + 's');
     s.setProperty('--dl', (-Math.random() * 30).toFixed(1) + 's');
     s.setProperty('--r0', rnd(-2.5, 2.5).toFixed(2) + 'deg');
     s.setProperty('--r1', rnd(-3.5, 3.5).toFixed(2) + 'deg');
