@@ -5,10 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/config/env.dart';
 import '../../../core/config/supabase_config.dart';
 import 'auth_repository.dart';
+import 'oauth_url_cleanup_stub.dart' if (dart.library.html) 'oauth_url_cleanup_web.dart';
 
 /// Talks to Supabase Auth directly over plain HTTP instead of going through
 /// supabase_flutter's GoTrue client for the actual sign-up / verify / login
@@ -57,6 +59,17 @@ class RestAuthRepository implements AuthRepository {
       uri,
       headers: _headers(accessToken: accessToken),
       body: body != null ? jsonEncode(body) : null,
+    );
+    return _handle(res);
+  }
+
+  Future<Map<String, dynamic>?> _get(
+    String path, {
+    String? accessToken,
+  }) async {
+    final res = await _http.get(
+      Uri.parse('$_baseUrl$path'),
+      headers: _headers(accessToken: accessToken),
     );
     return _handle(res);
   }
@@ -268,6 +281,62 @@ class RestAuthRepository implements AuthRepository {
       final res = await Supabase.instance.client.functions.invoke('delete-account');
       if (res.status != 200) return false;
       await logOut();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
+  Future<void> beginGoogleSignIn() async {
+    if (!kIsWeb) {
+      throw UnimplementedError(
+        'Google sign-in needs native setup (the google_sign_in package plus '
+        "Google Cloud OAuth clients for iOS/Android) before it'll work "
+        'outside a browser - see the "Google sign-in" section in README.md.',
+      );
+    }
+    final redirectTo = Uri.base.origin + '/app/';
+    final uri = Uri.parse('$_baseUrl/auth/v1/authorize').replace(queryParameters: {
+      'provider': 'google',
+      'redirect_to': redirectTo,
+    });
+    await launchUrl(uri, webOnlyWindowName: '_self');
+  }
+
+  /// Call once at startup (see main.dart), before [restoreSession]. If the
+  /// browser just came back from Google's consent screen, Supabase appends
+  /// the new session to the URL as a fragment
+  /// (`#access_token=...&refresh_token=...`) instead of a query string -
+  /// this reads it, saves it exactly like a normal login/signup would (so
+  /// the rest of the app can't tell the difference), and clears it from
+  /// the address bar. Returns false and does nothing on every ordinary
+  /// page load, which is the normal case almost all the time.
+  Future<bool> completeOAuthFromUrl() async {
+    if (!kIsWeb) return false;
+    final fragment = Uri.base.fragment;
+    if (!fragment.contains('access_token=')) return false;
+
+    final params = Uri.splitQueryString(fragment);
+    // Clear this from the address bar/history regardless of what happens
+    // next - the tokens should never linger there, and (just as
+    // importantly on the web build) go_router's own hash-based routing
+    // needs a clean '#' to start from, not leftover token text.
+    clearOAuthUrlFragment();
+
+    final accessToken = params['access_token'];
+    if (accessToken == null) return false;
+    try {
+      final user = await _get('/auth/v1/user', accessToken: accessToken);
+      final session = {
+        'access_token': accessToken,
+        'refresh_token': params['refresh_token'],
+        'expires_in': int.tryParse(params['expires_in'] ?? '') ?? 3600,
+        'token_type': params['token_type'] ?? 'bearer',
+        'user': user,
+      };
+      await _saveSession(session);
+      _reportActivity(accessToken);
       return true;
     } catch (_) {
       return false;
