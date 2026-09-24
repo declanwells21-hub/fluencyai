@@ -32,7 +32,14 @@ Future<void> main() async {
   // Riverpod lazily creating a fresh, session-less one on first read.
   final authRepository = RestAuthRepository();
   try {
-    await authRepository.restoreSession().timeout(const Duration(seconds: 5));
+    // If the browser just came back from a Google sign-in redirect, this
+    // finishes that login and takes priority over restoring an old
+    // session below - see completeOAuthFromUrl for why. On every other
+    // launch it does nothing and returns false immediately.
+    final finishedGoogleSignIn = await authRepository.completeOAuthFromUrl().timeout(const Duration(seconds: 8));
+    if (!finishedGoogleSignIn) {
+      await authRepository.restoreSession().timeout(const Duration(seconds: 5));
+    }
   } catch (_) {
     // No saved session, or a network hiccup restoring it - just start
     // logged out, same as a first-ever launch.
