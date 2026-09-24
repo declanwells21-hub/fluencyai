@@ -167,6 +167,8 @@
   const resendResetBtn = document.getElementById('auth-resend-reset-btn');
 
   const navLoginLinks = [document.getElementById('fl-nav-login'), document.getElementById('fl-nav-login-m')].filter(Boolean);
+  const googleSignupBtn = document.getElementById('auth-google-signup');
+  const googleLoginBtn = document.getElementById('auth-google-login');
 
   // Pending emails live in sessionStorage (not just a JS variable) so a
   // reload between "code sent" and "code entered" doesn't silently lose
@@ -224,6 +226,62 @@
       return 'That code is incorrect or has expired. Double check it, or resend a new one.';
     }
     return msg;
+  }
+
+  // ---------- Google sign-in ----------
+  // Full-page redirect to Supabase's own OAuth endpoint - no supabase-js
+  // involved, so the cross-tab lock bug mentioned above never enters the
+  // picture here either. Supabase sends the browser to Google, then back
+  // to redirect_to with the new session appended as a URL fragment
+  // (#access_token=...), which the init block below picks up on load.
+  function beginGoogleAuth() {
+    if (!configured) { window.location.href = '/app/auth?mode=signup'; return; }
+    const url = SUPABASE_URL + '/auth/v1/authorize?' + new URLSearchParams({
+      provider: 'google',
+      redirect_to: window.location.origin + '/',
+    }).toString();
+    window.location.href = url;
+  }
+  if (googleSignupBtn) googleSignupBtn.addEventListener('click', beginGoogleAuth);
+  if (googleLoginBtn) googleLoginBtn.addEventListener('click', beginGoogleAuth);
+
+  // Reads the '#access_token=...' fragment Supabase appends after a Google
+  // redirect. Returns null on every ordinary page load (no fragment, or a
+  // plain '#pricing'-style anchor link - neither contains 'access_token').
+  function parseOAuthHash() {
+    const raw = window.location.hash.replace(/^#/, '');
+    if (!raw || raw.indexOf('access_token=') === -1) return raw && raw.indexOf('error=') !== -1 ? { error: true } : null;
+    const params = new URLSearchParams(raw);
+    const accessToken = params.get('access_token');
+    if (!accessToken) return null;
+    return {
+      access_token: accessToken,
+      refresh_token: params.get('refresh_token'),
+      expires_in: params.get('expires_in') ? parseInt(params.get('expires_in'), 10) : undefined,
+      token_type: params.get('token_type') || 'bearer',
+    };
+  }
+
+  async function completeGoogleAuthIfPresent() {
+    const partial = parseOAuthHash();
+    if (!partial) return false;
+    // Clear the tokens from the address bar/history either way - they
+    // should never linger there, successful or not.
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+    if (partial.error) return false;
+    try {
+      const user = await authRequest('/auth/v1/user', { method: 'GET', accessToken: partial.access_token });
+      const session = { ...partial, user };
+      saveSession(session);
+      await showWelcome({ title: 'Welcome!', subtitle: "You're signed in with Google.", session });
+      overlay.classList.add('open');
+      overlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      return true;
+    } catch (err) {
+      console.error('Google sign-in: could not complete session:', err.message);
+      return false;
+    }
   }
 
   // ---------- The shared "you're in" screen ----------
@@ -288,18 +346,23 @@
     });
   });
 
-  // Resume mid-flow if a code was already sent and the page reloaded.
+  // Resume mid-flow if a code was already sent and the page reloaded - but
+  // a Google redirect (if that's why we're here) takes priority over a
+  // stale pending signup/reset from before the user left for Google's page.
   if (configured) {
     const pendingSignup = getPendingEmail();
     const pendingReset = getPendingResetEmail();
-    if (pendingSignup) {
-      document.getElementById('auth-verify-email').textContent = pendingSignup;
-      openModal('verify');
-    } else if (pendingReset) {
-      document.getElementById('auth-reset-email').textContent = pendingReset;
-      openModal('reset');
-    }
-    refreshNavLoginState();
+    completeGoogleAuthIfPresent().then((handled) => {
+      if (handled) return;
+      if (pendingSignup) {
+        document.getElementById('auth-verify-email').textContent = pendingSignup;
+        openModal('verify');
+      } else if (pendingReset) {
+        document.getElementById('auth-reset-email').textContent = pendingReset;
+        openModal('reset');
+      }
+      refreshNavLoginState();
+    });
   }
 
   closeBtn.addEventListener('click', closeModal);
