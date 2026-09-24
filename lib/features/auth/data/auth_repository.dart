@@ -47,6 +47,21 @@ abstract class AuthRepository {
   /// doc comment on RestAuthRepository.deleteAccount for setup notes.
   /// Returns false (never throws) if deletion isn't available.
   Future<bool> deleteAccount();
+
+  /// Starts Google sign-in via Supabase's own OAuth endpoint - see
+  /// RestAuthRepository for how the two halves of this fit together:
+  ///
+  /// - On the web, this navigates the whole tab to Google's consent
+  ///   screen. There's nothing more to do here; the app finishes signing
+  ///   in on its own once the browser comes back (see
+  ///   RestAuthRepository.completeOAuthFromUrl, called from main.dart at
+  ///   startup, before runApp()).
+  /// - On a native build (iOS/Android), this throws UnimplementedError -
+  ///   that needs the google_sign_in package plus Google Cloud OAuth
+  ///   clients for each platform, which isn't set up yet. See the
+  ///   "Google sign-in" section in README.md for the steps once you build
+  ///   real native apps.
+  Future<void> beginGoogleSignIn();
 }
 
 /// Phase 1-2 fake implementation: kept for reference. The real app now uses
@@ -112,5 +127,11 @@ class FakeAuthRepository implements AuthRepository {
     await Future.delayed(const Duration(milliseconds: 300));
     _loggedIn = false;
     return true;
+  }
+
+  @override
+  Future<void> beginGoogleSignIn() async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    _loggedIn = true;
   }
 }
