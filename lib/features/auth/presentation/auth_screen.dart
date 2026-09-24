@@ -19,12 +19,19 @@ class AuthScreen extends ConsumerStatefulWidget {
 }
 
 class _AuthScreenState extends ConsumerState<AuthScreen> {
+  // Apple sign-in isn't built yet. Flip this to true once it is - Apple
+  // requires offering it if Google sign-in is offered, but only once this
+  // app is actually heading to the App Store; see the "Google sign-in"
+  // section in README.md.
+  static const bool _showAppleSignIn = false;
+
   bool _isSignUp = true;
   bool _termsAccepted = false;
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _obscure = true;
   bool _loading = false;
+  bool _googleLoading = false;
   String? _error;
 
   @override
@@ -37,6 +44,23 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Continuing with $provider (coming soon)')),
     );
+  }
+
+  Future<void> _continueWithGoogle() async {
+    setState(() { _googleLoading = true; _error = null; });
+    try {
+      // On the web this navigates the whole tab away to Google's consent
+      // screen, so there's nothing left to do here on success - the app
+      // finishes signing in on its own once the browser comes back (see
+      // main.dart). _googleLoading only matters if this throws instead.
+      await ref.read(authRepositoryProvider).beginGoogleSignIn();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _googleLoading = false;
+        _error = 'Could not start Google sign-in: $e';
+      });
+    }
   }
 
   Future<void> _submit() async {
@@ -127,18 +151,26 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               ),
               const SizedBox(height: 20),
               OutlinedButton.icon(
-                onPressed: () => _showComingSoon('Google'),
-                icon: const ColorfulIcon(Icons.g_mobiledata, mood: IconMood.sky, size: 20, boxSize: 26),
-                label: const Text('Continue with Google'),
+                onPressed: _googleLoading ? null : _continueWithGoogle,
+                icon: _googleLoading
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const ColorfulIcon(Icons.g_mobiledata, mood: IconMood.sky, size: 20, boxSize: 26),
+                label: Text(_googleLoading ? 'Opening Google…' : 'Continue with Google'),
                 style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
               ),
-              const SizedBox(height: 10),
-              OutlinedButton.icon(
-                onPressed: () => _showComingSoon('Apple'),
-                icon: const ColorfulIcon(Icons.apple, mood: IconMood.purple, size: 16, boxSize: 26),
-                label: const Text('Continue with Apple'),
-                style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
-              ),
+              if (_showAppleSignIn) ...[
+                const SizedBox(height: 10),
+                OutlinedButton.icon(
+                  onPressed: () => _showComingSoon('Apple'),
+                  icon: const ColorfulIcon(Icons.apple, mood: IconMood.purple, size: 16, boxSize: 26),
+                  label: const Text('Continue with Apple'),
+                  style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
+                ),
+              ],
               const SizedBox(height: 20),
               Row(children: const [
                 Expanded(child: Divider()),
