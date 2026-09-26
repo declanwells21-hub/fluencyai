@@ -395,6 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
   run(setupScrollReveal);
   run(spawnReferralCapture);
   run(spawnWaitlistForm);
+  run(spawnPricingTabs);
 });
 
 // ============ FLUENCY CREATOR PROGRAM: REFERRAL CAPTURE ============
@@ -452,6 +453,58 @@ function spawnWaitlistForm() {
       submitBtn.textContent = originalLabel;
     }
   });
+}
+
+// ============ PRICING: 3-way plan switcher ============
+//
+// Pure display logic - which panel is visible, which tab looks selected,
+// and what the checkout button says. Actually starting checkout needs the
+// signed-in session, so that part lives in auth.js instead (see
+// spawnPricingCheckout there); this only updates
+// #pricing-checkout-btn's data-plan attribute for that code to read.
+const PRICING_COPY = {
+  founding: { label: 'Create your account', icon: 'user-plus',
+    caption: 'Register, download the app, speak your first sentence free. Pay the $40 once, only when you decide to stay.' },
+  weekly: { label: 'Start Free Trial \u2014 Requires Card', icon: 'sparkles',
+    caption: '3 days free, then billed automatically unless you cancel. No commitment \u2014 cancel any time from your account.' },
+  yearly: { label: 'Start Free Trial \u2014 Requires Card', icon: 'sparkles',
+    caption: '3 days free, then billed automatically unless you cancel. No commitment \u2014 cancel any time from your account.' },
+};
+
+function spawnPricingTabs() {
+  const tabs = document.querySelectorAll('.pricing-tab');
+  const panels = document.querySelectorAll('.pricing-panel');
+  const btn = document.getElementById('pricing-checkout-btn');
+  const btnLabel = document.getElementById('pricing-checkout-btn-label');
+  const btnIcon = btn ? btn.querySelector('.fl-icon') : null;
+  const caption = document.getElementById('pricing-checkout-caption');
+  if (!tabs.length || !btn) return;
+
+  function selectPlan(plan) {
+    tabs.forEach((t) => {
+      const active = t.dataset.plan === plan;
+      t.setAttribute('aria-selected', active ? 'true' : 'false');
+      t.style.background = active ? 'rgba(255,255,255,.16)' : 'transparent';
+      t.style.border = active ? '1px solid rgba(255,255,255,.35)' : '1px solid var(--hair)';
+      t.style.color = active ? 'var(--tx)' : 'var(--tx-2)';
+      t.style.font = active ? 'var(--fw-bold) 12.5px/1.2 var(--font-body)' : 'var(--fw-medium) 12.5px/1.2 var(--font-body)';
+    });
+    panels.forEach((p) => { p.hidden = p.dataset.panel !== plan; });
+    btn.dataset.plan = plan;
+    const copy = PRICING_COPY[plan];
+    if (copy) {
+      if (btnLabel) btnLabel.textContent = copy.label;
+      if (caption) caption.textContent = copy.caption;
+      if (btnIcon) btnIcon.setAttribute('data-icon', copy.icon);
+      if (typeof renderIcons === 'function') renderIcons();
+    }
+    // Clear any leftover error/status message from a previous plan's
+    // checkout attempt - it no longer applies once the plan has changed.
+    const msg = document.getElementById('pricing-checkout-msg');
+    if (msg) msg.textContent = '';
+  }
+
+  tabs.forEach((t) => t.addEventListener('click', () => selectPlan(t.dataset.plan)));
 }
 
 function spawnReferralCapture() {
