@@ -995,24 +995,69 @@ a,button{-webkit-tap-highlight-color:transparent}
       <p style="margin:0;font:var(--type-body-l);color:var(--tx-2)">No subscription, no tiers, no per-minute meter, no upsell in the middle of a sentence.</p>
     </div>
     <div class="rv" style="width:min(560px,100%);padding:40px;border-radius:32px;background:linear-gradient(150deg,rgba(91,85,184,.26),rgba(16,184,184,.1));border:1px solid var(--indigo-400);box-shadow:0 40px 100px rgba(4,18,27,.4);display:grid;gap:24px">
-      <span style="display:inline-flex;align-items:center;gap:9px;padding:8px 16px;border-radius:999px;background:var(--indigo-500);color:#fff;font:var(--fw-bold) 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;justify-self:start">
-        <span class="fl-icon" data-icon="sparkles" data-size="14"></span>Founding user price
-      </span>
-      <div style="display:grid;gap:8px">
-        <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
-          <span class="fl-tabnum" style="font:var(--fw-black) clamp(3rem,6vw,4.6rem)/1 var(--font-numeric);color:var(--tx);letter-spacing:-.04em">$40</span>
-          <span style="font:var(--type-body-l);color:var(--tx);padding-bottom:12px;font-weight:600">once, not a year</span>
-        </div>
-        <span style="font:var(--type-body-m);color:var(--tx-2)">Everyone who joins before launch keeps lifetime access at this price. Afterwards Fluency AI becomes a yearly subscription, and founding accounts are never moved onto it.</span>
+      <div role="tablist" aria-label="Choose a plan" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        <button type="button" class="pricing-tab" data-plan="founding" aria-selected="true" style="padding:10px 6px;border-radius:12px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.16);color:var(--tx);font:var(--fw-bold) 12.5px/1.2 var(--font-body);cursor:pointer">Founding<br>$40 once</button>
+        <button type="button" class="pricing-tab" data-plan="weekly" aria-selected="false" style="padding:10px 6px;border-radius:12px;border:1px solid var(--hair);background:transparent;color:var(--tx-2);font:var(--fw-medium) 12.5px/1.2 var(--font-body);cursor:pointer">Weekly</button>
+        <button type="button" class="pricing-tab" data-plan="yearly" aria-selected="false" style="padding:10px 6px;border-radius:12px;border:1px solid var(--hair);background:transparent;color:var(--tx-2);font:var(--fw-medium) 12.5px/1.2 var(--font-body);cursor:pointer">Yearly</button>
       </div>
-      <div style="display:grid;gap:11px">
+      <div class="pricing-panel" data-panel="founding" style="display:grid;gap:20px">
+        <span style="display:inline-flex;align-items:center;gap:9px;padding:8px 16px;border-radius:999px;background:var(--indigo-500);color:#fff;font:var(--fw-bold) 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;justify-self:start">
+          <span class="fl-icon" data-icon="sparkles" data-size="14"></span>Founding user price
+        </span>
+        <div style="display:grid;gap:8px">
+          <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+            <span class="fl-tabnum" style="font:var(--fw-black) clamp(2.6rem,5.4vw,3.8rem)/1 var(--font-numeric);color:var(--tx);letter-spacing:-.04em">$40</span>
+            <span style="font:var(--type-body-l);color:var(--tx);padding-bottom:10px;font-weight:600">once, not a year</span>
+          </div>
+          <span style="font:var(--type-body-m);color:var(--tx-2)">Everyone who joins before launch keeps lifetime access at this price. Afterwards Fluency AI becomes a yearly subscription, and founding accounts are never moved onto it.</span>
+        </div>
+        <div style="display:grid;gap:11px">
         <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>Unlimited spoken conversation, for life</span>
         <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>All forty languages, switch any time</span>
         <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>Corrections, pronunciation breakdowns, mistake memory</span>
         <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>Delete any recording, any time</span>
+        </div>
       </div>
-      <a href="/app/auth?mode=signup" class="fl-btn fl-btn-accent js-auth-trigger" style="width:100%;height:52px"><span class="fl-icon" data-icon="user-plus" data-size="18"></span>Create your account</a>
-      <span style="font:var(--type-caption);color:var(--tx-3);text-align:center">Register, download the app, speak your first sentence free. Pay the $40 once, only when you decide to stay.</span>
+      <div class="pricing-panel" data-panel="weekly" hidden style="display:grid;gap:20px">
+        <span style="display:inline-flex;align-items:center;gap:9px;padding:8px 16px;border-radius:999px;background:var(--indigo-500);color:#fff;font:var(--fw-bold) 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;justify-self:start">
+          <span class="fl-icon" data-icon="sparkles" data-size="14"></span>3-Day Free Trial Available
+        </span>
+        <div style="display:grid;gap:8px">
+          <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+            <span class="fl-tabnum" style="font:var(--fw-black) clamp(2.6rem,5.4vw,3.8rem)/1 var(--font-numeric);color:var(--tx);letter-spacing:-.04em">$5.66</span>
+            <span style="font:var(--type-body-l);color:var(--tx);padding-bottom:10px;font-weight:600">/ week</span>
+          </div>
+          <span style="font:var(--type-body-m);color:var(--tx-2)">Try it free for 3 days, then $5.66 every week. Cancel any time before the trial ends and you will not be charged.</span>
+        </div>
+        <div style="display:grid;gap:11px">
+        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>Unlimited conversation minutes</span>
+        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>All standard scenarios and content unlocked</span>
+        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>Up to 5 logged-in devices at once</span>
+        </div>
+      </div>
+      <div class="pricing-panel" data-panel="yearly" hidden style="display:grid;gap:20px">
+        <span style="display:inline-flex;align-items:center;gap:9px;padding:8px 16px;border-radius:999px;background:var(--indigo-500);color:#fff;font:var(--fw-bold) 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;justify-self:start">
+          <span class="fl-icon" data-icon="sparkles" data-size="14"></span>3-Day Free Trial Available
+        </span>
+        <div style="display:grid;gap:8px">
+          <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+            <span class="fl-tabnum" style="font:var(--fw-black) clamp(2.6rem,5.4vw,3.8rem)/1 var(--font-numeric);color:var(--tx);letter-spacing:-.04em">$39.99</span>
+            <span style="font:var(--type-body-l);color:var(--tx);padding-bottom:10px;font-weight:600">/ year</span>
+          </div>
+          <span style="font:var(--type-body-m);color:var(--tx-2)">Try it free for 3 days, then $39.99 every year. Cancel any time before the trial ends and you will not be charged.</span>
+        </div>
+        <div style="display:grid;gap:11px">
+        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>Unlimited conversation minutes</span>
+        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>All standard scenarios and content unlocked</span>
+        <span style="display:flex;gap:10px;align-items:center;font:var(--type-body-m);color:var(--tx)"><span class="fl-icon" data-icon="check" data-size="16" style="color:var(--brand-ink)"></span>Up to 5 logged-in devices at once</span>
+        </div>
+      </div>
+      <button type="button" id="pricing-checkout-btn" data-plan="founding" class="fl-btn fl-btn-accent" style="width:100%;height:52px">
+        <span class="fl-icon" data-icon="user-plus" data-size="18"></span>
+        <span id="pricing-checkout-btn-label">Create your account</span>
+      </button>
+      <span id="pricing-checkout-caption" style="font:var(--type-caption);color:var(--tx-3);text-align:center">Register, download the app, speak your first sentence free. Pay the $40 once, only when you decide to stay.</span>
+      <div id="pricing-checkout-msg" role="status" style="min-height:20px;font:var(--type-body-s);text-align:center"></div>
     </div>
   </div>
 </section>
