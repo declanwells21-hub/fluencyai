@@ -169,6 +169,7 @@
   const navLoginLinks = [document.getElementById('fl-nav-login'), document.getElementById('fl-nav-login-m')].filter(Boolean);
   const googleSignupBtn = document.getElementById('auth-google-signup');
   const googleLoginBtn = document.getElementById('auth-google-login');
+  const pricingCheckoutBtn = document.getElementById('pricing-checkout-btn');
 
   // Pending emails live in sessionStorage (not just a JS variable) so a
   // reload between "code sent" and "code entered" doesn't silently lose
@@ -227,6 +228,73 @@
     }
     return msg;
   }
+
+  // ---------- Pricing: start checkout ----------
+  // Lives here rather than app.js because it needs getValidSession() and
+  // openModal(), both private to this file. Shares one endpoint
+  // (api/create-checkout-session.js) with the app's own paywall - see
+  // lib/features/paywall/data/checkout_repository.dart - so a price
+  // change only ever needs to happen in one place (Stripe's dashboard),
+  // never in this code.
+  if (pricingCheckoutBtn) {
+    pricingCheckoutBtn.addEventListener('click', async () => {
+      const msg = document.getElementById('pricing-checkout-msg');
+      const plan = pricingCheckoutBtn.dataset.plan || 'founding';
+
+      const session = await getValidSession();
+      if (!session) {
+        // Not signed in yet - get them an account first. They can come
+        // back to Pricing and pick a plan again once they're in; chaining
+        // straight into checkout from here would mean trusting a plan
+        // choice made before they even had an account.
+        openModal('signup');
+        return;
+      }
+
+      if (msg) { msg.style.color = 'var(--tx-2)'; msg.textContent = 'Opening checkout\u2026'; }
+      pricingCheckoutBtn.disabled = true;
+      try {
+        const res = await fetch('/api/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            plan,
+            userId: session.user.id,
+            email: session.user.email,
+            successUrl: window.location.origin + '/?checkout=success#pricing',
+            cancelUrl: window.location.origin + '/?checkout=cancelled#pricing',
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.url) throw new Error(data.error || 'Could not start checkout.');
+        window.location.href = data.url;
+      } catch (err) {
+        if (msg) { msg.style.color = '#f87171'; msg.textContent = err.message; }
+        pricingCheckoutBtn.disabled = false;
+      }
+    });
+  }
+
+  // Came back from Stripe Checkout? Say so, then clean the URL - this
+  // covers both a completed payment and someone backing out of checkout.
+  (function announceCheckoutReturn() {
+    const params = new URLSearchParams(window.location.search);
+    const checkout = params.get('checkout');
+    if (!checkout) return;
+    const msg = document.getElementById('pricing-checkout-msg');
+    if (msg) {
+      if (checkout === 'success') {
+        msg.style.color = 'var(--teal-400)';
+        msg.textContent = "You're in! Check your email for a receipt, and open the app to start speaking.";
+      } else {
+        msg.style.color = 'var(--tx-2)';
+        msg.textContent = 'Checkout cancelled \u2014 no charge was made.';
+      }
+    }
+    params.delete('checkout');
+    const q = params.toString();
+    history.replaceState(null, '', window.location.pathname + (q ? '?' + q : '') + window.location.hash);
+  })();
 
   // ---------- Google sign-in ----------
   // Full-page redirect to Supabase's own OAuth endpoint - no supabase-js
