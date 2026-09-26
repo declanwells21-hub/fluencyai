@@ -9,24 +9,33 @@
 // the request body:
 //
 //   plan: 'founding'  - a ONE-TIME payment (Stripe Checkout `mode:
-//                        'payment'`) for lifetime access. Currently the
-//                        only option shown in the app's paywall.
+//                        'payment'`) for lifetime access.
 //   plan: 'weekly' |
-//   plan: 'yearly'    - the original recurring subscription flow with a
-//                        3-day free trial. Fully intact below, just not
-//                        currently surfaced in the paywall UI - flip
-//                        `kShowSubscriptionPricing` back to true in
-//                        lib/features/paywall/presentation/paywall_content.dart
-//                        to bring it back, no server changes needed.
+//   plan: 'yearly'    - a recurring subscription with a 3-day free trial.
+//
+// All three are shown together, both in the app's paywall
+// (lib/features/paywall/presentation/paywall_content.dart) and on the
+// site's pricing section (site/index.html, wired up in site/auth.js).
 //
 // REQUIRED ENV VARS (set these wherever you deploy this proxy):
 //   STRIPE_SECRET_KEY     sk_test_... (or sk_live_... once you're ready)
 //   STRIPE_PRICE_FOUNDING price_... - a ONE-TIME (not recurring) Price for
 //                         the founding-user lifetime offer
-//   STRIPE_PRICE_WEEKLY   price_... - a recurring $5.99/week Price
+//   STRIPE_PRICE_WEEKLY   price_... - a recurring $5.66/week Price
 //   STRIPE_PRICE_YEARLY   price_... - a recurring $39.99/year Price
-//   APP_SUCCESS_URL       where Stripe sends the person after paying
-//   APP_CANCEL_URL        where Stripe sends them if they back out
+//   APP_SUCCESS_URL       default success redirect, used when the caller
+//                         (the app or the site) doesn't send its own
+//   APP_CANCEL_URL        default cancel redirect, same idea
+//
+// The site (site/index.html's pricing section, via site/auth.js) and the
+// app (lib/features/paywall) both call this same endpoint, and each can
+// send its own `successUrl`/`cancelUrl` in the request body so Stripe
+// sends the person back to wherever they actually started checkout from,
+// instead of always landing in the app. Any URL not on fluencyai.app (or
+// localhost, for local testing) is ignored in favor of the env var
+// default - this endpoint would otherwise be an open redirect, since
+// Stripe will send someone to whatever URL a checkout session is
+// configured with.
 //
 // Both recurring Prices should NOT have "require a free trial" baked in
 // themselves - this endpoint requests the 3-day trial per-session via
@@ -41,6 +50,25 @@
 // been run, checkout will work but the app will never see the upgrade.
 const Stripe = require('stripe');
 
+const ALLOWED_REDIRECT_HOSTS = new Set(['fluencyai.app', 'www.fluencyai.app', 'localhost', '127.0.0.1']);
+
+// Only trust a caller-supplied redirect URL if it actually points back at
+// this site/app - otherwise fall back to the env var default. Without
+// this, `successUrl`/`cancelUrl` in the request body would let anyone
+// redirect a real Stripe Checkout session to a domain of their choosing.
+function safeRedirect(candidate, fallback) {
+  if (!candidate) return fallback;
+  try {
+    const u = new URL(candidate);
+    if ((u.protocol === 'https:' || u.protocol === 'http:') && ALLOWED_REDIRECT_HOSTS.has(u.hostname)) {
+      return candidate;
+    }
+  } catch (_) {
+    // not a valid absolute URL - ignore it
+  }
+  return fallback;
+}
+
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -54,8 +82,11 @@ module.exports = async (req, res) => {
   }
 
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
-  const { plan, userId, email } = body;
+  const { plan, userId, email, successUrl, cancelUrl } = body;
   if (!userId) return res.status(400).json({ error: 'Missing userId' });
+
+  const resolvedSuccessUrl = safeRedirect(successUrl, process.env.APP_SUCCESS_URL || 'https://example.com/checkout-success');
+  const resolvedCancelUrl = safeRedirect(cancelUrl, process.env.APP_CANCEL_URL || 'https://example.com/checkout-cancelled');
 
   const stripe = Stripe(secretKey);
 
@@ -75,8 +106,8 @@ module.exports = async (req, res) => {
         // and client_reference_id instead.
         customer_email: email || undefined,
         allow_promotion_codes: true,
-        success_url: process.env.APP_SUCCESS_URL || 'https://example.com/checkout-success',
-        cancel_url: process.env.APP_CANCEL_URL || 'https://example.com/checkout-cancelled',
+        success_url: resolvedSuccessUrl,
+        cancel_url: resolvedCancelUrl,
       });
       return res.status(200).json({ url: session.url });
     } catch (err) {
@@ -106,8 +137,8 @@ module.exports = async (req, res) => {
       client_reference_id: userId,
       customer_email: email || undefined,
       allow_promotion_codes: true,
-      success_url: process.env.APP_SUCCESS_URL || 'https://example.com/checkout-success',
-      cancel_url: process.env.APP_CANCEL_URL || 'https://example.com/checkout-cancelled',
+      success_url: resolvedSuccessUrl,
+      cancel_url: resolvedCancelUrl,
     });
     return res.status(200).json({ url: session.url });
   } catch (err) {
