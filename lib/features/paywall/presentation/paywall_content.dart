@@ -7,12 +7,13 @@ import '../data/checkout_repository.dart';
 /// onboarding, see PaywallScreen) and inside a bottom sheet (the "touch any
 /// feature button on Free Tier" overlay, see paywall_sheet.dart). Kept as
 /// one widget so both places always show the exact same offer.
-/// Set this back to `true` to bring back the original $5.99/wk or
-/// $39.99/yr subscription pricing UI - the server-side code for it
-/// (api/create-checkout-session.js, api/stripe-webhook.js) was never
-/// removed, only the founding one-time offer was added alongside it, so
-/// flipping this is the only change needed to switch back.
-const bool kShowSubscriptionPricing = false;
+///
+/// Shows all three real plans together - the $40 founding one-time offer,
+/// and the $5.66/week or $39.99/year subscription (each with a 3-day free
+/// trial) - as one card with a plan switcher, rather than picking just one
+/// to show. The server side (api/create-checkout-session.js,
+/// api/stripe-webhook.js) already fully supports all three; this is the
+/// only file that changed to surface them together.
 
 class PaywallContent extends ConsumerStatefulWidget {
   /// Called when the person closes the paywall without upgrading (X button
@@ -28,7 +29,7 @@ class PaywallContent extends ConsumerStatefulWidget {
 }
 
 class _PaywallContentState extends ConsumerState<PaywallContent> {
-  CheckoutPlan _selectedPlan = kShowSubscriptionPricing ? CheckoutPlan.weekly : CheckoutPlan.founding;
+  CheckoutPlan _selectedPlan = CheckoutPlan.founding;
   bool _startingCheckout = false;
 
   Future<void> _startTrial() async {
@@ -91,20 +92,17 @@ class _PaywallContentState extends ConsumerState<PaywallContent> {
           ),
           const SizedBox(height: 20),
 
-          // --- Tier 1: the only active, purchasable plan. Purple gradient
-          // (brand CTA color) in place of the pink used in the reference
-          // mock. Shows the $40 founding one-time offer by default;
-          // kShowSubscriptionPricing above switches back to the original
-          // weekly/yearly subscription card with zero other changes needed.
+          // --- Tier 1: the one real, purchasable offer, now shown as a
+          // single card with a 3-way switcher (founding/weekly/yearly)
+          // rather than three separate cards, so the layout stays as
+          // compact as the old either/or version did.
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(gradient: purpleGradient, borderRadius: BorderRadius.circular(22)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: kShowSubscriptionPricing
-                  ? _subscriptionCardChildren(purple)
-                  : _foundingCardChildren(purple),
+              children: _planCardChildren(purple),
             ),
           ),
           const SizedBox(height: 16),
@@ -134,153 +132,100 @@ class _PaywallContentState extends ConsumerState<PaywallContent> {
     );
   }
 
-  /// The $40 one-time "founding user" offer - copy matches the site's own
-  /// pricing section exactly, so the message is consistent wherever
-  /// someone sees it.
-  List<Widget> _foundingCardChildren(Color purple) {
-    return [
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(color: Colors.white.withOpacity(0.18), borderRadius: BorderRadius.circular(20)),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.auto_awesome_rounded, size: 14, color: Colors.white),
-            SizedBox(width: 6),
-            Text('Founding user price',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
-          ],
-        ),
-      ),
-      const SizedBox(height: 16),
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          const Text('\$40', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 40, height: 1)),
-          const SizedBox(width: 8),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Text('once — not a year',
-                style: TextStyle(color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.w600, fontSize: 13)),
-          ),
-        ],
-      ),
-      const SizedBox(height: 6),
-      Text(
-        'Everyone who joins before launch keeps lifetime access at this price. Afterwards Fluency AI becomes a yearly subscription, and founding accounts are never moved onto it.',
-        style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 12.5, height: 1.4),
-      ),
-      const SizedBox(height: 14),
-      const _Bullet('Unlimited spoken conversation, for life'),
-      const _Bullet('All forty languages, switch any time'),
-      const _Bullet('Corrections, pronunciation breakdowns, mistake memory'),
-      const _Bullet('Delete any recording, any time'),
-      const SizedBox(height: 16),
-      SizedBox(
-        width: double.infinity,
-        child: FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: purple,
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          ),
-          onPressed: _startingCheckout ? null : _startTrial,
-          child: _startingCheckout
-              ? SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: purple))
-              : const Text('Create your account', style: TextStyle(fontWeight: FontWeight.w800)),
-        ),
-      ),
-      const SizedBox(height: 8),
-      Text(
-        'Register, download the app, speak your first sentence free. Pay the \$40 once, only when you decide to stay.',
-        textAlign: TextAlign.center,
-        style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 11.5),
-      ),
-    ];
-  }
+  /// The one pricing card, switching between all three real plans -
+  /// founding ($40 one-time), weekly ($5.66, 3-day trial), and yearly
+  /// ($39.99, 3-day trial) - via the chip row at the top. Copy for each
+  /// plan matches the site's own pricing section wording, so the message
+  /// is consistent wherever someone sees it.
+  List<Widget> _planCardChildren(Color purple) {
+    final isFounding = _selectedPlan == CheckoutPlan.founding;
+    final isWeekly = _selectedPlan == CheckoutPlan.weekly;
 
-  /// The original $5.99/wk or $39.99/yr subscription UI - untouched, just
-  /// moved into its own method so the card above can switch between the
-  /// two offers with kShowSubscriptionPricing.
-  List<Widget> _subscriptionCardChildren(Color purple) {
     return [
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(color: Colors.white.withOpacity(0.18), borderRadius: BorderRadius.circular(20)),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.auto_awesome_rounded, size: 14, color: Colors.white),
-            SizedBox(width: 6),
-            Text('3-Day Free Trial Available',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
-          ],
-        ),
-      ),
-      const SizedBox(height: 16),
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Fluency Builder',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 19)),
-                Text('PRO',
-                    style: TextStyle(
-                        color: Colors.white.withOpacity(0.85),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11,
-                        letterSpacing: 0.6)),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                _selectedPlan == CheckoutPlan.weekly ? '\$5.99/week' : '\$39.99/year',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 17),
-              ),
-              Text(
-                _selectedPlan == CheckoutPlan.weekly ? 'or \$39.99 / year' : 'or \$5.99 / week',
-                style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 11.5),
-              ),
-            ],
-          ),
-        ],
-      ),
-      const SizedBox(height: 14),
-      const _Bullet('Unlimited conversation minutes'),
-      const _Bullet('All standard scenarios and content unlocked'),
-      const _Bullet('Up to 5 logged-in devices at once'),
-      const SizedBox(height: 14),
-
-      // Plan toggle - the reference mock shows both prices but doesn't
-      // specify which one "Start Free Trial" charges, so this makes that
-      // explicit and lets the person choose.
+      // Plan switcher - three options rather than the old founding-only /
+      // weekly-or-yearly toggle, so all three are visible and pickable at
+      // once instead of one being hidden behind a flag.
       Row(
         children: [
           Expanded(
             child: _PlanChip(
+              label: 'Founding · \$40 once',
+              selected: isFounding,
+              onTap: () => setState(() => _selectedPlan = CheckoutPlan.founding),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _PlanChip(
               label: 'Weekly',
-              selected: _selectedPlan == CheckoutPlan.weekly,
+              selected: isWeekly,
               onTap: () => setState(() => _selectedPlan = CheckoutPlan.weekly),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: _PlanChip(
-              label: 'Yearly · best value',
+              label: 'Yearly',
               selected: _selectedPlan == CheckoutPlan.yearly,
               onTap: () => setState(() => _selectedPlan = CheckoutPlan.yearly),
             ),
           ),
         ],
       ),
+      const SizedBox(height: 16),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(color: Colors.white.withOpacity(0.18), borderRadius: BorderRadius.circular(20)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.auto_awesome_rounded, size: 14, color: Colors.white),
+            const SizedBox(width: 6),
+            Text(
+              isFounding ? 'Founding user price' : '3-Day Free Trial Available',
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 16),
+      if (isFounding)
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            const Text('\$40', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 40, height: 1)),
+            const SizedBox(width: 8),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text('once — not a year',
+                  style: TextStyle(color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.w600, fontSize: 13)),
+            ),
+          ],
+        )
+      else
+        Text(
+          isWeekly ? '\$5.66/week' : '\$39.99/year',
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 28),
+        ),
+      const SizedBox(height: 6),
+      Text(
+        isFounding
+            ? 'Everyone who joins before launch keeps lifetime access at this price. Afterwards Fluency AI becomes a yearly subscription, and founding accounts are never moved onto it.'
+            : 'Try it free for 3 days, then \$${isWeekly ? '5.66 every week' : '39.99 every year'}. Cancel any time before the trial ends and you will not be charged.',
+        style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 12.5, height: 1.4),
+      ),
       const SizedBox(height: 14),
+      if (isFounding) ...[
+        const _Bullet('Unlimited spoken conversation, for life'),
+        const _Bullet('All forty languages, switch any time'),
+        const _Bullet('Corrections, pronunciation breakdowns, mistake memory'),
+        const _Bullet('Delete any recording, any time'),
+      ] else ...[
+        const _Bullet('Unlimited conversation minutes'),
+        const _Bullet('All standard scenarios and content unlocked'),
+        const _Bullet('Up to 5 logged-in devices at once'),
+      ],
+      const SizedBox(height: 16),
       SizedBox(
         width: double.infinity,
         child: FilledButton(
@@ -293,9 +238,18 @@ class _PaywallContentState extends ConsumerState<PaywallContent> {
           onPressed: _startingCheckout ? null : _startTrial,
           child: _startingCheckout
               ? SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: purple))
-              : const Text('Start Free Trial — Requires Card', style: TextStyle(fontWeight: FontWeight.w800)),
+              : Text(isFounding ? 'Create your account' : 'Start Free Trial — Requires Card',
+                  style: const TextStyle(fontWeight: FontWeight.w800)),
         ),
       ),
+      if (isFounding) ...[
+        const SizedBox(height: 8),
+        Text(
+          'Register, download the app, speak your first sentence free. Pay the \$40 once, only when you decide to stay.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 11.5),
+        ),
+      ],
     ];
   }
 }
