@@ -82,9 +82,6 @@
   document.getElementById('back-to-site-btn').addEventListener('click', () => {
     window.location.href = '/';
   });
-  document.getElementById('continue-to-app-btn').addEventListener('click', () => {
-    window.location.href = '/app';
-  });
 
   async function afterLogin(session) {
     accessToken = session.access_token;
