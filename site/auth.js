@@ -8,7 +8,7 @@
 //  - A session that actually persists across visits (checked on every
 //    page load, not just right after signing in).
 //  - One shared "you're in" screen after login, signup verification, or
-//    password reset, offering Continue to app / Go to admin dashboard (if
+//    password reset, offering Join the waitlist / Go to admin dashboard (if
 //    admin) / Stay on this site - instead of auto-redirecting or only
 //    offering one option.
 //  - The nav's "Log in" link turning into "My account" when a valid
@@ -64,9 +64,8 @@
 
   // ---------- Persistent local session storage ----------
   // Stored under the same key format supabase-js/supabase_flutter use by
-  // default (sb-<project-ref>-auth-token), so the Flutter web app at /app
-  // can pick up an existing session from the site without the user having
-  // to log in twice. Kept in localStorage (not sessionStorage), so it
+  // default (sb-<project-ref>-auth-token), so a session from the site is
+  // recognised by other Fluency AI clients without logging in twice. Kept in localStorage (not sessionStorage), so it
   // survives closing the tab/browser entirely - a real "stay logged in."
   function projectRef() {
     const m = SUPABASE_URL.match(/https?:\/\/([^.]+)\.supabase\.co/);
@@ -153,7 +152,7 @@
   const welcomeTitle = document.getElementById('auth-welcome-title');
   const welcomeSub = document.getElementById('auth-welcome-sub');
   const goToAdminBtn = document.getElementById('auth-go-to-admin');
-  const continueToAppBtn = document.getElementById('auth-continue-to-app');
+  const joinWaitlistBtn = document.getElementById('auth-join-waitlist');
   const stayOnSiteBtn = document.getElementById('auth-stay-on-site');
   const logOutBtn = document.getElementById('auth-log-out');
 
@@ -285,7 +284,7 @@
     if (msg) {
       if (checkout === 'success') {
         msg.style.color = 'var(--teal-400)';
-        msg.textContent = "You're in! Check your email for a receipt, and open the app to start speaking.";
+        msg.textContent = "You're in! Check your email for a receipt. We'll let you know when the app goes live.";
       } else {
         msg.style.color = 'var(--tx-2)';
         msg.textContent = 'Checkout cancelled \u2014 no charge was made.';
@@ -303,7 +302,7 @@
   // to redirect_to with the new session appended as a URL fragment
   // (#access_token=...), which the init block below picks up on load.
   function beginGoogleAuth() {
-    if (!configured) { window.location.href = '/app/auth?mode=signup'; return; }
+    if (!configured) { document.getElementById('waitlist') && document.getElementById('waitlist').scrollIntoView({ behavior: 'smooth' }); return; }
     const url = SUPABASE_URL + '/auth/v1/authorize?' + new URLSearchParams({
       provider: 'google',
       redirect_to: window.location.origin + '/',
@@ -379,7 +378,8 @@
 
   function openModal(step) {
     if (!configured) {
-      window.location.href = '/app/auth?mode=signup';
+      const wl = document.getElementById('waitlist');
+      if (wl) wl.scrollIntoView({ behavior: 'smooth' });
       return;
     }
     showStep(step || 'signup');
@@ -443,7 +443,7 @@
 
   signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!configured) { window.location.href = '/app/auth?mode=signup'; return; }
+    if (!configured) { document.getElementById('waitlist') && document.getElementById('waitlist').scrollIntoView({ behavior: 'smooth' }); return; }
     clearError('auth-signup-error');
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value;
@@ -463,7 +463,7 @@
 
   verifyForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!configured) { window.location.href = '/app/auth?mode=signup'; return; }
+    if (!configured) { document.getElementById('waitlist') && document.getElementById('waitlist').scrollIntoView({ behavior: 'smooth' }); return; }
     clearError('auth-verify-error');
     const token = document.getElementById('auth-code').value.trim();
     const email = getPendingEmail();
@@ -519,7 +519,7 @@
 
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!configured) { window.location.href = '/app/auth?mode=login'; return; }
+    if (!configured) { document.getElementById('waitlist') && document.getElementById('waitlist').scrollIntoView({ behavior: 'smooth' }); return; }
     clearError('auth-login-error');
     const email = document.getElementById('auth-login-email').value.trim();
     const password = document.getElementById('auth-login-password').value;
@@ -542,7 +542,7 @@
   // ---------- Welcome screen actions (shared by login / signup / reset) ----------
 
   goToAdminBtn.addEventListener('click', () => { window.location.href = '/admin'; });
-  continueToAppBtn.addEventListener('click', () => { window.location.href = '/app'; });
+  joinWaitlistBtn.addEventListener('click', () => { if (window.flOpenWaitlistReminder) window.flOpenWaitlistReminder(); });
   stayOnSiteBtn.addEventListener('click', () => { closeModal(); refreshNavLoginState(); });
   logOutBtn.addEventListener('click', async () => {
     const session = loadSession();
