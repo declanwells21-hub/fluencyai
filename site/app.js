@@ -395,6 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
   run(setupScrollReveal);
   run(spawnReferralCapture);
   run(spawnWaitlistForm);
+  run(spawnWaitlistReminder);
   run(spawnPricingTabs);
 });
 
@@ -403,9 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Picks up ?ref=CODE from a creator's link (e.g. fluencyai.app/?ref=MARIA20),
 // remembers it for 90 days so credit survives the visitor browsing around
 // before they sign up, quietly pings api/referral.js to log the click, and
-// rewrites every signup button on the page to carry the code through to
-// /app/auth - where the Flutter app reads it and reports it back via
-// api/track-activity.js once the account exists. See
+// keeps it in localStorage so it can be attributed once the account exists. See
 // scripts/supabase_migration_creators.sql for the full chain.
 // ============ JOIN THE WAITLIST ============
 //
@@ -533,17 +532,90 @@ function spawnReferralCapture() {
     const activeCode = stillValid ? storedCode : null;
     if (!activeCode) return;
 
-    document.querySelectorAll('a.js-auth-trigger').forEach((a) => {
-      try {
-        const u = new URL(a.getAttribute('href'), window.location.origin);
-        u.searchParams.set('ref', activeCode);
-        a.setAttribute('href', u.pathname + u.search);
-      } catch (_) {
-        /* malformed href - leave it alone */
-      }
-    });
+    // Signup now happens in the on-page modal, so there are no links to rewrite;
+    // the stored code stays available in localStorage for signup attribution.
   } catch (_) {
     // localStorage can throw in some privacy modes - referral credit is a
     // nice-to-have, never something that should break the page over.
   }
+}
+
+
+// ============ WAITLIST REMINDER (store buttons) ============
+//
+// "Download for iOS" / "Get it on Android" open this small modal because the
+// mobile apps are not published yet. It also backs the "Join the waitlist"
+// button on the post-login screen via window.flOpenWaitlistReminder.
+function spawnWaitlistReminder() {
+  const overlay = document.getElementById('wl-modal-overlay');
+  if (!overlay) return;
+  const closeBtn = document.getElementById('wl-close-btn');
+  const form = document.getElementById('wl-modal-form');
+  const emailInput = document.getElementById('wl-modal-email');
+  const submitBtn = document.getElementById('wl-modal-submit');
+  const msg = document.getElementById('wl-modal-msg');
+
+  function setMsg(text, ok) {
+    msg.textContent = text;
+    msg.classList.toggle('show', !!text);
+    msg.style.color = ok ? 'var(--mint-400)' : 'var(--coral-400)';
+  }
+  function open() {
+    setMsg('', true);
+    try {
+      // Prefill from an existing signed-in session, if any.
+      if (!emailInput.value) {
+        const key = Object.keys(localStorage).find((k) => /^sb-.*-auth-token$/.test(k));
+        const sess = key ? JSON.parse(localStorage.getItem(key)) : null;
+        if (sess && sess.user && sess.user.email) emailInput.value = sess.user.email;
+      }
+    } catch (_) {}
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function close() {
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+  window.flOpenWaitlistReminder = function () {
+    const authOverlay = document.getElementById('auth-modal-overlay');
+    if (authOverlay) authOverlay.classList.remove('open');
+    open();
+  };
+
+  document.querySelectorAll('.js-waitlist-reminder').forEach((el) => {
+    el.addEventListener('click', (e) => { e.preventDefault(); open(); });
+  });
+  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) close();
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setMsg('', true);
+    submitBtn.disabled = true;
+    const label = submitBtn.textContent;
+    submitBtn.textContent = 'Joining\u2026';
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailInput.value.trim(), source: 'store_button' }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
+      setMsg(data.alreadyJoined
+        ? "You're already on the waitlist \u2014 we'll email you the moment we launch."
+        : "You're on the list. Check your inbox for a confirmation email.", true);
+    } catch (err) {
+      setMsg(err.message, false);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = label;
+    }
+  });
 }
