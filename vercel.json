@@ -3,12 +3,53 @@
   "outputDirectory": "dist",
   "installCommand": "echo 'skip - flutter deps installed in build.sh'",
   "rewrites": [
-    { "source": "/app", "destination": "/app/index.html" },
-    { "source": "/app/:path*", "destination": "/app/index.html" },
-    { "source": "/about", "destination": "/about.html" },
-    { "source": "/creators", "destination": "/creators.html" },
-    { "source": "/privacy", "destination": "/privacy.html" },
-    { "source": "/terms", "destination": "/terms.html" },
-    { "source": "/api/admin/:path*", "destination": "/api/admin/router?path=:path*" }
+    {
+      "source": "/app",
+      "destination": "/app/index.html"
+    },
+    {
+      "source": "/app/:path*",
+      "destination": "/app/index.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/creators",
+      "destination": "/creators.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html"
+    },
+    {
+      "source": "/api/admin/:path*",
+      "destination": "/api/admin/router?path=:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/app/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/app",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    }
   ]
 }
