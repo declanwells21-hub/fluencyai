@@ -310,6 +310,7 @@ footer.site-footer .col{display:grid;gap:10px;align-content:start}
           </select>
         </label>
         <label>Handle / @username<input type="text" id="ap-handle" placeholder="@yourhandle" required></label>
+        <label>Country<input type="text" id="ap-country" placeholder="e.g. Kenya" required></label>
         <label>Niche<input type="text" id="ap-niche" placeholder="e.g. German learning, polyglot content"></label>
         <label>Follower count<input type="text" id="ap-followers" placeholder="Rough number is fine"></label>
         <label class="full">Link to your best video (optional)<input type="url" id="ap-portfolio" placeholder="https://"></label>
@@ -450,13 +451,14 @@ footer.site-footer .col{display:grid;gap:10px;align-content:start}
       email: document.getElementById('ap-email').value.trim(),
       platform: document.getElementById('ap-platform').value,
       handle: document.getElementById('ap-handle').value.trim(),
+      country: document.getElementById('ap-country').value.trim(),
       niche: document.getElementById('ap-niche').value.trim(),
       followerCount: document.getElementById('ap-followers').value.trim(),
       portfolioUrl: document.getElementById('ap-portfolio').value.trim(),
       message: document.getElementById('ap-message').value.trim(),
     };
-    if (!payload.name || !payload.email || !payload.platform || !payload.handle) {
-      msg.textContent = 'Please fill in your name, email, platform, and handle.';
+    if (!payload.name || !payload.email || !payload.platform || !payload.handle || !payload.country) {
+      msg.textContent = 'Please fill in your name, email, platform, handle, and country.';
       msg.style.color = 'var(--amber-400)';
       return;
     }
