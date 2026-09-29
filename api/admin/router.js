@@ -503,7 +503,7 @@ async function handleApplicationDecide(auth, req, res) {
         niche: application.niche,
         contact_email: application.email,
         commission_rate: rate,
-        notes: `Approved from application. ${application.platform} - ${application.handle}`,
+        notes: `Approved from application. ${application.platform} - ${application.handle} - ${application.country || 'country not given'}`,
       })
       .select()
       .single();
