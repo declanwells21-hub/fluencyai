@@ -522,6 +522,7 @@
           <td>${escapeHtml(a.email)}</td>
           <td>${escapeHtml(a.platform)}</td>
           <td>${escapeHtml(a.handle)}</td>
+          <td>${a.country ? escapeHtml(a.country) : '—'}</td>
           <td>${a.niche ? escapeHtml(a.niche) : '—'}</td>
           <td>${a.follower_count ? escapeHtml(a.follower_count) : '—'}</td>
           <td>${fmtDate(a.created_at)}</td>
@@ -536,7 +537,7 @@
           </td>
         </tr>`
         )
-        .join('') || `<tr><td colspan="9" style="color:var(--tx-3)">No applications here yet.</td></tr>`;
+        .join('') || `<tr><td colspan="10" style="color:var(--tx-3)">No applications here yet.</td></tr>`;
   }
 
   document.querySelectorAll('[data-app-filter]').forEach((btn) => {
