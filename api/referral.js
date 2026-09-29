@@ -100,13 +100,14 @@ async function handleApply(req, res, body) {
   const email = String(body.email || '').trim();
   const platform = String(body.platform || '').trim();
   const handle = String(body.handle || '').trim();
+  const country = String(body.country || '').trim();
   const niche = String(body.niche || '').trim() || null;
   const followerCount = String(body.followerCount || '').trim() || null;
   const portfolioUrl = String(body.portfolioUrl || '').trim() || null;
   const message = String(body.message || '').trim() || null;
 
-  if (!name || !email || !platform || !handle) {
-    return res.status(400).json({ error: 'name, email, platform, and handle are required' });
+  if (!name || !email || !platform || !handle || !country) {
+    return res.status(400).json({ error: 'name, email, platform, handle, and country are required' });
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ error: 'That email address doesn\'t look right' });
@@ -118,6 +119,7 @@ async function handleApply(req, res, body) {
     email,
     platform,
     handle,
+    country,
     niche,
     follower_count: followerCount,
     portfolio_url: portfolioUrl,
