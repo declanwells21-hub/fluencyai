@@ -7,7 +7,7 @@ import '../../../core/config/env.dart';
 
 enum CheckoutPlan { founding, weekly, yearly }
 
-/// Starts a Stripe Checkout Session and opens it in the browser - Stripe's
+/// Starts a Creem Checkout Session and opens it in the browser - Creem's
 /// hosted checkout page handles the actual card entry, so no payment
 /// details ever pass through this app.
 ///
@@ -18,11 +18,11 @@ enum CheckoutPlan { founding, weekly, yearly }
 /// lib/features/paywall/presentation/paywall_content.dart's
 /// kShowSubscriptionPricing flag to bring it back). See
 /// api/create-checkout-session.js for the server side of this call
-/// (requires Stripe keys to be configured - see that file's header
+/// (requires Creem keys to be configured - see that file's header
 /// comment).
 abstract class CheckoutRepository {
   /// Returns false (never throws) if checkout couldn't be started - e.g.
-  /// the proxy isn't signed in, or Stripe isn't configured yet - so the UI
+  /// the proxy isn't signed in, or Creem isn't configured yet - so the UI
   /// can show a clear message instead of silently doing nothing.
   Future<bool> startProTrial(CheckoutPlan plan);
 }
