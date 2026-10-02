@@ -38,7 +38,7 @@ class ProfileRepository {
   }
 
   /// Reads just `subscription_status` off the signed-in user's profile row -
-  /// kept in sync server-side by the Stripe webhook (api/stripe-webhook.js).
+  /// kept in sync server-side by the Creem webhook (api/creem-webhook.js).
   /// Returns null if there's no session or no row yet, which the caller
   /// treats as free-tier (see subscription_provider.dart).
   Future<String?> loadSubscriptionStatus() async {
