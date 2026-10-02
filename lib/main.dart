@@ -73,7 +73,7 @@ class _FluencyAppState extends ConsumerState<FluencyApp> with WidgetsBindingObse
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Coming back from the Stripe Checkout browser tab (or just reopening
+    // Coming back from the Creem Checkout browser tab (or just reopening
     // the app) is the one moment the subscription status could have
     // changed server-side without this app knowing yet - refetch it so a
     // completed purchase clears the paywall promptly instead of waiting
