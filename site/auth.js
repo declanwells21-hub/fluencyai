@@ -233,7 +233,7 @@
   // openModal(), both private to this file. Shares one endpoint
   // (api/create-checkout-session.js) with the app's own paywall - see
   // lib/features/paywall/data/checkout_repository.dart - so a price
-  // change only ever needs to happen in one place (Stripe's dashboard),
+  // change only ever needs to happen in one place (Creem's dashboard),
   // never in this code.
   if (pricingCheckoutBtn) {
     pricingCheckoutBtn.addEventListener('click', async () => {
@@ -274,7 +274,7 @@
     });
   }
 
-  // Came back from Stripe Checkout? Say so, then clean the URL - this
+  // Came back from Creem Checkout? Say so, then clean the URL - this
   // covers both a completed payment and someone backing out of checkout.
   (function announceCheckoutReturn() {
     const params = new URLSearchParams(window.location.search);
