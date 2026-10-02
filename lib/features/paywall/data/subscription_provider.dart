@@ -22,7 +22,7 @@ SubscriptionTier tierFromStatus(String? status) {
     case 'active':
       return SubscriptionTier.pro;
     default:
-      // Covers null (no row / never subscribed), 'free', and Stripe's
+      // Covers null (no row / never subscribed), 'free', and Creem's
       // past_due/canceled/unpaid/incomplete/incomplete_expired/paused -
       // anything that isn't an in-good-standing paid subscription is
       // treated as free-tier in the app.
@@ -31,12 +31,12 @@ SubscriptionTier tierFromStatus(String? status) {
 }
 
 /// The signed-in user's current tier, read from `profiles.subscription_status`
-/// (kept up to date server-side by api/stripe-webhook.js - see
+/// (kept up to date server-side by api/creem-webhook.js - see
 /// scripts/supabase_migration_subscription.sql for the column). Free until
 /// proven otherwise, so a load failure or missing row never accidentally
 /// unlocks paid content.
 ///
-/// After returning from a Stripe Checkout browser tab, call
+/// After returning from a Creem Checkout browser tab, call
 /// `ref.invalidate(subscriptionTierProvider)` (FluencyApp does this
 /// automatically on app resume - see main.dart) to pick up the new status.
 final subscriptionTierProvider = FutureProvider<SubscriptionTier>((ref) async {
