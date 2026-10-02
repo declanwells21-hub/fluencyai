@@ -6,7 +6,7 @@
 //
 // Why one file: Vercel's free Hobby plan caps a deployment at 12
 // serverless functions total. Between the original 8 (chat, stt, tts,
-// tatoeba x3, create-checkout-session, stripe-webhook) and 4 separate admin
+// tatoeba x3, create-checkout-session, creem-webhook) and 4 separate admin
 // files + track-activity.js, that was 13 - one over the limit.
 //
 // Why "router.js" and not "[...path].js": bracket-based catch-all
