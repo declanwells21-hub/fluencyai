@@ -396,6 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
   run(spawnReferralCapture);
   run(spawnWaitlistForm);
   run(spawnWaitlistReminder);
+  run(spawnCleanSectionUrls);
   run(spawnPricingTabs);
 });
 
@@ -617,5 +618,88 @@ function spawnWaitlistReminder() {
       submitBtn.disabled = false;
       submitBtn.textContent = label;
     }
+  });
+}
+
+// ============ CLEAN SECTION URLS ============
+//
+// This page's sections (The freeze, How it works, Product, Pricing, FAQ,
+// Waitlist) each have an id and used to only be reachable via a hash link
+// like /#pricing - which works, but shows an ugly "#pricing" in the
+// address bar and can't be copied as a normal-looking link. Vercel now
+// also serves this same index.html at the plain paths /problem, /how,
+// /product, /pricing, /faq and /waitlist (see the rewrites in
+// vercel.json) - this function makes those paths actually scroll to the
+// right section, and makes clicking a nav link update the address bar to
+// one of those clean paths instead of adding a #hash.
+//
+// Nothing here changes what creators.html, about.html, etc. link to
+// (they already point at the clean paths, e.g. href="/pricing") - this
+// only has to run on index.html itself, both for a direct visit to one of
+// these paths and for in-page nav clicks once already on the homepage.
+const SECTION_IDS = ['problem', 'how', 'product', 'pricing', 'faq', 'waitlist'];
+
+function scrollToSectionId(id) {
+  if (!id) {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    return;
+  }
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'auto', block: 'start' });
+}
+
+function pathToSectionId(pathname) {
+  const slug = pathname.replace(/^\/+|\/+$/g, '');
+  return SECTION_IDS.includes(slug) ? slug : '';
+}
+
+function spawnCleanSectionUrls() {
+  // Landed directly on /pricing, /faq, etc. (a shared link, a bookmark, a
+  // page refresh) - jump to that section once the page has laid out.
+  // "auto" rather than smooth here since this is the initial jump, not a
+  // click the person is watching happen.
+  const initialId = pathToSectionId(window.location.pathname);
+  if (initialId) requestAnimationFrame(() => scrollToSectionId(initialId));
+
+  // Every link on this page whose href already points at one of the
+  // clean section paths (both the desktop nav and the mobile menu reuse
+  // these - see site/index.html's <nav id="fl-nav"> and
+  // #fl-mobile-menu) - take over a plain left-click so it scrolls locally
+  // and updates the URL via pushState, instead of doing a full page
+  // reload to get the same place. Deliberately skips the two
+  // "Download for iOS"/"Get it on Android" buttons (href="#waitlist",
+  // class="js-waitlist-reminder") - those open a modal, not this section
+  // scroll, and are already fully handled by spawnWaitlistReminder().
+  document.querySelectorAll('a[href]').forEach((a) => {
+    if (a.classList.contains('js-waitlist-reminder') || a.classList.contains('js-auth-trigger') || a.classList.contains('js-login-trigger')) return;
+    const href = a.getAttribute('href') || '';
+    const id = href.charAt(0) === '/' ? href.slice(1) : '';
+    if (!SECTION_IDS.includes(id)) return;
+    a.addEventListener('click', (e) => {
+      // A modified click (cmd/ctrl/shift/alt) or anything but the primary
+      // button means "open in a new tab/window" - leave the browser's
+      // own handling of the real href alone for those.
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      scrollToSectionId(id);
+      history.pushState({ flSection: id }, '', href);
+    });
+  });
+
+  // The logo link (href="/") doesn't scroll to a section with an id - it
+  // means "back to the very top".
+  document.querySelectorAll('a.fl-logo[href="/"]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      scrollToSectionId('');
+      history.pushState({ flSection: '' }, '', '/');
+    });
+  });
+
+  // Back/forward after one of the pushState calls above - there's no page
+  // reload, so nothing else re-scrolls us without this.
+  window.addEventListener('popstate', () => {
+    scrollToSectionId(pathToSectionId(window.location.pathname));
   });
 }
