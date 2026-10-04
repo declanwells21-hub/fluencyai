@@ -90,10 +90,20 @@ try {
 }
 
 // ============ NAV SHRINK ON SCROLL ============
+//
+// Only the padding/shadow shrink on scroll now - narrowing the pill's
+// width used to be part of this too, but at 1180px -> 880px there isn't
+// room for all the nav links (The freeze / How it works / Product /
+// Pricing / FAQ / Waitlist / Creators / Log in - or "My account" once
+// signed in, which is even wider) to stay on one line each. Below that
+// width the browser wraps a link's own text onto two lines (see
+// `white-space:nowrap` on .r-navlinks a in index.html, which stops that),
+// which made the whole bar taller and pushed "Start speaking free" out of
+// its slot - reported as the CTA "overlapping" whenever the page was
+// scrolled, since clicking any nav link scrolls past the 60px trigger too.
 const nav = document.getElementById('fl-nav');
 window.addEventListener('scroll', () => {
   const s = window.scrollY > 60;
-  nav.style.width = s ? 'min(880px, calc(100% - 28px))' : 'min(1180px, calc(100% - 28px))';
   nav.style.padding = s ? '8px 8px 8px 18px' : '11px 11px 11px 22px';
   nav.style.boxShadow = s ? '0 14px 44px rgba(4,18,27,.42)' : '0 20px 60px rgba(4,18,27,.34)';
 }, { passive: true });
