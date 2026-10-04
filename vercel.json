@@ -12,6 +12,30 @@
       "destination": "/app/index.html"
     },
     {
+      "source": "/problem",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/how",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/product",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/faq",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/waitlist",
+      "destination": "/index.html"
+    },
+    {
       "source": "/about",
       "destination": "/about.html"
     },
