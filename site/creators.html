@@ -87,8 +87,9 @@ section{padding:88px 0}
 
 /* ---------- Nav (matches the main site) ---------- */
 #fl-nav{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:80;width:min(1180px,calc(100% - 28px));display:flex;align-items:center;gap:20px;padding:11px 11px 11px 22px;border-radius:999px;background:var(--nav-bg);border:1px solid var(--glass-bd);backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);box-shadow:0 20px 60px rgba(4,18,27,.34)}
-.fl-logo{display:flex;align-items:baseline;font:800 21px var(--font);letter-spacing:-.03em;color:var(--tx)}
-.fl-logo .ai{color:var(--teal-400)}
+.fl-logo{display:inline-flex;align-items:flex-end;text-decoration:none;font:800 21px var(--font);letter-spacing:-.03em;color:var(--tx)}
+.fl-logo .ai{position:relative;display:inline-block}
+.fl-logo .ai span{position:absolute;left:calc(100% + 4px);bottom:46%;font:800 10px var(--font);letter-spacing:.1em;color:var(--teal-400)}
 .r-navlinks{display:flex;align-items:center;gap:26px}
 .r-navlinks a{font:600 14px var(--font);color:var(--tx-2)}
 .r-navlinks a:hover{color:var(--tx)}
@@ -189,14 +190,14 @@ footer.site-footer .col{display:grid;gap:10px;align-content:start}
 <body>
 
 <nav id="fl-nav">
-  <a href="/#top" class="fl-logo"><span>Fluenc</span><span class="ai">y<span>AI</span></span></a>
+  <a href="/" class="fl-logo"><span>Fluenc</span><span class="ai">y<span>AI</span></span></a>
   <div class="r-navlinks">
-    <a href="/#problem">The freeze</a>
-    <a href="/#how">How it works</a>
-    <a href="/#product">Product</a>
-    <a href="/#pricing">Pricing</a>
+    <a href="/problem">The freeze</a>
+    <a href="/how">How it works</a>
+    <a href="/product">Product</a>
+    <a href="/pricing">Pricing</a>
     <a href="/creators" class="current">Creators</a>
-    <a href="/#faq">FAQ</a>
+    <a href="/faq">FAQ</a>
   </div>
   <div style="flex:1"></div>
   <button type="button" id="fl-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="fl-mobile-menu">
@@ -211,12 +212,12 @@ footer.site-footer .col{display:grid;gap:10px;align-content:start}
 
 <div id="fl-mobile-menu" role="dialog" aria-label="Menu" aria-hidden="true">
   <nav>
-    <a href="/#problem" class="r-mm-link">The freeze</a>
-    <a href="/#how" class="r-mm-link">How it works</a>
-    <a href="/#product" class="r-mm-link">Product</a>
-    <a href="/#pricing" class="r-mm-link">Pricing</a>
+    <a href="/problem" class="r-mm-link">The freeze</a>
+    <a href="/how" class="r-mm-link">How it works</a>
+    <a href="/product" class="r-mm-link">Product</a>
+    <a href="/pricing" class="r-mm-link">Pricing</a>
     <a href="/creators" class="r-mm-link" style="color:var(--teal-400)">Creators</a>
-    <a href="/#faq" class="r-mm-link">FAQ</a>
+    <a href="/faq" class="r-mm-link">FAQ</a>
     <div class="r-mm-hair"></div>
     <div class="r-mm-appearance">
       <span>Dark mode</span>
@@ -353,18 +354,18 @@ footer.site-footer .col{display:grid;gap:10px;align-content:start}
 <footer class="site-footer">
   <div class="cols">
     <div class="col" style="flex:1.4;min-width:200px">
-      <a href="/#top" class="fl-logo" style="color:#fff"><span>Fluenc</span><span class="ai">y<span>AI</span></span></a>
+      <a href="/" class="fl-logo" style="color:#fff"><span>Fluenc</span><span class="ai">y<span>AI</span></span></a>
       <span style="font:500 13px var(--font);color:#5B8497;max-width:250px">From studying a language to actually communicating in it.</span>
     </div>
     <div class="col">
       <span style="font:800 11px var(--font);letter-spacing:.1em;text-transform:uppercase;color:#5B8497">Product</span>
-      <a href="/#how">How it works</a>
-      <a href="/#pricing">Pricing</a>
+      <a href="/how">How it works</a>
+      <a href="/pricing">Pricing</a>
       <a href="/creators">Creator Program</a>
     </div>
     <div class="col">
       <span style="font:800 11px var(--font);letter-spacing:.1em;text-transform:uppercase;color:#5B8497">Support</span>
-      <a href="/#faq">FAQ</a>
+      <a href="/faq">FAQ</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>
     </div>
