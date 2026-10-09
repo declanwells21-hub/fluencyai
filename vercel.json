@@ -52,6 +52,10 @@
       "destination": "/terms.html"
     },
     {
+      "source": "/guides",
+      "destination": "/guides/index.html"
+    },
+    {
       "source": "/api/admin/:path*",
       "destination": "/api/admin/router?path=:path*"
     }
