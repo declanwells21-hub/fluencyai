@@ -1,0 +1,12 @@
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font:var(--type-body-m);color:var(--text-body);background:var(--surface-page);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3,h4,h5,h6,p{margin:0}
+h1{font:var(--type-display-m);letter-spacing:var(--ls-display-m);color:var(--text-heading)}
+h2{font:var(--type-title-l);letter-spacing:var(--ls-title-l);color:var(--text-heading)}
+h3{font:var(--type-title-m);letter-spacing:var(--ls-title-m);color:var(--text-heading)}
+a{color:var(--text-link);text-decoration:none;font-weight:var(--fw-semibold)}
+a:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:3px}
+button{font-family:inherit}
+:focus-visible{outline:none;box-shadow:var(--ring-focus)}
+::selection{background:var(--teal-200);color:var(--ink-900)}
+.fl-tabnum{font-family:var(--font-numeric);font-variant-numeric:tabular-nums}
