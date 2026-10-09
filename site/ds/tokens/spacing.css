@@ -1,0 +1,11 @@
+:root{
+--space-0:0px;--space-1:2px;--space-2:4px;--space-3:8px;--space-4:12px;--space-5:16px;
+--space-6:20px;--space-7:24px;--space-8:32px;--space-9:40px;--space-10:48px;
+--space-11:64px;--space-12:80px;--space-13:104px;
+/* Layout */
+--gutter-screen:20px;--gutter-section:32px;--gutter-card:20px;--gutter-card-tight:16px;
+--stack-tight:8px;--stack-default:12px;--stack-loose:20px;
+--max-width-prose:64ch; /* @kind other */--max-width-site:1200px; /* @kind other */--max-width-app:420px; /* @kind other */
+--tap-min:44px; /* @kind other */--tap-comfortable:56px; /* @kind other */
+--nav-height:64px;--tabbar-height:76px;--header-height:56px;
+}

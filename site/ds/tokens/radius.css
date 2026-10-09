@@ -1,0 +1,8 @@
+:root{
+--radius-xs:6px;--radius-s:10px;--radius-m:14px;--radius-l:20px;--radius-xl:28px;
+--radius-2xl:36px;--radius-pill:999px;--radius-circle:50%;
+--radius-card:var(--radius-l);--radius-card-large:var(--radius-xl);
+--radius-button:var(--radius-pill);--radius-input:var(--radius-m);
+--radius-bubble:22px;--radius-bubble-tail:6px;--radius-sheet:28px;
+--border-hairline:1px; /* @kind other */--border-thick:2px; /* @kind other */--border-tactile:3px; /* @kind other */
+}

@@ -1,0 +1,6 @@
+/* Fluency AI webfonts.
+   SUBSTITUTION NOTE: no font binaries were supplied with the brand references.
+   The wordmark is set in a tight geometric grotesque; Figtree is the closest
+   Google Fonts match. Manrope is used for numerals/data, JetBrains Mono for
+   phonetics (IPA), timings and transcript timestamps. Swap in real files here. */
+@import url("https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Manrope:wght@400..800&family=JetBrains+Mono:wght@400;500;700&display=swap");
