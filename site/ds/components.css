@@ -1,0 +1,5 @@
+/* Static replacements for behaviour the design system's React components did in JS.
+   Button / IconButton press state (originally onPointerDown -> inline style). */
+.fl-press{-webkit-tap-highlight-color:transparent}
+.fl-press:active:not(:disabled){transform:translateY(2px) scale(var(--press-scale,.97));filter:brightness(.96)}
+@media (prefers-reduced-motion:reduce){.fl-press{transition:none}}
