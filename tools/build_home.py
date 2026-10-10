@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+"""Build site/index.html (Home, direction 1b "Conversational") from the design handoff.
+Static page = reduced-motion render of the handoff. Interactive states are RECORDED from the real design
+(see record_home.py / record_home2.py, outputs /tmp/home_rec*.json) and replayed by assets/js/home.js."""
+import sys,re,json,html as H
+sys.path.insert(0,__import__('os').path.dirname(__import__('os').path.abspath(__file__)))
+from rec_common import clean
+from bs4 import BeautifulSoup
+import dc2static as D
+from playwright.sync_api import sync_playwright
+import subprocess,time
+SITE='/home/claude/work3/site/'
+SRC=open(D.HANDOFF_DIR+'Fluency Home v3.dc.html',encoding='utf-8').read()
+REC=json.load(open('/tmp/home_rec.json')); REC2=json.load(open('/tmp/home_rec2.json'))
+INTERIM={'Store v3.dc.html':'/guides','Partners v3.dc.html':'/creators','Partner Hub v3.dc.html':'/creators','Privacy.dc.html':'/privacy','Terms.dc.html':'/terms','Fluency Home v3.dc.html':'/'}
+def fix_links(root):
+    for a in root.find_all('a'):
+        h=a.get('href')
+        if h:
+            base,_,frag=h.partition('#')
+            if base in INTERIM: a['href']=INTERIM[base]+('#'+frag if frag else '')
+def addpress(h):
+    s=BeautifulSoup(h,'html.parser')
+    for t in s.find_all(['button','a']):
+        if 'dur-fast' in (t.get('style') or ''): t['class']=(t.get('class') or [])+['fl-press']
+    return str(s)
+def fixhtml(h):
+    s=BeautifulSoup(h,'html.parser'); fix_links(s)
+    for t in s.find_all(True):
+        if t.name in('button','a') and 'dur-fast' in (t.get('style') or ''): t['class']=(t.get('class') or [])+['fl-press']
+    for t in s.select('.sc-host,.sc-host-x'): t.unwrap()
+    return str(s)
+# ---- 1. static render (reduced motion => completed demo state) ----
+srv=subprocess.Popen([sys.executable,'-m','http.server','8804'],cwd=D.HANDOFF_DIR,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL); time.sleep(1.5)
+try:
+    with sync_playwright() as p:
+        b=p.chromium.launch(); ctx=b.new_context(viewport={'width':1280,'height':900},reduced_motion='reduce'); pg=ctx.new_page(); pg.route('**/*',D._route)
+        pg.goto('http://localhost:8804/Fluency%20Home%20v3.dc.html'); pg.wait_for_timeout(4000)
+        rendered=pg.evaluate("()=>document.documentElement.outerHTML"); b.close()
+finally: srv.terminate()
+soup=BeautifulSoup(clean(rendered),'html.parser'); page=soup.find(attrs={'data-fl-page':True})
+for t in page.select('[data-fl-switch]'): t.decompose()           # review-only 1a/1b toggle
+for t in page.select('.sc-host,.sc-host-x'): t.unwrap()
+for t in page.find_all('script'): t.decompose()
+for t in page.find_all(True):
+    for a in [a for a in t.attrs if a.startswith('data-dc')]: del t.attrs[a]
+fix_links(page)
+for t in page.find_all(['button','a']):
+    if 'dur-fast' in (t.get('style') or ''): t['class']=(t.get('class') or [])+['fl-press']
+chat=page.select_one('[data-fl-chat]'); kids=[c for c in chat.find_all(recursive=False)]
+def idx(txt): return [i for i,c in enumerate(kids) if txt in c.get_text(' ')][0]
+marks={'hero':idx('English · B1'),'repair':idx('Say one of these instead'),'stage':idx('Five things happen between'),'corr':idx('Any time, mid-conversation'),'faq':idx('Other things people ask me')}
+assert [marks[k] for k in('hero','repair','stage','corr','faq')]==[REC['widgets'][k]['idx'] if k!='hero' else 3 for k in('hero','repair','stage','corr','faq')],marks
+for k,i in marks.items(): kids[i]['data-w']=k
+eco=idx('Fluency Partners')+0
+for bt in kids[idx('Creators, teachers and affiliates')].find_all('button') if False else []: pass
+for el in chat.find_all('button'):
+    t=el.get_text(' ',strip=True)
+    if t.startswith('See how it works'): el['data-pop']='partners'
+    if t.startswith('Browse guides'): el['data-pop']='resources'
+aside=[e for e in page.find_all('fl-coach')][0]
+while aside is not None and 'Your coach.' not in aside.get_text(' '): aside=aside.parent
+aside['data-w']='coach'
+# ---- 2. recorded states -> data file ----
+def h2(x): return fixhtml(x)
+def mark(h,name):
+    s=BeautifulSoup(h,'html.parser'); r=s.find(True); r['data-w']=name; return str(s)
+hero=REC['hero']['table']; 
+seq=REC['hero']['seq']
+print('hero cycle ticks',len(seq),'frames',len(hero))
+tok=lambda h:h.replace('zz-email@zz.zz','{{email}}').replace('You picked German.','You picked {{lang}}.')
+DATA={'hero':{'table':[fixhtml(x) for x in hero],'seq':seq},
+ 'widgets':{k:{'init':fixhtml(REC['widgets'][k]['init']),'states':[fixhtml(x) for x in REC['widgets'][k]['states']]} for k in('repair','stage','corr','faq')},
+ 'coach':{k:mark(fixhtml(v),'coach') for k,v in REC['coach'].items()},
+ 'pops':{k:{'open':fixhtml(v['open']),**({'sent':fixhtml(v['sent'])} if 'sent' in v else {})} for k,v in REC2['pops'].items()},
+ 'join':{'init':fixhtml(REC2['join']['init']),'err':fixhtml(REC2['join']['empty_err']),'done':fixhtml(tok(REC2['join']['done']))}}
+js='/* Recorded from the design handoff (Fluency Home v3, direction 1b). Generated by tools/build_home.py. */\nwindow.FL_HOME='+json.dumps(DATA,ensure_ascii=False,separators=(',',':'))+';\n'
+open(SITE+'assets/js/home-states.js','w',encoding='utf-8').write(js); print('home-states.js KB',len(js)//1024)
+# ---- 3. head ----
+hel=re.search(r'<helmet>(.*?)</helmet>',SRC,re.S).group(1)
+title=re.search(r'<title>(.*?)</title>',hel,re.S).group(1).strip(); desc=re.search(r'<meta name="description" content="(.*?)">',hel,re.S).group(1)
+styles=re.findall(r'<style[^>]*>(.*?)</style>',SRC,re.S)
+faq=re.findall(r'\["([^"]+\?)", "([^"]+)"\]',SRC[SRC.index('_faqs()'):SRC.index('renderVals')])
+assert len(faq)==10,len(faq)
+ld=[
+ {"@context":"https://schema.org","@type":"Organization","@id":"https://fluencyai.app/#organization","name":"Fluency AI","url":"https://fluencyai.app/","logo":"https://fluencyai.app/assets/logo-appicon.png","description":"Fluency AI makes an AI language-learning app for speaking practice, developed and operated by an independent developer.","email":"info@fluencyai.app","contactPoint":{"@type":"ContactPoint","contactType":"customer support","email":"support@fluencyai.app"}},
+ {"@context":"https://schema.org","@type":"WebSite","@id":"https://fluencyai.app/#website","name":"Fluency AI","url":"https://fluencyai.app/","publisher":{"@type":"Organization","name":"Fluency AI","url":"https://fluencyai.app/"}},
+ {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}} for q,a in faq]}]
+head=f'''<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="google-site-verification" content="FsCTu0DfhRUCeQ9tsIXHBuZo99hUFWmd4LTmtGvuGj4" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fluency AI">
+<link rel="apple-touch-icon" href="/assets/logo-appicon.png">
+<link rel="manifest" href="/manifest.json">
+<title>{title}</title>
+<meta name="description" content="{desc}">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://fluencyai.app/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Fluency AI">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{desc}">
+<meta property="og:url" content="https://fluencyai.app/">
+<meta property="og:image" content="https://fluencyai.app/assets/og-share.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{desc}">
+<meta name="twitter:image" content="https://fluencyai.app/assets/og-share.png">
+<meta name="theme-color" content="#04121B">
+<link rel="icon" href="/assets/logo-appicon.png">
+<link rel="stylesheet" href="/ds/styles.css">
+<link rel="stylesheet" href="/ds/components.css">
+'''+''.join('<script type="application/ld+json">\n'+json.dumps(x,ensure_ascii=False,indent=2)+'\n</script>\n' for x in ld)
+body=str(page)
+out='<!DOCTYPE html>\n<html lang="en">\n<head>\n'+head+'<style>\n'+'\n'.join(styles)+'\n</style>\n</head>\n<body>\n'+body+'''
+<script src="/fluency-config.js"></script>
+<script src="/fl-forms.js"></script>
+<script src="/fl-motion.js"></script>
+<script src="/assets/js/fluency-coach.js"></script>
+<script src="/assets/js/home-states.js"></script>
+<script src="/assets/js/home.js"></script>
+</body>
+</html>
+'''
+open(SITE+'index.html','w',encoding='utf-8').write(out); print('index.html KB',len(out)//1024)

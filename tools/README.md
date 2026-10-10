@@ -16,3 +16,15 @@ What it does: renders the page in headless Chromium, keeps the finished HTML (ic
 a <fl-coach> element), removes the React runtime attributes, maps page links to site routes (/store, /pricing ...),
 adds a press effect class to design-system buttons, and writes the page head and styles.
 What it does NOT do: page behaviour (tabs, filters, calculators, forms). Those are written by hand per page.
+
+# Home page (tools/build_home.py)
+
+Home is built from the handoff's "Conversational" direction (1b). Three steps, all run from the repo root:
+
+    python3 tools/record_home.py    # records the hero frames, widget states and coach expressions -> /tmp/home_rec.json
+    python3 tools/record_home2.py   # records the pop-ups and waitlist form states              -> /tmp/home_rec2.json
+    python3 tools/build_home.py     # writes site/index.html and site/assets/js/home-states.js
+
+The recorders drive the real design (its own React runtime) and store what it renders; site/assets/js/home.js replays
+those states in the browser. Scripts import rec_common.py and dc2static.py from tools/ (they expect them on sys.path, and
+use /tmp for the recordings). Re-run all three if the handoff's Home page changes.
