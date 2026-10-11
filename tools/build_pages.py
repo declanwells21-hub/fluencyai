@@ -22,9 +22,20 @@ def head_for(fname,canon):
         lines.append(t)
     css='\n'.join(re.findall(r'<style[^>]*>(.*?)</style>',src,re.S))
     return '\n'.join(lines),css
+
+# "Sign in" link (to /app) in the nav of Store, Pricing and Partners; the design has none.
+_SI_STYLE='color:var(--ink-200);text-decoration:none;padding:8px 4px;font:600 14px/1 var(--font-body);white-space:nowrap;'
+_SI_JS='"<a"+" data-fl-signin"+" href=\\"/app\\""+" style=\\"'+_SI_STYLE+'\\""+">"+"Sign in"+"</a>"+"\\n      "+'
+_SI_END='"</div>"+"\\n      "+'
+_SI_BEFORE={'store':'"<label"+','pricing':'H.imp("FluencyAIDesignSystem_b0c8f6.Button"','partners':'"<a"+" href=\\"/partners\\""+" style=\\"display:inline-flex;align-items:center;height:36px'}
+def add_signin(key,js):
+    a=_SI_END+_SI_BEFORE[key]
+    assert js.count(a)==1,(key,'nav anchor not found')
+    return js.replace(a,_SI_END+_SI_JS+_SI_BEFORE[key])
 def build(key):
     name,fname,route=PAGES[key]
     js=dc2js.compile_file(name,fname)
+    js=add_signin(key,js)
     open(SITE+f'assets/js/{key}.js','w',encoding='utf-8').write(f'/* {name} page, compiled from the design handoff ({fname}) by tools/dc2js.py. */\n'+js+
       f'(function(){{function go(){{FLDC.mount(document.getElementById("app"),"{name}",{{}});}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",go);else go();}})();\n')
     meta,css=head_for(fname,route)
