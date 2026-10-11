@@ -45,10 +45,6 @@ for t in page.find_all('script'): t.decompose()
 for t in page.find_all(True):
     for a in [a for a in t.attrs if a.startswith('data-dc')]: del t.attrs[a]
 fix_links(page)
-# Sign in link for existing web-app users (not in the design)
-_nav=page.select_one('[data-fl-nav]'); _btn=_nav.find('button')
-_a=BeautifulSoup('<a data-fl-signin="" href="/app" style="color: var(--ink-200); text-decoration: none; padding: 8px 4px; font: 600 14px/1 var(--font-body); white-space: nowrap;">Sign in</a>','html.parser').a
-_btn.insert_before(_a)
 for t in page.find_all(['button','a']):
     if 'dur-fast' in (t.get('style') or ''): t['class']=(t.get('class') or [])+['fl-press']
 chat=page.select_one('[data-fl-chat]'); kids=[c for c in chat.find_all(recursive=False)]
