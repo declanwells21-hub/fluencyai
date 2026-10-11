@@ -1,0 +1,27 @@
+/* Fluency AI: the "Sign in" button in the site nav (Home, Store, Pricing, Partners).
+   On narrow phones the text version would push the nav onto an extra row, so below 460px it becomes a 36px
+   account icon. The label text stays in the button (screen readers still read it, and auth.js can still
+   switch it to "My account"); it is only visually hidden. The popup itself is styled inside fl-account.js. */
+@media (max-width: 460px) {
+  [data-fl-signin] {
+    font-size: 0 !important;
+    width: 36px;
+    height: 36px;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    background: rgba(255, 255, 255, .08) !important;
+    position: relative;
+    flex: 0 0 auto;
+  }
+  [data-fl-signin]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 18px;
+    height: 18px;
+    background: var(--ink-200);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+}

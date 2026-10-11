@@ -23,6 +23,7 @@
 <link rel="icon" href="/assets/logo-appicon.png">
 <link rel="stylesheet" href="/ds/styles.css">
 <link rel="stylesheet" href="/ds/components.css">
+<link rel="stylesheet" href="/assets/css/fl-account.css">
 <style>
 html,body{height:100%;margin:0}#app{height:100%}
 
@@ -64,6 +65,7 @@ html,body{height:100%;margin:0}#app{height:100%}
         <a href="/pricing" style="color:var(--ink-200);text-decoration:none;padding:8px 0;">Pricing</a>
         <a href="/partners" style="color:var(--ink-200);text-decoration:none;padding:8px 0;">Partners</a>
       </div>
+      <button type="button" class="js-login-trigger" data-fl-signin="" data-logged-out="Sign in" data-logged-in="My account" style="background:none;border:0;cursor:pointer;color:var(--ink-200);padding:8px 4px;font:600 14px/1 var(--font-body);white-space:nowrap;">Sign in</button>
       <label style="display:flex;align-items:center;gap:6px;font:600 13px/1 var(--font-body);color:var(--ink-300);">
         <span>Prices in</span>
         <select data-fl-value="USD" data-fl-change="0" aria-label="Currency" style="height:36px;padding:0 10px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(4,18,27,.6);color:#fff;font:600 13px/1 var(--font-body);">
@@ -381,5 +383,8 @@ html,body{height:100%;margin:0}#app{height:100%}
 <script src="/assets/js/store.js"></script>
 <script src="/fl-motion.js"></script>
 <script src="/assets/js/fluency-coach.js"></script>
+<script src="/config.js"></script>
+<script src="/assets/js/fl-account.js"></script>
+<script src="/auth.js"></script>
 </body>
 </html>

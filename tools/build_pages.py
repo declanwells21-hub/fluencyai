@@ -22,18 +22,34 @@ def head_for(fname,canon):
         lines.append(t)
     css='\n'.join(re.findall(r'<style[^>]*>(.*?)</style>',src,re.S))
     return '\n'.join(lines),css
+
+# "Sign in" button in the nav of Store, Pricing and Partners (opens the site account popup; the design has none).
+_Q = '\\"'   # backslash + quote, as written inside the compiled JS source
+_SI_STYLE = 'background:none;border:0;cursor:pointer;color:var(--ink-200);padding:8px 4px;font:600 14px/1 var(--font-body);white-space:nowrap;'
+_SI_JS = ('"<button"+" type=' + _Q + 'button' + _Q + '"+" class=' + _Q + 'js-login-trigger' + _Q + '"+" data-fl-signin"+" data-logged-out=' + _Q + 'Sign in' + _Q
+          + '"+" data-logged-in=' + _Q + 'My account' + _Q + '"+" style=' + _Q + _SI_STYLE + _Q + '"+">"+"Sign in"+"</button>"+"\\n      "+')
+_SI_END = '"</div>"+"\\n      "+'
+_SI_BEFORE = {'store': '"<label"+',
+              'pricing': 'H.imp("FluencyAIDesignSystem_b0c8f6.Button"',
+              'partners': '"<a"+" href=' + _Q + '/partners' + _Q + '"+" style=' + _Q + 'display:inline-flex;align-items:center;height:36px'}
+def add_signin(key, js):
+    a = _SI_END + _SI_BEFORE[key]
+    assert js.count(a) == 1, (key, 'nav anchor not found')
+    return js.replace(a, _SI_END + _SI_JS + _SI_BEFORE[key])
+
 def build(key):
     name,fname,route=PAGES[key]
     js=dc2js.compile_file(name,fname)
+    js=add_signin(key,js)
     open(SITE+f'assets/js/{key}.js','w',encoding='utf-8').write(f'/* {name} page, compiled from the design handoff ({fname}) by tools/dc2js.py. */\n'+js+
       f'(function(){{function go(){{FLDC.mount(document.getElementById("app"),"{name}",{{}});}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",go);else go();}})();\n')
     meta,css=head_for(fname,route)
-    scripts=['/fluency-config.js','/fluency-data.js','/assets/js/fl-icons.js','/assets/js/fl-dc.js','/assets/js/fl-components.js',f'/assets/js/{key}.js']+(['/fl-forms.js'] if key=='partners' else [])+['/fl-motion.js','/assets/js/fluency-coach.js']
+    scripts=['/fluency-config.js','/fluency-data.js','/assets/js/fl-icons.js','/assets/js/fl-dc.js','/assets/js/fl-components.js',f'/assets/js/{key}.js']+(['/fl-forms.js'] if key=='partners' else [])+['/fl-motion.js','/assets/js/fluency-coach.js','/config.js','/assets/js/fl-account.js','/auth.js']
     def page(app):
         return ('<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'+meta+
-          f'\n<meta name="robots" content="index, follow">\n<link rel="canonical" href="https://fluencyai.app{route}">\n<meta property="og:url" content="https://fluencyai.app{route}">\n<link rel="icon" href="/assets/logo-appicon.png">\n<link rel="stylesheet" href="/ds/styles.css">\n<link rel="stylesheet" href="/ds/components.css">\n<style>\nhtml,body{{height:100%;margin:0}}#app{{height:100%}}\n'+css+'\n</style>\n</head>\n<body>\n<div id="app">'+app+'</div>\n'+
+          f'\n<meta name="robots" content="index, follow">\n<link rel="canonical" href="https://fluencyai.app{route}">\n<meta property="og:url" content="https://fluencyai.app{route}">\n<link rel="icon" href="/assets/logo-appicon.png">\n<link rel="stylesheet" href="/ds/styles.css">\n<link rel="stylesheet" href="/ds/components.css">\n<link rel="stylesheet" href="/assets/css/fl-account.css">\n<style>\nhtml,body{{height:100%;margin:0}}#app{{height:100%}}\n'+css+'\n</style>\n</head>\n<body>\n<div id="app">'+app+'</div>\n'+
           '\n'.join(f'<script src="{s}"></script>' for s in scripts)+'\n</body>\n</html>\n')
-    tmp=SITE+f'_pre_{key}.html'; open(tmp,'w',encoding='utf-8').write(page('').replace('<script src="/fl-motion.js"></script>\n','').replace('<script src="/assets/js/fluency-coach.js"></script>\n',''))
+    tmp=SITE+f'_pre_{key}.html'; open(tmp,'w',encoding='utf-8').write(page('').replace('<script src="/fl-motion.js"></script>\n','').replace('<script src="/assets/js/fluency-coach.js"></script>\n','').replace('<script src="/config.js"></script>\n','').replace('<script src="/assets/js/fl-account.js"></script>\n','').replace('<script src="/auth.js"></script>\n',''))
     port=8830+list(PAGES).index(key)
     srv=subprocess.Popen([sys.executable,'-m','http.server',str(port)],cwd=SITE,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL); time.sleep(1.2)
     try:

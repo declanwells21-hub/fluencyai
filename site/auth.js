@@ -165,7 +165,8 @@
   const resetSubmit = document.getElementById('auth-reset-submit');
   const resendResetBtn = document.getElementById('auth-resend-reset-btn');
 
-  const navLoginLinks = [document.getElementById('fl-nav-login'), document.getElementById('fl-nav-login-m')].filter(Boolean);
+  // Sign-in buttons are found when needed (the new pages re-render their nav), by class rather than by id.
+  function navLoginLinks() { return Array.from(document.querySelectorAll('.js-login-trigger')); }
   const googleSignupBtn = document.getElementById('auth-google-signup');
   const googleLoginBtn = document.getElementById('auth-google-login');
   const pricingCheckoutBtn = document.getElementById('pricing-checkout-btn');
@@ -371,17 +372,15 @@
   function refreshNavLoginState() {
     const session = loadSession();
     const loggedIn = !!(session && session.expires_at && session.expires_at > Math.floor(Date.now() / 1000));
-    navLoginLinks.forEach((el) => {
-      el.textContent = loggedIn ? 'My account' : 'Log in';
+    navLoginLinks().forEach((el) => {
+      // Labels can be set per button with data-logged-in / data-logged-out.
+      el.textContent = loggedIn ? (el.dataset.loggedIn || 'My account') : (el.dataset.loggedOut || 'Log in');
     });
   }
 
   function openModal(step) {
-    if (!configured) {
-      const wl = document.getElementById('waitlist');
-      if (wl) wl.scrollIntoView({ behavior: 'smooth' });
-      return;
-    }
+    const notice = document.getElementById('auth-config-notice');
+    if (notice) notice.classList.toggle('show', !configured);
     showStep(step || 'signup');
     document.querySelectorAll('.auth-error').forEach((el) => clearError(el.id));
     overlay.classList.add('open');
@@ -394,25 +393,28 @@
     document.body.style.overflow = '';
   }
 
-  document.querySelectorAll('.js-auth-trigger').forEach((el) => {
-    el.addEventListener('click', (e) => { e.preventDefault(); openModal('signup'); });
+  // Delegated, so buttons the page adds or re-renders later still work.
+  async function openLogin() {
+    // Already signed in (from a previous visit)? Skip straight to the
+    // welcome screen instead of asking them to log in again.
+    const session = configured ? await getValidSession() : null;
+    if (session) {
+      await showWelcome({ title: 'Welcome back', subtitle: "You're already signed in.", session });
+      overlay.classList.add('open');
+      overlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    } else {
+      openModal('login');
+    }
+  }
+  document.addEventListener('click', (e) => {
+    const target = e.target.closest ? e.target.closest('.js-auth-trigger, .js-login-trigger') : null;
+    if (!target) return;
+    e.preventDefault();
+    if (target.classList.contains('js-auth-trigger')) openModal('signup');
+    else openLogin();
   });
-  document.querySelectorAll('.js-login-trigger').forEach((el) => {
-    el.addEventListener('click', async (e) => {
-      e.preventDefault();
-      // Already signed in (from a previous visit)? Skip straight to the
-      // welcome screen instead of asking them to log in again.
-      const session = await getValidSession();
-      if (session) {
-        await showWelcome({ title: 'Welcome back', subtitle: "You're already signed in.", session });
-        overlay.classList.add('open');
-        overlay.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden';
-      } else {
-        openModal('login');
-      }
-    });
-  });
+  window.flAuth = { openModal, closeModal, openLogin, refresh: refreshNavLoginState };
 
   // Resume mid-flow if a code was already sent and the page reloaded - but
   // a Google redirect (if that's why we're here) takes priority over a
@@ -567,7 +569,7 @@
   forgotLink.addEventListener('click', openForgot);
   forgotLinkFromLogin.addEventListener('click', openForgot);
 
-  backToSignupBtn.addEventListener('click', () => showStep('signup'));
+  backToSignupBtn.addEventListener('click', () => showStep('login'));
 
   forgotForm.addEventListener('submit', async (e) => {
     e.preventDefault();

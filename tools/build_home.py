@@ -45,6 +45,10 @@ for t in page.find_all('script'): t.decompose()
 for t in page.find_all(True):
     for a in [a for a in t.attrs if a.startswith('data-dc')]: del t.attrs[a]
 fix_links(page)
+# Sign in button: opens the site account popup (the design has none)
+_nav=page.select_one('[data-fl-nav]'); _btn=_nav.find('button')
+_b=BeautifulSoup('<button type="button" class="js-login-trigger" data-fl-signin="" data-logged-out="Sign in" data-logged-in="My account" style="background:none;border:0;cursor:pointer;color:var(--ink-200);padding:8px 4px;font:600 14px/1 var(--font-body);white-space:nowrap;">Sign in</button>','html.parser').button
+_btn.insert_before(_b)
 for t in page.find_all(['button','a']):
     if 'dur-fast' in (t.get('style') or ''): t['class']=(t.get('class') or [])+['fl-press']
 chat=page.select_one('[data-fl-chat]'); kids=[c for c in chat.find_all(recursive=False)]
@@ -115,6 +119,7 @@ head=f'''<meta charset="utf-8">
 <link rel="icon" href="/assets/logo-appicon.png">
 <link rel="stylesheet" href="/ds/styles.css">
 <link rel="stylesheet" href="/ds/components.css">
+<link rel="stylesheet" href="/assets/css/fl-account.css">
 '''+''.join('<script type="application/ld+json">\n'+json.dumps(x,ensure_ascii=False,indent=2)+'\n</script>\n' for x in ld)
 body=str(page)
 out='<!DOCTYPE html>\n<html lang="en">\n<head>\n'+head+'<style>\n'+'\n'.join(styles)+'\n</style>\n</head>\n<body>\n'+body+'''
@@ -124,6 +129,9 @@ out='<!DOCTYPE html>\n<html lang="en">\n<head>\n'+head+'<style>\n'+'\n'.join(sty
 <script src="/assets/js/fluency-coach.js"></script>
 <script src="/assets/js/home-states.js"></script>
 <script src="/assets/js/home.js"></script>
+<script src="/config.js"></script>
+<script src="/assets/js/fl-account.js"></script>
+<script src="/auth.js"></script>
 </body>
 </html>
 '''
