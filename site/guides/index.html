@@ -1,7 +1,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Exam Blueprints Waitlist Edition</title>
+<title>Exam Blueprints | Fluency AI</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="canonical" href="https://fluencyai.app/guides">
 <link rel="icon" href="/assets/logo-appicon.png">
@@ -914,7 +914,7 @@ function renderHub() {
   renderCatalogue();
   document.getElementById("search").addEventListener("input", e => { filt.q = e.target.value; renderCatalogue(); });
   setSticky(`<div class="t"><b>${PRODUCTS.length} exam guides</b><span>French, German &amp; English · from ${money(minPrice)}</span></div><a class="btn btn-primary" href="#guides">Find your exam</a>`);
-  document.title = "Exam Blueprints · Fluency AI";
+  document.title = "Exam Blueprints | Fluency AI";
   const fanEl = document.getElementById("fan");
   requestAnimationFrame(() => requestAnimationFrame(() => fanEl.classList.add("open")));
 }
@@ -1042,7 +1042,7 @@ function renderProduct(p) {
   ${faqBlock(p)}`;
 
   setSticky(`<div class="t"><b>${esc(n)} Exam Blueprint</b><span>${money(p.price)} · PDF · 14 pages</span></div>${buyButton(p, "Get it")}`);
-  document.title = n + " Exam Blueprint · Fluency AI";
+  document.title = n + " Exam Blueprint | Fluency AI";
 }
 
 /* ================= shared UI ================= */
