@@ -12,7 +12,7 @@ import subprocess,time
 SITE='/home/claude/work3/site/'
 SRC=open(D.HANDOFF_DIR+'Fluency Home v3.dc.html',encoding='utf-8').read()
 REC=json.load(open('/tmp/home_rec.json')); REC2=json.load(open('/tmp/home_rec2.json'))
-INTERIM={'Store v3.dc.html':'/guides','Partners v3.dc.html':'/creators','Partner Hub v3.dc.html':'/creators','Privacy.dc.html':'/privacy','Terms.dc.html':'/terms','Fluency Home v3.dc.html':'/'}
+INTERIM={'Store v3.dc.html':'/store','Pricing v3.dc.html':'/pricing','Partners v3.dc.html':'/partners','Partner Hub v3.dc.html':'/partners','Privacy.dc.html':'/privacy','Terms.dc.html':'/terms','Fluency Home v3.dc.html':'/'}
 def fix_links(root):
     for a in root.find_all('a'):
         h=a.get('href')

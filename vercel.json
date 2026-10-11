@@ -25,7 +25,15 @@
     },
     {
       "source": "/pricing",
-      "destination": "/index.html"
+      "destination": "/pricing.html"
+    },
+    {
+      "source": "/store",
+      "destination": "/store.html"
+    },
+    {
+      "source": "/partners",
+      "destination": "/partners.html"
     },
     {
       "source": "/faq",

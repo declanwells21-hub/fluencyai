@@ -1,0 +1,43 @@
+// Removed from site/fluency-data.js on purpose (sample data for the Partner Hub prototype, used in Phase 5).
+  // ---- Sample data for the Partner Hub prototype ----
+  const ME = { name: "Adaeze Okafor", code: "ADAEZE", roles: ["affiliate", "creator"], joined: "Jun 2026", channel: "TikTok · @germanwithada", country: "Nigeria", payout: "Paystack · GTBank •••• 4821" };
+  const S = (id, date, product, country, status, ref = "ADAEZE") => { const g = guide(product); return { id, date, product, name: g ? g.name : product, gross: g ? g.price : 0, country, status, ref }; };
+  const MY_SALES = [
+    S("SLR-58213", "Sep 29", "goethe-b1", "NG", "confirmed"), S("SLR-58190", "Sep 28", "dtz-b1", "DE", "confirmed"), S("SLR-58122", "Sep 27", "telc-b1", "NG", "confirmed"),
+    S("SLR-58071", "Sep 25", "goethe-a1", "GH", "confirmed"), S("SLR-57988", "Sep 23", "goethe-b2", "NG", "refunded"), S("SLR-57940", "Sep 22", "goethe-b1", "KE", "confirmed"),
+    S("SLR-57811", "Sep 19", "tcf-a2", "CM", "confirmed"), S("SLR-57702", "Sep 16", "goethe-c1", "NG", "paid"), S("SLR-57655", "Sep 14", "goethe-b1", "NG", "paid"),
+    S("SLR-57590", "Sep 12", "telc-c1h", "IN", "paid"), S("SLR-57512", "Sep 09", "goethe-a2", "NG", "paid"), S("SLR-57430", "Sep 05", "dtz-b1", "DE", "paid"),
+  ].map((s) => ({ ...s, commission: s.status === "refunded" ? 0 : Math.round(s.gross * COMMISSION.guides * 100) / 100 }));
+  const MY_CLICKS = { month: 1284, byProduct: { "goethe-b1": 512, "dtz-b1": 201, "telc-b1": 177, "goethe-a1": 140, "goethe-b2": 96, other: 158 } };
+  const MY_PAYOUTS = [
+    { id: "PO-0912", date: "Sep 15", amount: 38.4, status: "paid", ref: "Paystack TRF_8k2x" },
+    { id: "PO-0815", date: "Aug 15", amount: 61.2, status: "paid", ref: "Paystack TRF_4h9q" },
+    { id: "PO-0715", date: "Jul 15", amount: 22.6, status: "paid", ref: "Paystack TRF_1m7d" },
+  ];
+  const MY_CONTENT = [
+    { title: "Goethe B1 speaking: the 3 parts in 60 seconds", platform: "TikTok", status: "Approved", date: "Sep 24", link: "goethe-b1" },
+    { title: "DTZ: how to get B1 instead of A2", platform: "Instagram", status: "Approved", date: "Sep 17", link: "dtz-b1" },
+    { title: "My telc B1 exam day, honestly", platform: "YouTube", status: "In review", date: "Sep 29", link: "telc-b1" },
+  ];
+
+  const APPLICATIONS = [
+    { name: "Kwame Mensah", handle: "@kwamelearnsgerman", platform: "TikTok", audience: "18k", country: "Ghana", lang: "German", role: "Creator", date: "Sep 30" },
+    { name: "Léa Martin", handle: "Prof. Léa · FLE classes", platform: "Teacher", audience: "120 students", country: "Cameroon", lang: "French", role: "Educator", date: "Sep 29" },
+    { name: "Tunde Bakare", handle: "germany-visa-guide.ng", platform: "Website", audience: "9k / month", country: "Nigeria", lang: "German", role: "Affiliate", date: "Sep 28" },
+    { name: "Priya Nair", handle: "@nursing2germany", platform: "Instagram", audience: "41k", country: "India", lang: "German", role: "Creator", date: "Sep 27" },
+  ];
+  const PARTNERS = [
+    { name: "Adaeze Okafor", code: "ADAEZE", roles: "Creator · Affiliate", sales: 12, gross: 102, owed: 13.8, status: "Active" },
+    { name: "Jonas Weber", code: "JONASDE", roles: "Affiliate", sales: 9, gross: 87, owed: 17.4, status: "Active" },
+    { name: "Chiamaka Eze", code: "CHIAMAKA", roles: "Creator", sales: 21, gross: 193, owed: 38.6, status: "Active" },
+    { name: "Marie Dubois", code: "MARIEFLE", roles: "Educator · Affiliate", sales: 6, gross: 66, owed: 13.2, status: "Active" },
+    { name: "Samuel Otieno", code: "SAMKE", roles: "Affiliate", sales: 0, gross: 0, owed: 0, status: "Paused" },
+  ];
+  const WEBHOOKS = [
+    { at: "Sep 30 · 09:14", event: "order.completed", order: "SLR-58240", product: "dalf-c1", ref: "MARIEFLE", result: "matched" },
+    { at: "Sep 30 · 08:51", event: "order.completed", order: "SLR-58238", product: "goethe-b1", ref: "", result: "no ref" },
+    { at: "Sep 29 · 22:03", event: "order.completed", order: "SLR-58213", product: "goethe-b1", ref: "ADAEZE", result: "matched" },
+    { at: "Sep 29 · 17:40", event: "order.completed", order: "SLR-58207", product: "tcf-b2", ref: "LEA237", result: "unknown code" },
+    { at: "Sep 23 · 11:12", event: "order.refunded", order: "SLR-57988", product: "goethe-b2", ref: "ADAEZE", result: "reversed" },
+  ];
+

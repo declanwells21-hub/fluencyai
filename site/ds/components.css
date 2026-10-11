@@ -3,3 +3,7 @@
 .fl-press{-webkit-tap-highlight-color:transparent}
 .fl-press:active:not(:disabled){transform:translateY(2px) scale(var(--press-scale,.97));filter:brightness(.96)}
 @media (prefers-reduced-motion:reduce){.fl-press{transition:none}}
+/* Coach character: float and glow animations (from the design's Coach component) */
+@keyframes flcGlow{0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(1.08);opacity:1}}
+@keyframes flcFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5%)}}
+@media (prefers-reduced-motion: reduce){[data-flc-anim]{animation:none!important}}

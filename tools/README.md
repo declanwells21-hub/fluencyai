@@ -28,3 +28,17 @@ Home is built from the handoff's "Conversational" direction (1b). Three steps, a
 The recorders drive the real design (its own React runtime) and store what it renders; site/assets/js/home.js replays
 those states in the browser. Scripts import rec_common.py and dc2static.py from tools/ (they expect them on sys.path, and
 use /tmp for the recordings). Re-run all three if the handoff's Home page changes.
+
+# Store, Pricing and Partners (tools/build_pages.py)
+
+These three pages are compiled, not recorded: tools/dc2js.py turns the handoff's templates (and the Coach and GuideCover
+components) into plain JavaScript; site/assets/js/fl-dc.js is a small runtime with the design's setState/re-render
+semantics, its Icon, Wordmark and Button components, and a React-style patcher.
+
+    python3 tools/build_pages.py            # writes site/{store,pricing,partners}.html, assets/js/{store,pricing,partners,fl-components}.js
+    python3 tools/test_pages.py store       # pixel comparison against the design, per state, at 1280 and 390
+    python3 tools/compare_dom.py store '{"cur":"EUR"}'   # structure + computed-style comparison for one state
+
+Pages are pre-rendered (for search engines and no flash) by running the same runtime in headless Chromium.
+Catalogue data lives in site/fluency-data.js (guides, Selar codes, prices, commission rules).
+The Partner Hub sample data that used to ship inside it is kept in docs/partner-hub-sample-data.txt for Phase 5.

@@ -7,7 +7,8 @@
     const routes = (window.FL_CONFIG && window.FL_CONFIG.formsEndpoints) || {};
     const url = routes[type] || window.FL_FORMS_ENDPOINT || (window.FL_CONFIG && window.FL_CONFIG.formsEndpoint) || (meta && meta.content) || "";
     let ref = ""; try { ref = localStorage.getItem("fl_ref") || ""; } catch (e) {}
-    const payload = { type, ref, page: location.pathname.split("/").pop(), at: new Date().toISOString(), ...fields };
+    let payload = { type, ref, page: location.pathname.split("/").pop(), at: new Date().toISOString(), ...fields };
+    const tf = ((window.FL_CONFIG && window.FL_CONFIG.formsTransforms) || {})[type]; if (tf) { try { payload = tf(payload) || payload; } catch (e) {} }
     if (url) {
       try { const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(payload) }); if (r.ok) return { ok: true, queued: false }; } catch (e) {}
     }

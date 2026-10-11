@@ -86,7 +86,7 @@
       if (name === "partners" && /Apply to become a partner/.test(b.textContent)) {
         var inp = popEl.querySelector("input[type=email]"), v = inp ? inp.value.trim() : "";
         if (!EMAIL.test(v)) return;
-        if (window.flSubmit) window.flSubmit("partner", { email: v, source: "home_partner_popup" });
+        if (window.flSubmit) window.flSubmit("partner_interest", { email: v, source: "home_partner_popup" });
         var f = parse(D.pops.partners.sent).firstElementChild; if (f) syncNode(popEl, f);
       }
     });
