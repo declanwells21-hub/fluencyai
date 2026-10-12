@@ -44,12 +44,12 @@ def build(key):
     open(SITE+f'assets/js/{key}.js','w',encoding='utf-8').write(f'/* {name} page, compiled from the design handoff ({fname}) by tools/dc2js.py. */\n'+js+
       f'(function(){{function go(){{FLDC.mount(document.getElementById("app"),"{name}",{{}});}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",go);else go();}})();\n')
     meta,css=head_for(fname,route)
-    scripts=['/fluency-config.js','/fluency-data.js','/assets/js/fl-icons.js','/assets/js/fl-dc.js','/assets/js/fl-components.js',f'/assets/js/{key}.js']+(['/fl-forms.js'] if key=='partners' else [])+['/fl-motion.js','/assets/js/fluency-coach.js','/config.js','/assets/js/fl-account.js','/auth.js']
+    scripts=['/fluency-config.js','/fluency-data.js','/assets/js/fl-icons.js','/assets/js/fl-dc.js','/assets/js/fl-components.js',f'/assets/js/{key}.js']+(['/fl-forms.js'] if key=='partners' else [])+['/fl-motion.js','/assets/js/fluency-coach.js','/assets/js/fl-ref.js','/config.js','/assets/js/fl-account.js','/auth.js']
     def page(app):
         return ('<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'+meta+
           f'\n<meta name="robots" content="index, follow">\n<link rel="canonical" href="https://fluencyai.app{route}">\n<meta property="og:url" content="https://fluencyai.app{route}">\n<link rel="icon" href="/assets/logo-appicon.png">\n<link rel="stylesheet" href="/ds/styles.css">\n<link rel="stylesheet" href="/ds/components.css">\n<link rel="stylesheet" href="/assets/css/fl-account.css">\n<style>\nhtml,body{{height:100%;margin:0}}#app{{height:100%}}\n'+css+'\n</style>\n</head>\n<body>\n<div id="app">'+app+'</div>\n'+
           '\n'.join(f'<script src="{s}"></script>' for s in scripts)+'\n</body>\n</html>\n')
-    tmp=SITE+f'_pre_{key}.html'; open(tmp,'w',encoding='utf-8').write(page('').replace('<script src="/fl-motion.js"></script>\n','').replace('<script src="/assets/js/fluency-coach.js"></script>\n','').replace('<script src="/config.js"></script>\n','').replace('<script src="/assets/js/fl-account.js"></script>\n','').replace('<script src="/auth.js"></script>\n',''))
+    tmp=SITE+f'_pre_{key}.html'; open(tmp,'w',encoding='utf-8').write(page('').replace('<script src="/fl-motion.js"></script>\n','').replace('<script src="/assets/js/fluency-coach.js"></script>\n','').replace('<script src="/assets/js/fl-ref.js"></script>\n','').replace('<script src="/config.js"></script>\n','').replace('<script src="/assets/js/fl-account.js"></script>\n','').replace('<script src="/auth.js"></script>\n',''))
     port=8830+list(PAGES).index(key)
     srv=subprocess.Popen([sys.executable,'-m','http.server',str(port)],cwd=SITE,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL); time.sleep(1.2)
     try:

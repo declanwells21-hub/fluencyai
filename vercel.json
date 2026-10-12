@@ -2,6 +2,48 @@
   "buildCommand": "bash build.sh",
   "outputDirectory": "dist",
   "installCommand": "echo 'skip - flutter deps installed in build.sh'",
+  "redirects": [
+    {
+      "source": "/creators",
+      "destination": "/partners",
+      "permanent": true
+    },
+    {
+      "source": "/problem",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/how",
+      "destination": "/#how",
+      "permanent": true
+    },
+    {
+      "source": "/product",
+      "destination": "/#features",
+      "permanent": true
+    },
+    {
+      "source": "/faq",
+      "destination": "/#faq",
+      "permanent": true
+    },
+    {
+      "source": "/waitlist",
+      "destination": "/#join",
+      "permanent": true
+    },
+    {
+      "source": "/r/:code",
+      "destination": "/?ref=:code",
+      "permanent": false
+    },
+    {
+      "source": "/r/:code/:target",
+      "destination": "/:target?ref=:code",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/app",
@@ -10,18 +52,6 @@
     {
       "source": "/app/:path*",
       "destination": "/app/index.html"
-    },
-    {
-      "source": "/problem",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/how",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/product",
-      "destination": "/index.html"
     },
     {
       "source": "/pricing",
@@ -36,20 +66,8 @@
       "destination": "/partners.html"
     },
     {
-      "source": "/faq",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/waitlist",
-      "destination": "/index.html"
-    },
-    {
       "source": "/about",
       "destination": "/about.html"
-    },
-    {
-      "source": "/creators",
-      "destination": "/creators.html"
     },
     {
       "source": "/privacy",

@@ -129,6 +129,7 @@ out='<!DOCTYPE html>\n<html lang="en">\n<head>\n'+head+'<style>\n'+'\n'.join(sty
 <script src="/assets/js/fluency-coach.js"></script>
 <script src="/assets/js/home-states.js"></script>
 <script src="/assets/js/home.js"></script>
+<script src="/assets/js/fl-ref.js"></script>
 <script src="/config.js"></script>
 <script src="/assets/js/fl-account.js"></script>
 <script src="/auth.js"></script>
