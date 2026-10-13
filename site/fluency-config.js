@@ -9,10 +9,12 @@ window.FL_CONFIG = {
   // ---- Forms (waitlist + partner application) ----
   // Any endpoint that accepts JSON POST: Formspree, Make/Zapier webhook, or your own API.
   formsEndpoint: "",                 // Generic fallback. This project routes per type, see formsEndpoints.
-  formsEndpoints: { waitlist: "/api/waitlist", partner: "/api/referral" },  // Per-type routes.
+  formsEndpoints: { waitlist: "/api/waitlist", partner: "/api/referral", partner_interest: "/api/referral" },  // Per-type routes.
   // The existing /api/referral "apply" endpoint wants { type:"apply", name, email, platform, handle, country }.
   // The Partners form collects name, email, channel, language and role, so it is mapped here (no backend change).
   formsTransforms: {
+    // Home page partner pop-up: just an email, stored by /api/referral in partner_interest.
+    partner_interest: (f) => ({ type: "partner_interest", email: f.email, source: f.source || "home_partner_popup", ref: f.ref }),
     partner: (f) => {
       const ch = String(f.channel || "").trim(), m = ch.match(/^([A-Za-z][A-Za-z ]{1,20}?)\s*[·:|,\-–—@]\s*(.*)$/), platform = m ? m[1].trim() : "Other", handle = (m ? m[2] : ch).trim() || ch || "n/a";
       return { type: "apply", name: f.name, email: f.email, platform: platform || "Other", handle, country: "Not provided",

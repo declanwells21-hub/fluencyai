@@ -6,7 +6,8 @@
     const meta = document.querySelector('meta[name="fl-forms-endpoint"]');
     const routes = (window.FL_CONFIG && window.FL_CONFIG.formsEndpoints) || {};
     const url = routes[type] || window.FL_FORMS_ENDPOINT || (window.FL_CONFIG && window.FL_CONFIG.formsEndpoint) || (meta && meta.content) || "";
-    let ref = ""; try { ref = localStorage.getItem("fl_ref") || ""; } catch (e) {}
+    // The stored partner link is JSON like {"code":"ANNA","at":1700000000000}; send just the code, and ignore it after 30 days.
+    let ref = ""; try { const raw = localStorage.getItem("fl_ref") || ""; try { const o = JSON.parse(raw) || {}; ref = (o.at && Date.now() - o.at > 30 * 864e5) ? "" : String(o.code || ""); } catch (e) { ref = raw; } } catch (e) {}
     let payload = { type, ref, page: location.pathname.split("/").pop(), at: new Date().toISOString(), ...fields };
     const tf = ((window.FL_CONFIG && window.FL_CONFIG.formsTransforms) || {})[type]; if (tf) { try { payload = tf(payload) || payload; } catch (e) {} }
     if (url) {

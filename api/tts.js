@@ -141,10 +141,15 @@ async function speakWithDeepgram({ text, targetLanguage }, res) {
   return res.status(200).send(Buffer.from(arrayBuffer));
 }
 
+const { guardAiRequest } = require('./_lib/aiGuard');
+
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (!(await guardAiRequest(req, res, 'tts'))) return;
 
   try {
     const { text, targetLanguage, accent, gender } = req.body;
