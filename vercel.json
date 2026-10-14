@@ -24,11 +24,6 @@
       "permanent": true
     },
     {
-      "source": "/faq",
-      "destination": "/#faq",
-      "permanent": true
-    },
-    {
       "source": "/waitlist",
       "destination": "/#join",
       "permanent": true
@@ -72,6 +67,10 @@
     {
       "source": "/about",
       "destination": "/about.html"
+    },
+    {
+      "source": "/faq",
+      "destination": "/faq.html"
     },
     {
       "source": "/privacy",
