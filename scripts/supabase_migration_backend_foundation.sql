@@ -141,12 +141,16 @@ create table if not exists public.creator_applications (
 alter table public.creator_applications enable row level security;
 
 create table if not exists public.referral_events (
-  id         uuid primary key default gen_random_uuid(),
-  creator_id uuid references public.creators (id) on delete cascade,
-  code       text,
-  event_type text not null,
-  meta       jsonb not null default '{}'::jsonb,
-  created_at timestamptz not null default now()
+  id             uuid primary key default gen_random_uuid(),
+  creator_id     uuid references public.creators (id) on delete cascade,
+  code           text,
+  event_type     text not null,
+  meta           jsonb not null default '{}'::jsonb,
+  user_id        uuid,            -- the buyer, on a 'conversion' event
+  amount_cents   integer,         -- the commission, on a 'conversion' event
+  creem_event_id text,            -- billing event id; makes a repeated webhook harmless
+  created_at     timestamptz not null default now()
 );
+create unique index if not exists referral_events_creem_event_uidx on public.referral_events (creem_event_id) where creem_event_id is not null;
 alter table public.referral_events enable row level security;
 create index if not exists referral_events_creator_idx on public.referral_events (creator_id, created_at desc);

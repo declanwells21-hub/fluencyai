@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <title>Partner hub | Fluency AI</title>
+  <meta name="description" content="Your partner links, sales and payouts in one place.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Fluency AI">
+  <meta property="og:title" content="Partner hub | Fluency AI">
+  <meta property="og:description" content="Your partner links, sales and payouts in one place.">
+  <meta property="og:image" content="assets/og-share.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Partner hub | Fluency AI">
+  <meta name="twitter:description" content="Your partner links, sales and payouts in one place.">
+  <meta name="twitter:image" content="assets/og-share.png">
+  <meta name="theme-color" content="#04121B">
+  <link rel="icon" href="assets/logo-appicon.png">
+  <link rel="stylesheet" href="ds/styles.css">
+  <script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.js"></script>
+  <script src="ds/_ds_bundle.js"></script>
+  <script src="fluency-config.js"></script>
+  <script src="fl-motion.js"></script>
+  <script src="fluency-data.js"></script>
+  <style>
+    html,body{overflow-x:clip}
+    body{margin:0;background:#04121B;color:#D8E4EA;-webkit-font-smoothing:antialiased}
+    a{color:var(--teal-300);text-underline-offset:3px}
+    a:hover{color:var(--teal-200)}
+    :focus-visible{outline:2px solid var(--teal-400);outline-offset:2px}
+    @media (max-width: 760px){
+      [data-fl-nav]{flex-wrap:wrap!important;border-radius:24px!important;padding:10px 12px!important;gap:10px!important}
+      [data-fl-links]{order:3;flex:1 1 100%!important;justify-content:flex-start!important;flex-wrap:nowrap!important;overflow-x:auto;gap:20px!important;padding:2px 4px!important;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent)}
+      [data-fl-links]::-webkit-scrollbar{display:none}
+      [data-fl-links] > *{white-space:nowrap;flex:0 0 auto}
+      [data-fl-main]{grid-template-columns:minmax(0,1fr)!important;gap:4px!important;padding:8px 16px 72px!important}
+      [data-fl-aside]{justify-self:center!important;padding-top:8px!important;max-width:100%!important}
+      [data-fl-aside] > div:first-child{width:128px!important}
+      [data-fl-aside] > span{display:none}
+      [data-fl-chat]{gap:14px!important}
+      [data-fl-chat] h1{font-size:36px!important}
+      [data-fl-cover-row]{grid-template-columns:minmax(0,1fr) 88px!important}
+      [data-fl-table-row="3"]{grid-template-columns:minmax(0,1fr) auto auto!important}
+      [data-fl-table-row="2"]{grid-template-columns:minmax(0,1fr) auto!important}
+      [data-fl-hide-sm]{display:none!important}
+      [data-fl-switch]{bottom:10px!important}
+    }
+  </style>
+</helmet>
+
+<div data-fl-page data-screen-label="Partner hub" style="min-height:100vh;background:#04121B;font-family:var(--font-body);">
+  <header style="position:sticky;top:0;z-index:30;padding:12px 16px;background:rgba(4,18,27,.7);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.08);">
+    <div style="max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:16px;">
+      <a href="/partners" aria-label="Fluency Partners" style="text-decoration:none;display:flex;align-items:center;gap:10px;"><x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Wordmark" size="{{ n20 }}" tone="dark" hint-size="110px,22px"></x-import><span style="font:600 13px/1 var(--font-body);color:var(--ink-400);">Partner hub</span></a>
+      <div role="tablist" style="flex:1;display:flex;flex-wrap:wrap;gap:4px;justify-content:center;">
+        <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4"><button type="button" role="tab" aria-selected="{{ t.sel }}" onClick="{{ t.pick }}" style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:999px;border:0;cursor:pointer;font:600 14px/1 var(--font-body);background:{{ t.bg }};color:{{ t.fg }};"><x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Icon" name="{{ t.icon }}" size="{{ n16 }}" hint-size="16px,16px"></x-import>{{ t.label }}</button></sc-for>
+      </div>
+      <button type="button" class="js-login-trigger" data-logged-out="Sign in" data-logged-in="Account" style="height:36px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:none;color:var(--ink-200);font:600 13px/1 var(--font-body);cursor:pointer;">Sign in</button>
+    </div>
+  </header>
+
+  <main data-fl-stagger style="max-width:1200px;margin:0 auto;padding:28px 24px 80px;display:grid;gap:24px;">
+    <div style="display:grid;grid-template-columns:96px minmax(0,1fr);gap:16px;align-items:center;">
+      <div style="width:96px;height:96px;"><dc-import name="Coach" expression="{{ coachExpr }}" character="mia" frame="circle" crop="bust" style="width:100%;height:100%;" hint-size="100%,100%"></dc-import></div>
+      <div style="justify-self:start;max-width:min(720px,100%);display:grid;gap:4px;padding:14px 18px;border-radius:6px 22px 22px 22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);">
+        <span style="font:700 20px/1.25 var(--font-display);color:#fff;">{{ greet }}</span>
+        <span style="font:400 16px/1.5 var(--font-body);color:var(--ink-300);">{{ greetSub }}</span>
+      </div>
+    </div>
+
+    <sc-if value="{{ vMessage }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;gap:14px;padding:22px;border-radius:24px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);max-width:720px;" role="status" aria-live="polite">
+        <span style="font:700 20px/1.25 var(--font-display);color:#fff;">{{ msgTitle }}</span>
+        <sc-if value="{{ msgHasPill }}" hint-placeholder-val="{{ false }}"><span style="justify-self:start;height:26px;display:inline-flex;align-items:center;padding:0 12px;border-radius:999px;font:700 12px/1 var(--font-body);background:{{ msgPillBg }};color:{{ msgPillFg }};">{{ msgPill }}</span></sc-if>
+        <span style="font:400 16px/1.55 var(--font-body);color:var(--ink-300);">{{ msgBody }}</span>
+        <sc-if value="{{ msgHasAction }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;"><x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Button" variant="primary" size="m" icon="{{ msgIcon }}" on-click="{{ msgAction }}" hint-size="160px,44px">{{ msgActionLabel }}</x-import><sc-if value="{{ msgHasLink }}" hint-placeholder-val="{{ false }}"><a href="{{ msgLinkHref }}" style="font:600 15px/1 var(--font-body);">{{ msgLinkLabel }}</a></sc-if></div></sc-if>
+        <sc-if value="{{ msgHasLinkOnly }}" hint-placeholder-val="{{ false }}"><a href="{{ msgLinkHref }}" style="justify-self:start;font:600 15px/1 var(--font-body);">{{ msgLinkLabel }}</a></sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ vOverview }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;gap:14px;padding:22px;border-radius:24px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px;">
+        <div style="display:grid;gap:6px;">
+          <span style="font:600 13px/1.3 var(--font-body);color:var(--ink-400);">Your partner code</span>
+          <span style="font:800 32px/1 var(--font-numeric);color:#fff;letter-spacing:.02em;">{{ code }}</span>
+          <span style="font:500 13px/1.4 var(--font-body);color:var(--ink-300);">{{ codeNote }}</span>
+          <code style="margin-top:4px;display:block;padding:10px 12px;border-radius:12px;background:rgba(4,18,27,.6);border:1px solid rgba(255,255,255,.12);font:500 14px/1.3 var(--font-mono);color:var(--teal-200);overflow:auto;white-space:nowrap;">{{ homeLink }}</code>
+        </div>
+        <x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Button" variant="primary" size="m" icon="copy" on-click="{{ copyHome }}" hint-size="150px,44px">{{ copyHomeLabel }}</x-import>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px;">
+        <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4"><div style="display:grid;gap:6px;padding:20px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);"><span style="font:600 13px/1.3 var(--font-body);color:var(--ink-400);">{{ k.label }}</span><span style="font:800 32px/1 var(--font-numeric);color:#fff;">{{ k.v }}</span><span style="font:500 12px/1.35 var(--font-body);color:{{ k.noteColor }};">{{ k.note }}</span></div></sc-for>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;">
+        <div style="display:grid;gap:14px;align-content:start;padding:22px;border-radius:24px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);">
+          <span style="font:700 18px/1.2 var(--font-display);color:#fff;">From click to commission</span>
+          <sc-for list="{{ funnel }}" as="f" hint-placeholder-count="3">
+            <div style="display:grid;gap:6px;">
+              <div style="display:flex;justify-content:space-between;gap:10px;"><span style="font:600 14px/1.3 var(--font-body);color:var(--ink-100);">{{ f.label }}</span><span style="font:800 16px/1 var(--font-numeric);color:#fff;">{{ f.value }}</span></div>
+              <div style="height:8px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden;"><div style="width:{{ f.w }};height:100%;border-radius:4px;background:{{ f.c }};"></div></div>
+              <span style="font:500 12px/1.35 var(--font-body);color:var(--ink-400);">{{ f.note }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:grid;gap:12px;align-content:start;padding:22px;border-radius:24px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);">
+          <span style="font:700 18px/1.2 var(--font-display);color:#fff;">Next payout</span>
+          <div style="display:flex;align-items:baseline;gap:10px;"><span style="font:800 40px/1 var(--font-numeric);color:#fff;">{{ owed }}</span><span style="font:500 14px/1 var(--font-body);color:var(--ink-300);">ready to pay</span></div>
+          <div style="height:8px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden;"><div style="width:{{ payPct }};height:100%;border-radius:4px;background:var(--mint-400);"></div></div>
+          <span style="font:500 13px/1.4 var(--font-body);color:var(--ink-300);">{{ payNote }}</span>
+          <span style="font:500 13px/1.4 var(--font-body);color:var(--ink-400);">{{ payoutTo }}</span>
+        </div>
+      </div>
+      <div style="display:grid;gap:12px;padding:22px;border-radius:24px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);">
+        <span style="font:700 18px/1.2 var(--font-display);color:#fff;">Link opens, last 30 days</span>
+        <div style="display:flex;align-items:flex-end;gap:3px;height:84px;" role="img" aria-label="{{ barsLabel }}">
+          <sc-for list="{{ bars }}" as="b" hint-placeholder-count="30"><div title="{{ b.title }}" style="flex:1;min-width:3px;height:{{ b.h }};border-radius:3px 3px 0 0;background:{{ b.c }};"></div></sc-for>
+        </div>
+        <span style="font:500 12px/1.35 var(--font-body);color:var(--ink-400);">Opens are for insight only. They are never paid.</span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ vSales }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <sc-for list="{{ saleFilters }}" as="f" hint-placeholder-count="5"><button type="button" onClick="{{ f.pick }}" aria-pressed="{{ f.sel }}" style="height:36px;padding:0 14px;border-radius:999px;cursor:pointer;font:600 13px/1 var(--font-body);background:{{ f.bg }};border:1px solid {{ f.bd }};color:{{ f.fg }};">{{ f.label }}</button></sc-for>
+      </div>
+      <sc-if value="{{ noSales }}" hint-placeholder-val="{{ false }}"><div style="padding:20px;border-radius:20px;border:1px dashed rgba(255,255,255,.2);font:500 16px/1.5 var(--font-body);color:var(--ink-300);">{{ noSalesText }}</div></sc-if>
+      <div style="display:grid;gap:6px;">
+        <sc-for list="{{ sales }}" as="r" hint-placeholder-count="8">
+          <div data-fl-table-row="3" style="display:grid;grid-template-columns:72px minmax(0,1.4fr) minmax(0,1fr) 64px 84px;gap:12px;align-items:center;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font:500 14px/1.3 var(--font-body);color:var(--ink-200);">
+            <span data-fl-hide-sm style="font:500 13px/1 var(--font-mono);color:var(--ink-400);">{{ r.date }}</span>
+            <span style="display:grid;gap:3px;"><b style="font:700 15px/1.2 var(--font-display);color:#fff;">{{ r.name }}</b><span style="font:500 12px/1 var(--font-mono);color:var(--ink-500);">{{ r.id }} &middot; {{ r.kindLabel }}</span></span>
+            <span style="justify-self:start;min-height:24px;display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;font:700 11px/1.2 var(--font-body);background:{{ r.tbg }};color:{{ r.tfg }};">{{ r.statusLabel }}</span>
+            <span data-fl-hide-sm style="text-align:right;">{{ r.grossLabel }}</span>
+            <span style="text-align:right;font:800 15px/1 var(--font-numeric);color:{{ r.amtColor }};">{{ r.commissionLabel }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ vLinks }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;gap:12px;padding:22px;border-radius:24px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);">
+        <span style="font:700 18px/1.2 var(--font-display);color:#fff;">Build a link</span>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+          <select value="{{ target }}" onChange="{{ setTarget }}" aria-label="Link to" style="height:44px;padding:0 12px;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:rgba(4,18,27,.6);color:#fff;font:500 15px/1 var(--font-body);">
+            <sc-for list="{{ targets }}" as="t" hint-placeholder-count="6"><option value="{{ t.value }}">{{ t.label }}</option></sc-for>
+          </select>
+          <code style="flex:1;min-width:220px;height:44px;display:flex;align-items:center;padding:0 14px;border-radius:14px;background:rgba(4,18,27,.6);border:1px solid rgba(255,255,255,.12);font:500 14px/1 var(--font-mono);color:var(--teal-200);overflow:auto;white-space:nowrap;">{{ builtLink }}</code>
+          <x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Button" variant="primary" size="m" icon="copy" on-click="{{ copy }}" hint-size="120px,44px">{{ copyLabel }}</x-import>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:12px;">
+        <sc-for list="{{ howItems }}" as="h" hint-placeholder-count="4">
+          <div style="display:grid;gap:6px;padding:18px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);"><b style="font:700 15px/1.2 var(--font-display);color:#fff;">{{ h.title }}</b><span style="font:500 13px/1.45 var(--font-body);color:var(--ink-300);">{{ h.text }}</span></div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ vPayouts }}" hint-placeholder-val="{{ false }}">
+      <sc-if value="{{ noPayouts }}" hint-placeholder-val="{{ false }}"><div style="padding:20px;border-radius:20px;border:1px dashed rgba(255,255,255,.2);font:500 16px/1.5 var(--font-body);color:var(--ink-300);">{{ noPayoutsText }}</div></sc-if>
+      <div style="display:grid;gap:6px;">
+        <sc-for list="{{ payouts }}" as="p" hint-placeholder-count="3">
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:center;padding:16px 18px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);">
+            <span style="display:grid;gap:4px;"><b style="font:700 16px/1.2 var(--font-display);color:#fff;">{{ p.date }}</b><span style="font:500 12px/1 var(--font-mono);color:var(--ink-500);">{{ p.id }} &middot; {{ p.ref }}</span></span>
+            <span style="display:flex;gap:12px;align-items:center;"><span style="height:24px;display:inline-flex;align-items:center;padding:0 10px;border-radius:999px;font:700 11px/1 var(--font-body);background:rgba(37,215,155,.14);color:var(--mint-300);">Paid</span><span style="font:800 18px/1 var(--font-numeric);color:#fff;">{{ p.amount }}</span></span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <span style="font:500 12px/1.5 var(--font-body);color:var(--ink-500);">{{ footNote }}</span>
+  </main>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { phase: "loading", data: null, tab: "overview", filter: "all", target: "home", copied: "", err: "" };
+
+  componentDidMount() {
+    this._reload = () => this.load();
+    window.addEventListener("fl-auth-changed", this._reload);
+    this.load();
+  }
+
+  // Wait (briefly) for something other scripts provide: the Sign in popup and the data helpers.
+  wait(test, ms) {
+    return new Promise((resolve) => {
+      const t0 = Date.now();
+      const tick = () => { const v = test(); if (v) return resolve(v); if (Date.now() - t0 > ms) return resolve(null); setTimeout(tick, 60); };
+      tick();
+    });
+  }
+
+  async load() {
+    const auth = await this.wait(() => window.flAuth && window.flAuth.getSession && window.flAuth, 5000);
+    const url = window.__SUPABASE_URL, anon = window.__SUPABASE_ANON_KEY;
+    if (!auth || !url || !anon) { this.setState({ phase: "unavailable" }); return; }
+    const session = await auth.getSession();
+    if (!session) { this.setState({ phase: "signed_out", data: null }); return; }
+    // Same person, same data: do not flash the loading state again when only the token was refreshed.
+    if (this.state.phase !== "ready") this.setState({ phase: "loading" });
+    try {
+      const res = await fetch(url + "/rest/v1/rpc/fl_my_partner", {
+        method: "POST",
+        headers: { apikey: anon, Authorization: "Bearer " + session.access_token, "Content-Type": "application/json" },
+        body: "{}",
+      });
+      if (res.status === 401 || res.status === 403) { this.setState({ phase: "signed_out", data: null }); return; }
+      if (!res.ok) throw new Error("status " + res.status);
+      const data = await res.json();
+      this.setState({ phase: "data", data: data });
+    } catch (e) {
+      this.setState({ phase: "error" });
+    }
+  }
+
+  // Copy to the clipboard. Some browsers refuse the modern call (or reject it later), so fall back to the old way.
+  fallbackCopy(text) {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;";
+      document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+    } catch (e) { /* nothing more we can do; the link is shown on screen to copy by hand */ }
+  }
+
+  copyText(text, key) {
+    try {
+      const pending = navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(text) : null;
+      if (pending && pending.catch) pending.catch(() => this.fallbackCopy(text)); else if (!pending) this.fallbackCopy(text);
+    } catch (e) { this.fallbackCopy(text); }
+    this.setState({ copied: key });
+    setTimeout(() => { if (this.state.copied === key) this.setState({ copied: "" }); }, 2200);
+  }
+
+  renderVals() {
+    const s = this.state, d = s.data;
+    const D = window.FluencyData;
+    const money = (c) => "$" + (Math.round(c || 0) / 100).toFixed(2);
+    const num = (n) => Number(n || 0).toLocaleString("en-US");
+    const day = (iso) => { try { return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" }); } catch (e) { return ""; } };
+    const TONE = { brand: ["rgba(16,184,184,.16)", "var(--teal-200)"], success: ["rgba(37,215,155,.14)", "var(--mint-300)"], danger: ["rgba(255,106,106,.14)", "var(--coral-400)"], warning: ["rgba(247,178,59,.14)", "var(--amber-400)"], neutral: ["rgba(255,255,255,.08)", "var(--ink-200)"] };
+    const base = { n16: 16, n20: 20, tabs: [], kpis: [], funnel: [], bars: [], sales: [], saleFilters: [], targets: [], payouts: [], howItems: [],
+      vMessage: false, vOverview: false, vSales: false, vLinks: false, vPayouts: false,
+      msgTitle: "", msgBody: "", msgHasPill: false, msgPill: "", msgPillBg: "", msgPillFg: "", msgHasAction: false, msgAction: () => {}, msgActionLabel: "", msgIcon: "log-in", msgHasLink: false, msgHasLinkOnly: false, msgLinkHref: "", msgLinkLabel: "",
+      greet: "Partner hub", greetSub: "", coachExpr: "happy", footNote: "" };
+
+    // ----- everything except an approved partner is a single message card -----
+    const message = (o) => ({ ...base, vMessage: true, greet: o.greet, greetSub: o.sub || "", coachExpr: o.expr || "happy", msgTitle: o.title, msgBody: o.body,
+      msgHasPill: !!o.pill, msgPill: o.pill || "", msgPillBg: o.tone ? TONE[o.tone][0] : "", msgPillFg: o.tone ? TONE[o.tone][1] : "",
+      msgHasAction: !!o.action, msgAction: o.action || (() => {}), msgActionLabel: o.actionLabel || "", msgIcon: o.icon || "log-in",
+      msgHasLink: !!(o.action && o.href), msgHasLinkOnly: !!(!o.action && o.href), msgLinkHref: o.href || "", msgLinkLabel: o.hrefLabel || "" });
+
+    if (s.phase === "loading") return message({ greet: "One moment.", sub: "Opening your partner hub.", title: "Loading your partner hub", body: "This only takes a second." });
+    if (s.phase === "unavailable") return message({ greet: "We could not open the hub.", title: "Sign-in is not available right now", body: "Please try again in a little while.", expr: "speaking" });
+    if (s.phase === "error") return message({ greet: "That did not load.", title: "We could not load your partner hub", body: "Check your connection and try again.", expr: "speaking", action: () => this.load(), actionLabel: "Try again", icon: "refresh-cw" });
+    if (s.phase === "signed_out") return message({ greet: "Welcome to the partner hub.", sub: "Your links, sales and payouts in one place.", title: "Sign in to see your partner hub",
+      body: "Use the Fluency AI account that has the same email address you applied with. No account yet? Create one with that email.", action: () => { window.flAuth && window.flAuth.openLogin(); }, actionLabel: "Sign in or create an account", icon: "log-in",
+      href: "/partners", hrefLabel: "About the Partner Program" });
+
+    const st = d && d.status;
+    if (d && d.email_confirmed === false && st !== "approved") return message({ greet: "One more step.", title: "Confirm your email address", body: "We could not match your account to a partner application because " + d.email + " has not been confirmed yet. Open the confirmation email we sent, then come back.", expr: "speaking" });
+    if (st === "none") return message({ greet: "You have not applied yet.", title: "Apply to the Partner Program", body: "We could not find a partner application for " + d.email + ". If you applied with a different email address, sign in with that account instead.", href: "/partners", hrefLabel: "Apply on the Partners page" });
+    if (st === "pending") return message({ greet: "Thank you for applying.", sub: "We have your application.", title: "Your application is being reviewed", pill: "Received " + day(d.application && d.application.applied_at), tone: "warning",
+      body: "We will email " + d.email + " as soon as it is decided. If you are accepted, your partner hub opens here with your code and your links.", href: "/partners", hrefLabel: "Back to the Partners page" });
+    if (st === "rejected") return message({ greet: "Thank you for applying.", title: "We could not offer you a place right now", pill: "Not accepted", tone: "neutral", expr: "speaking",
+      body: "You are welcome to apply again later. We are growing the program step by step.", href: "/partners", hrefLabel: "Back to the Partners page" });
+    if (st === "paused") return message({ greet: "Your partner account is paused.", title: "Your partner account is on hold", pill: "Paused", tone: "warning", expr: "speaking",
+      body: "Your code is not earning right now. Please reply to your welcome email and we will sort it out with you." });
+
+    // ----- approved partner -----
+    const p = d.partner, t = d.totals, rules = d.rules || { hold_days: 14, min_payout_cents: 2000 };
+    const first = String(p.name || "").trim().split(/\s+/)[0] || "there";
+    const rate = Math.round((p.rate || 0.2) * 100);
+    const T = [["overview", "Overview", "layout-dashboard"], ["sales", "Sales", "receipt"], ["links", "Links", "link"], ["payouts", "Payouts", "wallet"]];
+    const tab = s.tab;
+    const pill = (on) => ({ bg: on ? "var(--teal-600)" : "rgba(255,255,255,.05)", bd: on ? "var(--teal-400)" : "rgba(255,255,255,.14)", fg: on ? "#fff" : "var(--ink-200)" });
+    const link = (target) => {
+      if (!target || target === "home") return "https://fluencyai.app/r/" + p.code;
+      if (target === "store" || target === "pricing") return "https://fluencyai.app/r/" + p.code + "/" + target;
+      return "https://fluencyai.app/store?ref=" + p.code + "#guide=" + target;
+    };
+    const homeLink = link("home");
+    const greets = {
+      overview: ["Hi " + first + ".", t.sales + " credited sale" + (t.sales === 1 ? "" : "s") + " so far, and " + num(t.signups_all) + " account" + (t.signups_all === 1 ? "" : "s") + " created with your code."],
+      sales: ["Every sale with your code.", "Each one is held for " + rules.hold_days + " days in case of a refund, then it is ready to pay."],
+      links: ["Link the exact page.", "People buy more when the link opens what they asked about."],
+      payouts: ["Paid monthly.", "Once you have " + money(rules.min_payout_cents) + " or more ready to pay, after the " + rules.hold_days + "-day refund hold."],
+    };
+    const KIND = { app_subscription: "App subscription", exam_blueprint: "Exam blueprint" };
+    const ST = { held: ["warning", "In hold"], payable: ["brand", "Ready to pay"], paid: ["success", "Paid out"], reversed: ["danger", "Refunded"] };
+    const sales = (d.sales || []).map((x) => ({ ...x, date: day(x.at), name: x.product || KIND[x.kind] || "Sale", kindLabel: KIND[x.kind] || x.kind, state: x.state,
+      statusLabel: x.state === "held" ? "In hold until " + day(x.eligible_at) : ST[x.state][1], tone: ST[x.state][0] }));
+    const shown = sales.filter((x) => s.filter === "all" || x.state === s.filter).map((x) => { const c = TONE[x.tone];
+      return { ...x, tbg: c[0], tfg: c[1], grossLabel: money(x.gross_cents), amtColor: x.state === "reversed" ? "var(--ink-500)" : x.state === "paid" ? "var(--mint-300)" : "#fff",
+        commissionLabel: x.state === "reversed" ? "$0.00" : money(x.commission_cents) }; });
+    const maxClicks = Math.max(1, ...((d.by_day || []).map((x) => x.clicks)));
+    const bars = (d.by_day || []).map((x) => ({ h: x.clicks ? Math.max(6, Math.round(x.clicks / maxClicks * 100)) + "%" : "3px", c: x.clicks ? "var(--teal-400)" : "rgba(255,255,255,.12)", title: day(x.day) + ": " + x.clicks + (x.clicks === 1 ? " open" : " opens") }));
+    const owed = t.payable_cents, min = rules.min_payout_cents;
+    const topClicks = Math.max(1, t.clicks_30d);
+    return { ...base,
+      tabs: T.map(([v, label, icon]) => ({ label, icon, sel: String(tab === v), bg: tab === v ? "rgba(16,184,184,.16)" : "transparent", fg: tab === v ? "#fff" : "var(--ink-300)", pick: () => this.setState({ tab: v }) })),
+      vOverview: tab === "overview", vSales: tab === "sales", vLinks: tab === "links", vPayouts: tab === "payouts",
+      greet: greets[tab][0], greetSub: greets[tab][1], coachExpr: tab === "overview" ? "happy" : "speaking",
+      code: p.code, codeNote: "You earn " + rate + "% on a referred person's first app subscription and on every exam blueprint sold through your link. Anyone who uses your code or link gets a discount at checkout.",
+      homeLink: homeLink.replace("https://", ""), copyHome: () => this.copyText(homeLink, "home"), copyHomeLabel: s.copied === "home" ? "Copied" : "Copy link",
+      kpis: [
+        { label: "Ready to pay", v: money(owed), note: owed >= min ? "In the next monthly payout" : "Paid monthly from " + money(min), noteColor: "var(--mint-300)" },
+        { label: "In the " + rules.hold_days + "-day hold", v: money(t.held_cents), note: "Becomes payable after the refund window", noteColor: "var(--ink-400)" },
+        { label: "Accounts created", v: num(t.signups_30d), note: "With your code, last 30 days (" + num(t.signups_all) + " in total)", noteColor: "var(--ink-400)" },
+        { label: "Paid out so far", v: money(t.paid_cents), note: t.reversed_cents ? money(t.reversed_cents) + " refunded, not counted" : "All time", noteColor: "var(--ink-400)" },
+      ],
+      funnel: [
+        { label: "People who opened your links", value: num(t.clicks_30d), w: "100%", c: "var(--ink-500)", note: "Last 30 days. Opens are never paid." },
+        { label: "Accounts created with your code", value: num(t.signups_30d), w: Math.min(100, Math.max(t.signups_30d ? 6 : 0, t.signups_30d / topClicks * 100)) + "%", c: "var(--teal-400)", note: "Last 30 days." },
+        { label: "Sales credited to you", value: num(t.sales), w: Math.min(100, Math.max(t.sales ? 6 : 0, t.sales / topClicks * 100)) + "%", c: "var(--mint-400)", note: "All time. The only things that earn commission." },
+      ],
+      bars, barsLabel: "Link opens per day for the last 30 days",
+      owed: money(owed), payPct: Math.min(100, owed / min * 100) + "%",
+      payNote: owed >= min ? "Over the " + money(min) + " minimum, so it goes out in the next monthly payout." : money(min - owed) + " more ready to pay to reach the " + money(min) + " minimum." + (t.held_cents ? " " + money(t.held_cents) + " more is still in the refund hold." : ""),
+      payoutTo: "Payouts are arranged by email. Reply to your welcome email to tell us how you would like to be paid.",
+      saleFilters: [["all", "All"], ["held", "In hold"], ["payable", "Ready to pay"], ["paid", "Paid out"], ["reversed", "Refunded"]].map(([v, label]) => ({ label, sel: String(s.filter === v), ...pill(s.filter === v), pick: () => this.setState({ filter: v }) })),
+      sales: shown, noSales: shown.length === 0,
+      noSalesText: sales.length === 0 ? "No sales yet. Share your link and they will appear here. App subscription sales show up once the apps are live." : "Nothing in this view.",
+      targets: [{ value: "home", label: "Home page" }, { value: "store", label: "The store" }, { value: "pricing", label: "Pricing" }].concat(D && D.GUIDES ? D.GUIDES.map((g) => ({ value: g.id, label: g.name + " guide" })) : []),
+      target: s.target, setTarget: (e) => this.setState({ target: e.target.value, copied: "" }), builtLink: link(s.target).replace("https://", ""),
+      copy: () => this.copyText(link(s.target), "built"), copyLabel: s.copied === "built" ? "Copied" : "Copy",
+      howItems: [
+        { title: "Your code is remembered for 30 days", text: "When someone opens your link, their browser remembers your code. If they buy within 30 days, the sale is credited to you." },
+        { title: "Your audience gets a discount", text: "Anyone who comes through your link or uses your code gets a discount at checkout." },
+        { title: "App subscriptions", text: rate + "% of the first subscription payment from someone who signed up with your code. Renewals do not earn commission." },
+        { title: "Exam blueprints", text: rate + "% of every exam blueprint bought through your link, on the Selar sales page." },
+      ],
+      payouts: (d.payouts || []).map((x) => ({ id: x.id, date: day(x.at), ref: x.reference || "Paid", amount: money(x.amount_cents) })),
+      noPayouts: (d.payouts || []).length === 0, noPayoutsText: "No payouts yet. Payouts are made monthly once you have " + money(min) + " or more ready to pay.",
+      footNote: "Numbers update as sales are confirmed. Refunds before payout are taken off. Questions? Reply to your welcome email.",
+    };
+  }
+}
+</script>
+
+</body>
+</html>

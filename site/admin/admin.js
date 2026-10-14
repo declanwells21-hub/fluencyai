@@ -96,6 +96,8 @@
       await loadUsers();
       await loadCreators();
       await loadApplications();
+      loadCreditUsage(); // has its own error handling, so a missing migration never blocks the dashboard
+      loadPartnerPayouts(); // same
       try {
         await loadWaitlistStats();
       } catch (err) {
@@ -228,6 +230,7 @@
           <td style="white-space:nowrap">
             <button class="row-btn" data-action="${isAdmin ? 'demote' : 'promote'}" data-id="${u.id}">${isAdmin ? 'Demote' : 'Promote'}</button>
             <button class="row-btn" data-action="${isSubscribed ? 'revoke' : 'grant'}" data-id="${u.id}">${isSubscribed ? 'Revoke' : 'Grant'}</button>
+            <button class="row-btn" data-action="credits" data-id="${u.id}" data-email="${u.email}">Credits</button>
             <button class="row-btn" data-action="${isSuspended ? 'unsuspend' : 'suspend'}" data-id="${u.id}">${isSuspended ? 'Unsuspend' : 'Suspend'}</button>
             <button class="row-btn" data-action="delete" data-id="${u.id}" data-email="${u.email}" style="border-color:var(--coral-400);color:var(--coral-400)">Delete</button>
           </td>
@@ -246,6 +249,10 @@
     if (!btn) return;
     const { action, id, email } = btn.dataset;
 
+    if (action === 'credits') {
+      await handleCredits(id, email);
+      return;
+    }
     if (action === 'delete') {
       if (!confirm(`Permanently delete ${email}? This deletes their account and all their data. This cannot be undone.`)) {
         return;
@@ -287,6 +294,136 @@
       btn.disabled = false;
     }
   });
+
+  // ---------- Partner payouts ----------
+
+  async function loadPartnerPayouts() {
+    const box = document.getElementById('partner-payouts');
+    box.textContent = 'Loading...';
+    try {
+      const d = await apiFetch('/admin/partner-balances');
+      if (!d.partners.length) {
+        box.textContent = 'No partners yet.';
+        return;
+      }
+      const min = d.minPayoutCents;
+      const th = (t) => `<th style="text-align:left;padding:6px 10px;color:var(--tx-3);font-weight:600">${t}</th>`;
+      const td = (t) => `<td style="padding:6px 10px">${t}</td>`;
+      const rows = d.partners.map((p) => {
+        const canPay = p.payable_cents >= min;
+        const last = p.last_paid_at ? new Date(p.last_paid_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+        return `<tr>
+          ${td(`<b style="color:var(--tx)">${escHtml(p.name)}</b><br><code style="color:var(--teal-400)">${escHtml(p.code)}</code><br><span style="color:var(--tx-3)">${escHtml(p.contact_email || '')}</span>`)}
+          ${td(p.account_linked ? 'Yes' : '<span style="color:var(--tx-3)">Not yet</span>')}
+          ${td(p.welcome_email_sent_at ? 'Yes' : '<span style="color:var(--coral-400)">Not sent</span>')}
+          ${td(`<b style="color:${canPay ? 'var(--mint-400)' : 'var(--tx)'}">${money(p.payable_cents)}</b>${canPay ? '' : ` <span style="color:var(--tx-3)">(minimum ${money(min)})</span>`}`)}
+          ${td(money(p.held_cents))}
+          ${td(money(p.paid_cents))}
+          ${td(last)}
+          ${td(`<button class="row-btn" data-payout-id="${p.id}" data-payout-name="${escHtml(p.name)}" data-payout-amount="${p.payable_cents}" ${canPay ? '' : 'disabled'}>Mark paid</button>`)}
+        </tr>`;
+      }).join('');
+      box.innerHTML = `<table><thead><tr>${th('Partner')}${th('Signed in to hub')}${th('Welcome email')}${th('Ready to pay')}${th('In hold')}${th('Paid so far')}${th('Last paid')}${th('')}</tr></thead><tbody>${rows}</tbody></table>`;
+    } catch (err) {
+      box.textContent = 'Partner payouts are not available yet (' + err.message + '). Has scripts/supabase_migration_partner_hub.sql been run?';
+    }
+  }
+  document.getElementById('payouts-refresh').addEventListener('click', loadPartnerPayouts);
+  document.getElementById('partner-payouts').addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-payout-id]');
+    if (!btn) return;
+    const { payoutId, payoutName, payoutAmount } = btn.dataset;
+    const reference = prompt(
+      `Record a payout of ${money(Number(payoutAmount))} to ${payoutName}.\n\nDo this AFTER you have actually paid them. Enter the payment reference (for example the bank transfer reference), or leave it empty. Press Cancel to stop.`,
+      ''
+    );
+    if (reference === null) return;
+    btn.disabled = true;
+    try {
+      const out = await apiFetch('/admin/partner-payout', { method: 'POST', body: JSON.stringify({ creatorId: payoutId, reference }) });
+      alert(`Recorded: ${money(out.amount_cents)} paid to ${payoutName} (${out.commissions} commission${out.commissions === 1 ? '' : 's'}).`);
+      await loadPartnerPayouts();
+      loadCreators();
+    } catch (err) {
+      alert(err.message);
+      btn.disabled = false;
+    }
+  });
+
+  // ---------- Credits ----------
+
+  function escHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  const fmtNum = (n) => Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
+
+  // Shows a person's credits and lets an admin add top-up credits (they never expire). Used for early-access
+  // and waitlist members and for support. The key stops a double click from granting twice.
+  async function handleCredits(id, email) {
+    let info;
+    try {
+      info = await apiFetch('/admin/credits-balance?userId=' + encodeURIComponent(id));
+    } catch (err) {
+      alert(err.message);
+      return;
+    }
+    const b = info.balance;
+    const answer = prompt(
+      `${email} has ${b.total} credits (monthly ${b.monthly}, top-up ${b.topup}).\n\nHow many top-up credits do you want to add? They never expire. Press Cancel to leave things as they are.`,
+      '500'
+    );
+    if (answer === null) return;
+    const amount = Number(answer.trim());
+    if (!Number.isInteger(amount) || amount < 1) {
+      alert('Enter a whole number, for example 500.');
+      return;
+    }
+    const note = prompt('A short note for the record (optional):', 'early access');
+    if (note === null) return;
+    try {
+      const out = await apiFetch('/admin/credits-grant', {
+        method: 'POST',
+        body: JSON.stringify({ userId: id, amount, note, idempotencyKey: window.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) }),
+      });
+      alert(`Done. ${email} now has ${out.balance.total} credits.`);
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  async function loadCreditUsage() {
+    const box = document.getElementById('credit-usage');
+    const modeEl = document.getElementById('credit-mode');
+    box.textContent = 'Loading...';
+    try {
+      const d = await apiFetch('/admin/credits-usage?days=' + encodeURIComponent(document.getElementById('credit-days').value));
+      const modeText = {
+        off: 'Credits are OFF: nothing is being recorded. Set CREDITS_MODE=shadow in Vercel to start measuring real usage.',
+        shadow: 'Shadow mode: usage is recorded with what it would cost, and nobody is charged or blocked.',
+        enforce: 'Enforced: credits are being charged, and people with none left are stopped.',
+      };
+      modeEl.textContent = modeText[d.mode] || '';
+      if (!d.by_route.length) {
+        box.textContent = 'No usage recorded in this period yet.';
+        return;
+      }
+      const th = (t) => `<th style="text-align:left;padding:6px 10px;color:var(--tx-3);font-weight:600">${t}</th>`;
+      const td = (t) => `<td style="padding:6px 10px">${t}</td>`;
+      const routes = d.by_route.map((r) =>
+        `<tr>${td(escHtml(r.route))}${td(fmtNum(r.calls))}${td(fmtNum(r.credits))}${td(fmtNum(r.users))}${td(fmtNum(r.input_tokens) + ' / ' + fmtNum(r.output_tokens))}${td(fmtNum(r.audio_seconds))}${td(fmtNum(r.chars))}</tr>`
+      ).join('');
+      const users = d.top_users.map((u) => `<tr>${td(escHtml(u.email || u.user_id))}${td(fmtNum(u.credits))}${td(fmtNum(u.calls))}</tr>`).join('');
+      box.innerHTML =
+        `<table><thead><tr>${th('Endpoint')}${th('Calls')}${th('Credits')}${th('People')}${th('Tokens in / out')}${th('Audio seconds')}${th('Characters')}</tr></thead><tbody>${routes}</tbody></table>` +
+        `<div style="font-weight:600;margin:18px 0 6px;color:var(--tx)">Heaviest users</div>` +
+        `<table><thead><tr>${th('Email')}${th('Credits')}${th('Calls')}</tr></thead><tbody>${users}</tbody></table>`;
+    } catch (err) {
+      modeEl.textContent = '';
+      box.textContent = 'Credit usage is not available yet (' + err.message + '). Has scripts/supabase_migration_credits.sql been run?';
+    }
+  }
+  document.getElementById('credit-refresh').addEventListener('click', loadCreditUsage);
+  document.getElementById('credit-days').addEventListener('change', loadCreditUsage);
 
   // ---------- Communication center ----------
 
@@ -438,6 +575,7 @@
           <td><span class="pill ${isActive ? 'pill-ok' : 'pill-paused'}">${c.status}</span></td>
           <td style="white-space:nowrap">
             <button class="row-btn" data-creator-action="${isActive ? 'pause' : 'resume'}" data-id="${c.id}">${isActive ? 'Pause' : 'Resume'}</button>
+            <button class="row-btn" data-creator-action="resend" data-id="${c.id}" title="Send the 'you are accepted' email again">Resend email</button>
           </td>
         </tr>`;
       })
@@ -493,6 +631,16 @@
       if (!actionBtn) return;
       const { creatorAction, id } = actionBtn.dataset;
       actionBtn.disabled = true;
+      if (creatorAction === 'resend') {
+        try {
+          await apiFetch('/admin/creator-resend-welcome', { method: 'POST', body: JSON.stringify({ creatorId: id }) });
+          alert('Done. The welcome email has been sent again.');
+        } catch (err) {
+          alert(err.message);
+        }
+        actionBtn.disabled = false;
+        return;
+      }
       try {
         await apiFetch('/admin/creator-update', {
           method: 'POST',
@@ -563,7 +711,14 @@
           body: JSON.stringify({ applicationId: id, decision: appAction }),
         });
         if (appAction === 'approve' && result.creator) {
-          alert(`Approved! Referral code: ${result.creator.code}\nLink: https://fluencyai.app/?ref=${result.creator.code}`);
+          alert(
+            `Approved! Referral code: ${result.creator.code}\n\n` +
+              (result.emailed
+                ? 'We emailed them their code and how to sign in to the Partner Hub.'
+                : 'The email could NOT be sent. Use "Resend email" on their row in the creators table once the email settings are fixed, or tell them yourself.')
+          );
+        } else if (appAction === 'reject' && result.emailed === false) {
+          alert('Rejected. The decline email could not be sent, so you may want to let them know yourself.');
         }
         await loadApplications();
         await loadCreators();

@@ -78,9 +78,33 @@
     const expiresAt = session.expires_at || Math.floor(Date.now() / 1000) + (session.expires_in || 3600);
     const toStore = { ...session, expires_at: expiresAt };
     localStorage.setItem(SESSION_KEY, JSON.stringify(toStore));
+    announceAuthChange();
+    claimReferralOnce(toStore);
   }
   function clearSession() {
     localStorage.removeItem(SESSION_KEY);
+    announceAuthChange();
+  }
+
+  // Pages that show account-specific content (the Partner Hub) listen for this and reload what they show.
+  function announceAuthChange() {
+    try { window.dispatchEvent(new Event('fl-auth-changed')); } catch (_) { /* old browser: nothing listens anyway */ }
+  }
+
+  // If the visitor arrived through a partner link (fl-ref.js keeps it for 30 days), tell the database which partner
+  // brought this new account. The database only accepts it for accounts a few days old and never for the partner's own
+  // account. Tried once per account per browser; failures are ignored, they must never get in the way of signing in.
+  function claimReferralOnce(session) {
+    try {
+      const userId = session && session.user && session.user.id;
+      if (!userId || !session.access_token) return;
+      const flag = 'fl_ref_claim:' + userId;
+      if (localStorage.getItem(flag)) return;
+      const stored = JSON.parse(localStorage.getItem('fl_ref') || 'null');
+      if (!stored || !stored.code || (stored.at && Date.now() - stored.at > 30 * 864e5)) return;
+      localStorage.setItem(flag, '1');
+      authRequest('/rest/v1/rpc/fl_claim_referral', { body: { p_code: stored.code }, accessToken: session.access_token }).catch(() => {});
+    } catch (_) { /* never block sign-in */ }
   }
   function loadSession() {
     try {
@@ -414,7 +438,7 @@
     if (target.classList.contains('js-auth-trigger')) openModal('signup');
     else openLogin();
   });
-  window.flAuth = { openModal, closeModal, openLogin, refresh: refreshNavLoginState };
+  window.flAuth = { openModal, closeModal, openLogin, refresh: refreshNavLoginState, getSession: getValidSession };
 
   // Resume mid-flow if a code was already sent and the page reloaded - but
   // a Google redirect (if that's why we're here) takes priority over a

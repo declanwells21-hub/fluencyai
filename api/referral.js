@@ -73,11 +73,16 @@ async function handleClick(req, res, body) {
     return res.status(200).json({ ok: true });
   }
 
+  // Beacons are public, so cap them per connection. Over the cap is still answered 200 (same reason as above).
+  const limited = await hit(`referral_click:ip:${getClientIp(req)}`, { windowSeconds: 3600, max: 120 });
+  if (!limited.allowed) return res.status(200).json({ ok: true });
+
   const supabase = getServiceClient();
+  // Codes are matched ignoring case (the site sends them upper-case). "_" is a wildcard in ILIKE, so escape it.
   const { data: creator } = await supabase
     .from('creators')
-    .select('id, status')
-    .eq('code', code)
+    .select('id, code, status')
+    .ilike('code', code.replace(/_/g, '\\_'))
     .maybeSingle();
 
   if (!creator || creator.status !== 'active') {
@@ -86,7 +91,7 @@ async function handleClick(req, res, body) {
 
   const { error } = await supabase.from('referral_events').insert({
     creator_id: creator.id,
-    code,
+    code: creator.code,
     event_type: 'click',
     meta: {
       referrer: req.headers.referer || null,

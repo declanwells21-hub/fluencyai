@@ -33,6 +33,9 @@
 
 const { requireAdmin } = require('../_lib/adminAuth');
 const { sendBrandedEmail } = require('../_lib/emailTemplate');
+const adminCredits = require('../_lib/adminCredits');
+const adminPartners = require('../_lib/adminPartners');
+const { sendDecisionEmail } = require('../_lib/partnerEmails');
 
 module.exports = async (req, res) => {
   try {
@@ -85,6 +88,24 @@ module.exports = async (req, res) => {
     }
     if (route === 'waitlist-notify-launch' && req.method === 'POST') {
       return handleWaitlistNotifyLaunch(auth, req, res);
+    }
+    if (route === 'partner-balances' && req.method === 'GET') {
+      return adminPartners.handlePartnerBalances(auth, req, res);
+    }
+    if (route === 'partner-payout' && req.method === 'POST') {
+      return adminPartners.handlePartnerPayout(auth, req, res);
+    }
+    if (route === 'creator-resend-welcome' && req.method === 'POST') {
+      return adminPartners.handleCreatorResendWelcome(auth, req, res);
+    }
+    if (route === 'credits-grant' && req.method === 'POST') {
+      return adminCredits.handleCreditsGrant(auth, req, res);
+    }
+    if (route === 'credits-balance' && req.method === 'GET') {
+      return adminCredits.handleCreditsBalance(auth, req, res);
+    }
+    if (route === 'credits-usage' && req.method === 'GET') {
+      return adminCredits.handleCreditsUsage(auth, req, res);
     }
 
     return res.status(404).json({ error: 'Unknown admin route: ' + route });
@@ -523,7 +544,18 @@ async function handleApplicationDecide(auth, req, res) {
     return res.status(500).json({ error: updateErr.message });
   }
 
-  res.status(200).json({ ok: true, applicationId, decision, creator: createdCreator });
+  // Tell the applicant. A failed email never undoes the decision; the response says whether it went out.
+  const emailed = await sendDecisionEmail(decision, {
+    name: application.name,
+    email: application.email,
+    code: createdCreator && createdCreator.code,
+    rate: createdCreator && createdCreator.commission_rate,
+  });
+  if (emailed && createdCreator) {
+    await auth.supabase.from('creators').update({ welcome_email_sent_at: new Date().toISOString() }).eq('id', createdCreator.id);
+  }
+
+  res.status(200).json({ ok: true, applicationId, decision, creator: createdCreator, emailed });
 }
 
 // ---------- Waitlist ----------

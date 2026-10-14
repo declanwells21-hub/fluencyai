@@ -66,6 +66,10 @@
       "destination": "/partners.html"
     },
     {
+      "source": "/partner-hub",
+      "destination": "/partner-hub.html"
+    },
+    {
       "source": "/about",
       "destination": "/about.html"
     },

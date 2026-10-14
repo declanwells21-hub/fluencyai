@@ -24,7 +24,7 @@ function escapeHtml(str) {
 // Plain-text body in, branded HTML out. A blank line starts a new
 // paragraph. A block of lines that all start with "- " becomes a bullet
 // list, so callers can write plain text and still get a tidy email.
-function buildEmailHtml(subject, textBody) {
+function buildEmailHtml(subject, textBody, footerNote) {
   const blocks = String(textBody).split(/\n\s*\n/);
   const html = blocks
     .map((block) => {
@@ -55,7 +55,7 @@ ${html}
 </td></tr>
 <tr><td style="padding:20px 36px 0 36px;"><div style="height:1px;background-color:#E2E8F0;width:100%;"></div></td></tr>
 <tr><td align="center" style="padding:20px 36px 36px 36px;">
-<p style="margin:0;font-size:12px;line-height:18px;color:#94A3B8;">Sent by Fluency AI<br>You're receiving this because you joined the Fluency AI waitlist.</p>
+<p style="margin:0;font-size:12px;line-height:18px;color:#94A3B8;">Sent by Fluency AI<br>${escapeHtml(footerNote || "You're receiving this because you joined the Fluency AI waitlist.")}</p>
 </td></tr>
 </table>
 </td></tr>
@@ -63,7 +63,7 @@ ${html}
 </body></html>`;
 }
 
-async function sendBrandedEmail({ to, subject, textBody }) {
+async function sendBrandedEmail({ to, subject, textBody, footerNote }) {
   const BREVO_API_KEY = process.env.BREVO_API_KEY;
   const FROM_EMAIL = process.env.EMAIL_FROM_ADDRESS;
   const FROM_NAME = process.env.EMAIL_FROM_NAME || 'Fluency AI';
@@ -72,7 +72,7 @@ async function sendBrandedEmail({ to, subject, textBody }) {
     throw new Error('Email sending is not configured (missing BREVO_API_KEY or EMAIL_FROM_ADDRESS env vars).');
   }
 
-  const htmlContent = buildEmailHtml(subject, textBody);
+  const htmlContent = buildEmailHtml(subject, textBody, footerNote);
 
   const brevoRes = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',

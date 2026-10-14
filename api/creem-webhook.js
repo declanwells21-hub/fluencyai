@@ -157,6 +157,23 @@ module.exports = async (req, res) => {
     if (error && !String(error.message || '').includes('duplicate key')) {
       console.error('creem-webhook: referral conversion insert failed:', error.message);
     }
+
+    // Partner Hub: the commission itself. Earned on a referred person's FIRST app payment only, held 14 days,
+    // and safe to repeat (see scripts/supabase_migration_partner_hub.sql). Never fails the webhook.
+    try {
+      const { error: commissionErr } = await supabase.rpc('fl_record_partner_commission', {
+        p_code: code,
+        p_kind: 'app_subscription',
+        p_user: userId,
+        p_gross_cents: amountCents || 0,
+        p_currency: currency || 'usd',
+        p_source_ref: creemEventId,
+        p_product: 'Fluency AI app',
+      });
+      if (commissionErr) console.error('creem-webhook: partner commission failed:', commissionErr.message);
+    } catch (err) {
+      console.error('creem-webhook: partner commission failed:', err.message);
+    }
   }
 
   try {

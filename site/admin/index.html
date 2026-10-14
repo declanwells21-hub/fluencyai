@@ -190,6 +190,27 @@ td.email{color:var(--tx);font-weight:600}
         </div>
       </div>
       <div class="card" style="margin-top:28px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px">
+          <div style="font-weight:700">Credit usage</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select id="credit-days" style="background:none;border:1px solid var(--hair);color:var(--tx-2);padding:6px 10px;border-radius:8px;font:inherit;font-size:13px">
+              <option value="1">Last day</option><option value="7" selected>Last 7 days</option><option value="30">Last 30 days</option>
+            </select>
+            <button class="row-btn" id="credit-refresh" type="button">Refresh</button>
+          </div>
+        </div>
+        <p id="credit-mode" style="color:var(--tx-3);font-size:13px;margin:0 0 12px"></p>
+        <div id="credit-usage" style="overflow-x:auto;color:var(--tx-2);font-size:13px"></div>
+      </div>
+      <div class="card" style="margin-top:28px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px">
+          <div style="font-weight:700">Partner payouts</div>
+          <button class="row-btn" id="payouts-refresh" type="button">Refresh</button>
+        </div>
+        <p style="color:var(--tx-3);font-size:13px;margin:0 0 12px">Commissions are held 14 days, then become ready to pay. Pay each partner monthly once they reach $20, then press Mark paid to record it. Partners see their payouts in their Partner Hub.</p>
+        <div id="partner-payouts" style="overflow-x:auto;color:var(--tx-2);font-size:13px"></div>
+      </div>
+      <div class="card" style="margin-top:28px">
         <div style="font-weight:700;margin-bottom:6px">Waitlist</div>
         <p style="color:var(--tx-3);font-size:13px;margin:0 0 10px">People who joined the "Join the waitlist" section on the homepage, waiting for iOS and Android to go live.</p>
         <div id="waitlist-totals" style="color:var(--tx-3);font-size:13px;margin-bottom:16px"></div>

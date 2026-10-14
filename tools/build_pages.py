@@ -4,10 +4,13 @@ Templates are compiled by dc2js.py; the page is pre-rendered by running the same
 import sys,os,re,subprocess,time,json
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import dc2js
+import shutil,glob
 from playwright.sync_api import sync_playwright
 SITE=os.environ.get('SITE_DIR','/home/claude/work3/site/')
 H=dc2js.HANDOFF
-PAGES={'store':('Store','Store v3.dc.html','/store'),'pricing':('Pricing','Pricing v3.dc.html','/pricing'),'partners':('Partners','Partners v3.dc.html','/partners')}
+# Templates written for the live site (not part of the design handoff) live in tools/hub/; put them beside the handoff files.
+for _f in glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)),'hub','*.dc.html')): shutil.copy(_f,H)
+PAGES={'store':('Store','Store v3.dc.html','/store'),'pricing':('Pricing','Pricing v3.dc.html','/pricing'),'partners':('Partners','Partners v3.dc.html','/partners'),'partner-hub':('PartnerHub','Partner Hub live.dc.html','/partner-hub')}
 # shared components (compiled once)
 comp=dc2js.compile_file('Coach','Coach.dc.html')+dc2js.compile_file('GuideCover','GuideCover.dc.html')
 # The handoff's covers were 1600x1600 mockups cropped by CSS; the site uses the /guides covers, which are already the cover.
@@ -33,21 +36,27 @@ _SI_BEFORE = {'store': '"<label"+',
               'pricing': 'H.imp("FluencyAIDesignSystem_b0c8f6.Button"',
               'partners': '"<a"+" href=' + _Q + '/partners' + _Q + '"+" style=' + _Q + 'display:inline-flex;align-items:center;height:36px'}
 def add_signin(key, js):
+    if key not in _SI_BEFORE: return js   # the Partner Hub has its own header
     a = _SI_END + _SI_BEFORE[key]
     assert js.count(a) == 1, (key, 'nav anchor not found')
     return js.replace(a, _SI_END + _SI_JS + _SI_BEFORE[key])
 
+_Q2 = '\\"'
+PARTNER_HUB_OLD = '"<a"+" href=' + _Q2 + '/partners' + _Q2 + '"+" style=' + _Q2 + 'display:inline-flex;align-items:center;height:36px'
+PARTNER_HUB_NEW = '"<a"+" href=' + _Q2 + '/partner-hub' + _Q2 + '"+" style=' + _Q2 + 'display:inline-flex;align-items:center;height:36px'
 def build(key):
     name,fname,route=PAGES[key]
     js=dc2js.compile_file(name,fname)
     js=add_signin(key,js)
+    if key=='partners': js=js.replace(PARTNER_HUB_OLD,PARTNER_HUB_NEW)   # the nav button opens the real hub
     open(SITE+f'assets/js/{key}.js','w',encoding='utf-8').write(f'/* {name} page, compiled from the design handoff ({fname}) by tools/dc2js.py. */\n'+js+
       f'(function(){{function go(){{FLDC.mount(document.getElementById("app"),"{name}",{{}});}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",go);else go();}})();\n')
     meta,css=head_for(fname,route)
     scripts=['/fluency-config.js','/fluency-data.js','/assets/js/fl-icons.js','/assets/js/fl-dc.js','/assets/js/fl-components.js',f'/assets/js/{key}.js']+(['/fl-forms.js'] if key=='partners' else [])+['/fl-motion.js','/assets/js/fluency-coach.js','/assets/js/fl-ref.js','/config.js','/assets/js/fl-account.js','/auth.js']
+    ROBOTS='noindex, nofollow' if key=='partner-hub' else 'index, follow'
     def page(app):
         return ('<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'+meta+
-          f'\n<meta name="robots" content="index, follow">\n<link rel="canonical" href="https://fluencyai.app{route}">\n<meta property="og:url" content="https://fluencyai.app{route}">\n<link rel="icon" href="/assets/logo-appicon.png">\n<link rel="stylesheet" href="/ds/styles.css">\n<link rel="stylesheet" href="/ds/components.css">\n<link rel="stylesheet" href="/assets/css/fl-account.css">\n<style>\nhtml,body{{height:100%;margin:0}}#app{{height:100%}}\n'+css+'\n</style>\n</head>\n<body>\n<div id="app">'+app+'</div>\n'+
+          f'\n<meta name="robots" content="{ROBOTS}">\n<link rel="canonical" href="https://fluencyai.app{route}">\n<meta property="og:url" content="https://fluencyai.app{route}">\n<link rel="icon" href="/assets/logo-appicon.png">\n<link rel="stylesheet" href="/ds/styles.css">\n<link rel="stylesheet" href="/ds/components.css">\n<link rel="stylesheet" href="/assets/css/fl-account.css">\n<style>\nhtml,body{{height:100%;margin:0}}#app{{height:100%}}\n'+css+'\n</style>\n</head>\n<body>\n<div id="app">'+app+'</div>\n'+
           '\n'.join(f'<script src="{s}"></script>' for s in scripts)+'\n</body>\n</html>\n')
     tmp=SITE+f'_pre_{key}.html'; open(tmp,'w',encoding='utf-8').write(page('').replace('<script src="/fl-motion.js"></script>\n','').replace('<script src="/assets/js/fluency-coach.js"></script>\n','').replace('<script src="/assets/js/fl-ref.js"></script>\n','').replace('<script src="/config.js"></script>\n','').replace('<script src="/assets/js/fl-account.js"></script>\n','').replace('<script src="/auth.js"></script>\n',''))
     port=8830+list(PAGES).index(key)
