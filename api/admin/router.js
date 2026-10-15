@@ -34,6 +34,7 @@
 const { requireAdmin } = require('../_lib/adminAuth');
 const { sendBrandedEmail } = require('../_lib/emailTemplate');
 const adminCredits = require('../_lib/adminCredits');
+const adminSelar = require('../_lib/adminSelar');
 const adminPartners = require('../_lib/adminPartners');
 const { sendDecisionEmail } = require('../_lib/partnerEmails');
 
@@ -106,6 +107,15 @@ module.exports = async (req, res) => {
     }
     if (route === 'credits-usage' && req.method === 'GET') {
       return adminCredits.handleCreditsUsage(auth, req, res);
+    }
+    if (route === 'selar-orders' && req.method === 'GET') {
+      return adminSelar.handleSelarOrders(auth, req, res);
+    }
+    if (route === 'selar-order-attribute' && req.method === 'POST') {
+      return adminSelar.handleSelarOrderAttribute(auth, req, res);
+    }
+    if (route === 'selar-order-refund' && req.method === 'POST') {
+      return adminSelar.handleSelarOrderRefund(auth, req, res);
     }
 
     return res.status(404).json({ error: 'Unknown admin route: ' + route });

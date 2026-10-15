@@ -211,6 +211,24 @@ td.email{color:var(--tx);font-weight:600}
         <div id="partner-payouts" style="overflow-x:auto;color:var(--tx-2);font-size:13px"></div>
       </div>
       <div class="card" style="margin-top:28px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px">
+          <div style="font-weight:700">Exam blueprint orders (Selar)</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <select id="selar-filter" class="row-btn" aria-label="Filter orders">
+              <option value="">All orders</option>
+              <option value="unattributed">Needs a partner</option>
+              <option value="needs_review">Needs a dollar amount</option>
+              <option value="error">Errors</option>
+              <option value="commission_recorded">With commission</option>
+              <option value="refunded">Refunded</option>
+            </select>
+            <button class="row-btn" id="selar-refresh" type="button">Refresh</button>
+          </div>
+        </div>
+        <p style="color:var(--tx-3);font-size:13px;margin:0 0 12px">Every sale Selar reports lands here. Orders where a partner code was found get a commission automatically. If an order shows "Needs a partner" or "Needs a dollar amount", press Assign and enter the partner's code. "Raw" shows exactly what Selar sent.</p>
+        <div id="selar-orders" style="overflow-x:auto;color:var(--tx-2);font-size:13px"></div>
+      </div>
+      <div class="card" style="margin-top:28px">
         <div style="font-weight:700;margin-bottom:6px">Waitlist</div>
         <p style="color:var(--tx-3);font-size:13px;margin:0 0 10px">People who joined the "Join the waitlist" section on the homepage, waiting for iOS and Android to go live.</p>
         <div id="waitlist-totals" style="color:var(--tx-3);font-size:13px;margin-bottom:16px"></div>

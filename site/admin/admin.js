@@ -98,6 +98,7 @@
       await loadApplications();
       loadCreditUsage(); // has its own error handling, so a missing migration never blocks the dashboard
       loadPartnerPayouts(); // same
+      loadSelarOrders(); // same
       try {
         await loadWaitlistStats();
       } catch (err) {
@@ -292,6 +293,91 @@
     } catch (err) {
       alert(err.message);
       btn.disabled = false;
+    }
+  });
+
+  // ---------- Selar orders ----------
+
+  const SELAR_STATUS = {
+    received: ['Received', 'var(--tx-3)'], commission_recorded: ['Commission', 'var(--mint-400)'], unattributed: ['Needs a partner', 'var(--coral-400)'],
+    needs_review: ['Needs a dollar amount', 'var(--coral-400)'], self_referral: ['Own purchase', 'var(--tx-3)'], ignored: ['Ignored', 'var(--tx-3)'],
+    refunded: ['Refunded', 'var(--tx-3)'], error: ['Error', 'var(--coral-400)'],
+  };
+
+  async function loadSelarOrders() {
+    const box = document.getElementById('selar-orders');
+    box.textContent = 'Loading...';
+    try {
+      const status = document.getElementById('selar-filter').value;
+      const d = await apiFetch('/admin/selar-orders' + (status ? '?status=' + encodeURIComponent(status) : ''));
+      if (!d.orders.length) {
+        box.textContent = status ? 'No orders with that status.' : 'No orders yet. Once Selar is connected, every sale appears here.';
+        return;
+      }
+      const th = (t) => `<th style="text-align:left;padding:6px 10px;color:var(--tx-3);font-weight:600">${t}</th>`;
+      const td = (t) => `<td style="padding:6px 10px;vertical-align:top">${t}</td>`;
+      const rows = d.orders.map((o) => {
+        const [label, color] = SELAR_STATUS[o.status] || [o.status, 'var(--tx-3)'];
+        const when = new Date(o.received_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        const paid = o.amount !== null && o.amount !== undefined ? `${Number(o.amount).toLocaleString('en-US')} ${escHtml(o.currency || '')}` : '—';
+        const usd = o.gross_cents_usd ? `<br><span style="color:var(--tx-3)">${money(o.gross_cents_usd)}${o.fx_rate ? ' (converted)' : ''}</span>` : '';
+        const partner = o.partner_code ? `<code style="color:var(--teal-400)">${escHtml(o.partner_code)}</code><br><span style="color:var(--tx-3)">${o.commission_cents ? money(o.commission_cents) + ' · ' : ''}${escHtml(o.code_source || '')}</span>` : '<span style="color:var(--tx-3)">—</span>';
+        const canAssign = ['unattributed', 'needs_review', 'error', 'received'].includes(o.status);
+        const canRefund = ['commission_recorded', 'self_referral', 'unattributed', 'needs_review'].includes(o.status);
+        const actions = [
+          canAssign ? `<button class="row-btn" data-selar-assign="${o.id}" data-selar-needs-usd="${o.gross_cents_usd ? '' : '1'}">Assign</button>` : '',
+          canRefund ? `<button class="row-btn" data-selar-refund="${o.id}">Refunded</button>` : '',
+          `<button class="row-btn" data-selar-raw="${o.id}">Raw</button>`,
+        ].join(' ');
+        return `<tr>
+          ${td(when)}
+          ${td(`<b style="color:var(--tx)">${escHtml(o.product_name || 'Unknown product')}</b><br><span style="color:var(--tx-3)">${escHtml(o.buyer_email || '')}</span>`)}
+          ${td(paid + usd)}
+          ${td(partner)}
+          ${td(`<b style="color:${color}">${label}</b>${o.note ? `<br><span style="color:var(--tx-3)">${escHtml(o.note)}</span>` : ''}`)}
+          ${td(actions)}
+        </tr>`;
+      }).join('');
+      box.innerHTML = `<table><thead><tr>${th('Date')}${th('Order')}${th('Paid')}${th('Partner')}${th('Status')}${th('')}</tr></thead><tbody>${rows}</tbody></table>`;
+    } catch (err) {
+      box.textContent = 'Selar orders are not available yet (' + err.message + '). Has scripts/supabase_migration_selar.sql been run?';
+    }
+  }
+  document.getElementById('selar-refresh').addEventListener('click', loadSelarOrders);
+  document.getElementById('selar-filter').addEventListener('change', loadSelarOrders);
+  document.getElementById('selar-orders').addEventListener('click', async (e) => {
+    const assign = e.target.closest('button[data-selar-assign]');
+    const refund = e.target.closest('button[data-selar-refund]');
+    const raw = e.target.closest('button[data-selar-raw]');
+    try {
+      if (raw) {
+        const d = await apiFetch('/admin/selar-orders?id=' + encodeURIComponent(raw.dataset.selarRaw));
+        alert(JSON.stringify(d.order.raw, null, 2));
+      } else if (assign) {
+        const code = prompt('Which partner gets this sale? Enter their code (for example AMARA20). Press Cancel to stop.', '');
+        if (!code) return;
+        let usdAmount;
+        if (assign.dataset.selarNeedsUsd) {
+          const usd = prompt('This order has no dollar amount yet. How many US dollars did the buyer pay? (for example 9)', '');
+          if (!usd) return;
+          usdAmount = usd;
+        }
+        assign.disabled = true;
+        const out = await apiFetch('/admin/selar-order-attribute', { method: 'POST', body: JSON.stringify({ orderId: assign.dataset.selarAssign, code: code.trim(), usdAmount }) });
+        alert(out.status === 'commission_recorded' ? `Done. Commission recorded${out.commissionCents ? ': ' + money(out.commissionCents) : ''}.` : `Saved as "${out.status}".`);
+        await loadSelarOrders();
+        loadPartnerPayouts();
+      } else if (refund) {
+        if (!confirm('Mark this order as refunded? Its commission will be reversed (if it has not been paid out yet).')) return;
+        refund.disabled = true;
+        const out = await apiFetch('/admin/selar-order-refund', { method: 'POST', body: JSON.stringify({ orderId: refund.dataset.selarRefund }) });
+        alert(out.note);
+        await loadSelarOrders();
+        loadPartnerPayouts();
+      }
+    } catch (err) {
+      alert(err.message);
+      await loadSelarOrders();
     }
   });
 

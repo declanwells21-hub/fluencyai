@@ -40,7 +40,7 @@ No new serverless function was added (the project is at the 12-function limit). 
 | Link opens | A visit with `?ref=CODE` (or `/r/CODE`) reports one click per browser tab session. Opens are for insight only and are never paid. |
 | Accounts created | When someone signs up on the site after arriving through a link, the code is saved on the new account (database function `fl_claim_referral`). Only brand-new accounts (under 3 days old) can be credited, and never the partner's own. |
 | App subscription sales | The billing webhook (`creem-webhook.js`) records the commission on a referred person's checkout. One per person, ever, so renewals earn nothing. |
-| Exam blueprint sales | **Not wired yet.** They need the Selar order receiver (a later step). Until then blueprint sales do not appear in the hub. Use `fl_record_partner_commission` (kind `exam_blueprint`) from that webhook, and `fl_partner_reverse_commission` for refunds. |
+| Exam blueprint sales | Reported by Selar to `/api/selar-order`, stored in `selar_orders`, and turned into a commission when a partner code is found. See `docs/selar.md`. |
 
 Important: the billing webhook records the commission when the checkout event arrives. When the billing rework (Plus plan, top-ups) is done,
 the subscription "first payment" event should call the same function, so the rule "first payment only" keeps holding.

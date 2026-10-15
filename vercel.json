@@ -41,6 +41,10 @@
   ],
   "rewrites": [
     {
+      "source": "/api/selar-order",
+      "destination": "/api/referral?hook=selar"
+    },
+    {
       "source": "/app",
       "destination": "/app/index.html"
     },

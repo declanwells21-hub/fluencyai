@@ -40,6 +40,11 @@ function getServiceClient() {
 const CODE_RE = /^[A-Za-z0-9_-]{3,32}$/;
 
 module.exports = async (req, res) => {
+  // Selar's order notifications arrive here too (rewrite /api/selar-order in vercel.json): the project is at the
+  // 12-function limit, so this one function carries both jobs.
+  if (req.query && req.query.hook === 'selar') {
+    return require('./_lib/selarOrders').handleSelarOrder(req, res);
+  }
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }

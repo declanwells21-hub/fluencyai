@@ -26,7 +26,7 @@ window.FL_CONFIG = {
   // ---- Selar (guides) ----
   selarBase: "https://selar.com/",
   selarRefParam: "ref",              // query param appended to each Selar link; Selar must return it on the order (see HANDOFF.md §4)
-  selarWebhookUrl: "",               // REQUEST: your server URL that receives Selar order notifications
+  selarWebhookUrl: "/api/selar-order", // where Selar reports orders (server side only, needs ?key=SELAR_WEBHOOK_SECRET; see docs/selar.md). Not used by the pages.
 
   // ---- Partner programme (values shown on site; change here AND in Terms §11 + Partners page) ----
   commission: { guides: 0.2, subscriptions: 0.2, attributionDays: 30, payoutMinimumUSD: 20, refundHoldDays: 14, payoutDay: 15 },
