@@ -19,6 +19,7 @@ The Vercel function logs say "Run scripts/supabase_migration_backend_foundation.
 | Variable | Default | What it does |
 |---|---|---|
 | `REQUIRE_AUTH_AI` | unset (off) | Set to `true` to refuse `/api/chat`, `/api/stt`, `/api/tts` unless the caller sends a valid sign-in token. |
+| `CREDITS_MODE` | `off` | `shadow` records what each call would cost (nobody charged); `enforce` charges and blocks at zero. See `docs/credits.md`. |
 | `AI_RATE_LIMIT` | on | Set to `off` to switch the per-minute limits off. |
 | `AI_RATE_CHAT_PER_MIN_USER` / `_IP` | 40 / 30 | Chat requests per minute for a signed-in account / for an IP address. |
 | `AI_RATE_STT_PER_MIN_USER` / `_IP` | 30 / 20 | Speech-to-text. |
@@ -43,6 +44,7 @@ What callers get back:
 | Situation | Status | Body |
 |---|---|---|
 | Not signed in, `REQUIRE_AUTH_AI=true` | 401 | `{ "code": "auth_required" }` |
+| Not enough credits, `CREDITS_MODE=enforce` | 402 | `{ "code": "insufficient_credits", "credits": n, "needed": n }` |
 | Too many requests | 429 + `Retry-After` header | `{ "code": "rate_limited", "retryAfterSeconds": n }` |
 | Supabase could not check the sign-in | 503 | `{ "code": "auth_unavailable" }` |
 
@@ -61,3 +63,4 @@ What callers get back:
 ## 5. Tests
 
 `node tests/backend_foundation.test.js` runs 32 checks against an in-memory fake of Supabase (no keys, network or database needed).
+`node tests/partner_hub.test.js` (22 checks) and `node tests/credits.test.js` (31 checks) work the same way.

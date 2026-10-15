@@ -45,7 +45,7 @@ function escapeXml(s) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-async function speakWithAzure({ text, targetLanguage, accent }, res) {
+async function speakWithAzure({ text, targetLanguage, accent }, res, done) {
   const voice = pickAzureVoice(targetLanguage, accent);
   const ssml = `<speak version='1.0' xml:lang='en-US'><voice name='${voice}'>${escapeXml(text)}</voice></speak>`;
 
@@ -66,6 +66,7 @@ async function speakWithAzure({ text, targetLanguage, accent }, res) {
     return res.status(502).json({ error: errText });
   }
   const arrayBuffer = await azureRes.arrayBuffer();
+  if (done) await done();
   res.setHeader('Content-Type', 'audio/mpeg');
   return res.status(200).send(Buffer.from(arrayBuffer));
 }
@@ -80,7 +81,7 @@ const ELEVENLABS_DEFAULT_VOICES = {
   male: process.env.ELEVENLABS_VOICE_ID_MALE || 'pNInz6obpgDQGcFmaJgB', // "Adam"
 };
 
-async function speakWithElevenLabs({ text, gender }, res) {
+async function speakWithElevenLabs({ text, gender }, res, done) {
   const voiceId =
     (gender || '').toLowerCase() === 'male'
       ? ELEVENLABS_DEFAULT_VOICES.male
@@ -104,6 +105,7 @@ async function speakWithElevenLabs({ text, gender }, res) {
     return res.status(502).json({ error: errText });
   }
   const arrayBuffer = await elRes.arrayBuffer();
+  if (done) await done();
   res.setHeader('Content-Type', 'audio/mpeg');
   return res.status(200).send(Buffer.from(arrayBuffer));
 }
@@ -122,7 +124,7 @@ const DEEPGRAM_VOICE_MAP = {
   es: 'aura-2-celeste-es',
 };
 
-async function speakWithDeepgram({ text, targetLanguage }, res) {
+async function speakWithDeepgram({ text, targetLanguage }, res, done) {
   const model = DEEPGRAM_VOICE_MAP[targetLanguage];
   const dgRes = await fetch(`https://api.deepgram.com/v1/speak?model=${model}`, {
     method: 'POST',
@@ -137,11 +139,13 @@ async function speakWithDeepgram({ text, targetLanguage }, res) {
     return res.status(502).json({ error: errText });
   }
   const arrayBuffer = await dgRes.arrayBuffer();
+  if (done) await done();
   res.setHeader('Content-Type', 'audio/mpeg');
   return res.status(200).send(Buffer.from(arrayBuffer));
 }
 
 const { guardAiRequest } = require('./_lib/aiGuard');
+const credits = require('./_lib/credits');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -153,20 +157,23 @@ module.exports = async (req, res) => {
 
   try {
     const { text, targetLanguage, accent, gender } = req.body;
+    const chars = String(text || '').length;
+    if (!(await credits.checkAllowance(req, res, 'tts', { chars }))) return;
+    const done = () => credits.recordUsage(req, 'tts', { chars }); // runs only after the provider answered
     const provider = (process.env.TTS_PROVIDER || 'elevenlabs').toLowerCase();
 
     if (provider === 'azure') {
-      return await speakWithAzure({ text, targetLanguage, accent }, res);
+      return await speakWithAzure({ text, targetLanguage, accent }, res, done);
     }
     if (provider === 'deepgram') {
       if (DEEPGRAM_VOICE_MAP[targetLanguage]) {
-        return await speakWithDeepgram({ text, targetLanguage }, res);
+        return await speakWithDeepgram({ text, targetLanguage }, res, done);
       }
       // Not one of Deepgram's covered languages - fall back automatically
       // instead of erroring, so every language still gets a voice.
-      return await speakWithElevenLabs({ text, gender }, res);
+      return await speakWithElevenLabs({ text, gender }, res, done);
     }
-    return await speakWithElevenLabs({ text, gender }, res);
+    return await speakWithElevenLabs({ text, gender }, res, done);
   } catch (err) {
     return res.status(500).json({ error: String(err) });
   }

@@ -184,6 +184,7 @@ Respond with ONLY valid JSON, no markdown fences, in this exact shape:
 }
 
 const { guardAiRequest } = require('./_lib/aiGuard');
+const credits = require('./_lib/credits');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -196,6 +197,7 @@ module.exports = async (req, res) => {
   try {
     const mode = req.body?.mode || 'converse';
     const { system: systemPrompt, messages } = buildPrompt(req.body);
+    if (!(await credits.checkAllowance(req, res, 'chat', { mode }))) return;
 
     const baseUrl = process.env.CLAUDE_BASE_URL || 'https://api.anthropic.com';
     const authScheme = (process.env.CLAUDE_AUTH_SCHEME || 'x-api-key').toLowerCase();
@@ -227,6 +229,11 @@ module.exports = async (req, res) => {
     }
 
     const data = await claudeRes.json();
+    await credits.recordUsage(req, 'chat', {
+      mode,
+      inputTokens: data?.usage?.input_tokens,
+      outputTokens: data?.usage?.output_tokens,
+    });
     const raw = data?.content?.[0]?.text ?? '{}';
     const cleaned = raw.replace(/```json|```/g, '').trim();
 

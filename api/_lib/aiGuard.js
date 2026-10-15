@@ -4,6 +4,7 @@
 //
 //   REQUIRE_AUTH_AI=true   only signed-in Fluency AI accounts may call them (401 otherwise).
 //                          Leave it unset until the app sends its login token with every request.
+//   CREDITS_MODE=enforce   credits belong to an account, so enforcing them also requires a sign-in (see credits.js).
 //   AI_RATE_LIMIT=off      switch the per-minute limits off (they are on by default).
 //
 // Limits are per minute. A signed-in caller is counted by account, anyone else by IP address.
@@ -12,6 +13,7 @@
 
 const { getUserFromRequest } = require('./userAuth');
 const { hit, getClientIp } = require('./rateLimit');
+const { getMode } = require('./credits');
 
 const DEFAULTS = {
   chat: { user: 40, ip: 30 },
@@ -30,7 +32,7 @@ function limitFor(route, kind) {
  * Returns true when the request may go on. Returns false after it has already sent the 401 / 429 / 503.
  */
 async function guardAiRequest(req, res, route) {
-  const requireAuth = String(process.env.REQUIRE_AUTH_AI || '').toLowerCase() === 'true';
+  const requireAuth = String(process.env.REQUIRE_AUTH_AI || '').toLowerCase() === 'true' || getMode() === 'enforce';
   const hasToken = /^Bearer\s+\S/.test((req.headers && req.headers.authorization) || '');
 
   let user = null;
@@ -47,6 +49,8 @@ async function guardAiRequest(req, res, route) {
     // Flag off and the token did not check out: treat the caller like any anonymous visitor.
   }
 
+  if (user) req.flUser = user; // available to the handler: credits.js charges this account
+
   if (String(process.env.AI_RATE_LIMIT || '').toLowerCase() === 'off') return true;
 
   const kind = user ? 'user' : 'ip';
@@ -62,7 +66,6 @@ async function guardAiRequest(req, res, route) {
     });
   }
 
-  if (user) req.flUser = user; // available to the handler (credits and usage will use this later)
   return true;
 }
 

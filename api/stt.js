@@ -9,6 +9,7 @@ function buffer(req) {
 }
 
 const { guardAiRequest } = require('./_lib/aiGuard');
+const credits = require('./_lib/credits');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -21,6 +22,8 @@ module.exports = async (req, res) => {
   try {
     const audioBuffer = Buffer.isBuffer(req.body) ? req.body : await buffer(req);
     const language = (req.query?.language || 'en').toString();
+    const audioSeconds = credits.wavSeconds(audioBuffer);
+    if (!(await credits.checkAllowance(req, res, 'stt', { audioSeconds }))) return;
 
     const dgRes = await fetch(
       `https://api.deepgram.com/v1/listen?smart_format=true&language=${encodeURIComponent(language)}`,
@@ -41,6 +44,7 @@ module.exports = async (req, res) => {
 
     const data = await dgRes.json();
     const transcript = data?.results?.channels?.[0]?.alternatives?.[0]?.transcript ?? '';
+    await credits.recordUsage(req, 'stt', { audioSeconds });
     return res.status(200).json({ transcript });
   } catch (err) {
     return res.status(500).json({ error: String(err) });
