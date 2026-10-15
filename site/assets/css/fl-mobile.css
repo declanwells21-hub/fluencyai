@@ -1,7 +1,8 @@
 /* Fluency AI: phone layout ("app feel").  Loaded after the page's own styles; only applies at 760px wide and below.
 
    The pages are drawn with inline styles, so the rules here use !important and attribute selectors on purpose.
-   Section 1 is shared by every page. Section 2 is the Partner Hub. (Other pages are added as they are done.) */
+   Section 1 is shared by every page. Section 2 is the Partner Hub. Section 3 is the bottom tab bar and the More sheet
+   (built by /assets/js/fl-mobile.js). Section 4 is the Sign in popup as a bottom sheet. Section 5 is page-specific fixes. */
 
 @media (max-width: 760px) {
 
@@ -137,4 +138,167 @@
 
   /* Payout rows: amount and "Paid" stay on one line, tidy */
   [data-screen-label="Partner hub"] main div[style*="justify-content:space-between;gap:12px;align-items:center;padding:16px 18px"] { padding: 14px 16px !important; }
+}
+
+
+/* ---------- 3. Bottom tab bar and "More" sheet (built by /assets/js/fl-mobile.js) ---------- */
+.fl-tabbar, .fl-sheet-overlay { display: none; }
+html.fl-lock { overflow: hidden; }
+
+@media (max-width: 760px) {
+  :root { --fl-tab-h: 64px; }
+
+  .fl-tabbar {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 2px;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 900;
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+    background: rgba(4, 18, 27, .94);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    border-top: 1px solid rgba(255, 255, 255, .1);
+    font-family: var(--font-body, "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif);
+  }
+  .fl-tab {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 4px;
+    height: 52px; min-width: 0; padding: 0;
+    border: 0; border-radius: 14px;
+    background: none; color: #8FA6B3;
+    font: 600 10.5px/1 var(--font-body, "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif);
+    letter-spacing: .01em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform .12s ease, background-color .15s ease, color .15s ease;
+  }
+  .fl-tab svg { width: 22px; height: 22px; flex: none; }
+  .fl-tab-label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fl-tab:active { transform: scale(.94); }
+  .fl-tab[aria-current="page"] { color: #fff; background: rgba(16, 184, 184, .16); }
+  .fl-tab:focus-visible { outline: 2px solid #22CFCB; outline-offset: -2px; }
+
+  /* leave room for the bar at the end of every page */
+  body.fl-has-tabbar { padding-bottom: calc(var(--fl-tab-h) + env(safe-area-inset-bottom, 0px)); }
+
+  /* More sheet */
+  .fl-sheet-overlay {
+    display: block;
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(2, 10, 15, 0);
+    transition: background-color .22s ease;
+    font-family: var(--font-body, "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif);
+  }
+  .fl-sheet-overlay[hidden] { display: none; }
+  .fl-sheet-overlay.open { background: rgba(2, 10, 15, .66); }
+  .fl-sheet {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    border-radius: 26px 26px 0 0;
+    background: linear-gradient(180deg, rgba(14, 42, 60, .99), rgba(8, 26, 38, .99));
+    border: 1px solid rgba(255, 255, 255, .12); border-bottom: 0;
+    color: #fff;
+    transform: translateY(100%);
+    transition: transform .26s cubic-bezier(.2, .8, .2, 1);
+  }
+  .fl-sheet-overlay.open .fl-sheet { transform: translateY(0); }
+  .fl-sheet-head { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 22px 4px 8px; touch-action: none; }
+  .fl-sheet-grip { position: absolute; top: 8px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 2px; background: rgba(255, 255, 255, .24); }
+  .fl-sheet-title { font-weight: 800; font-size: 20px; letter-spacing: -.02em; }
+  .fl-sheet-close {
+    width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;
+    border: 0; border-radius: 999px; background: rgba(255, 255, 255, .08); color: #D8E4EA; cursor: pointer;
+  }
+  .fl-sheet-close svg { width: 20px; height: 20px; }
+  .fl-sheet-list { display: grid; gap: 6px; padding-top: 6px; }
+  .fl-sheet-row {
+    display: flex; align-items: center; gap: 14px;
+    min-height: 56px; padding: 0 16px;
+    border-radius: 16px; background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .08);
+    color: #fff; text-decoration: none; font-weight: 600; font-size: 16px;
+    transition: transform .12s ease, background-color .15s ease;
+  }
+  .fl-sheet-row, .fl-sheet-row:hover, .fl-sheet-row:visited, .fl-sheet-row:focus { color: #fff !important; text-decoration: none !important; }
+  .fl-sheet-row:active { transform: scale(.98); background: rgba(255, 255, 255, .1); }
+  .fl-sheet-row > span { flex: 1; }
+  .fl-sheet-row svg { width: 22px; height: 22px; flex: none; color: #5EE6DF; }
+  .fl-sheet-row svg:last-child { width: 18px; height: 18px; color: #6E93A6; }
+  .fl-sheet-row[aria-current="page"] { border-color: rgba(34, 207, 203, .45); }
+
+  /* Top bar on the main pages: logo and the one action (Join the waitlist, price currency...). The links live in the bar below. */
+  body.fl-has-tabbar [data-fl-page] > header {
+    padding: calc(8px + env(safe-area-inset-top, 0px)) 12px 8px !important;
+  }
+  body.fl-has-tabbar [data-fl-nav] {
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    padding: 8px 8px 8px 18px !important;
+    border-radius: 999px !important;
+  }
+  body.fl-has-tabbar [data-fl-nav] [data-fl-links],
+  body.fl-has-tabbar [data-fl-nav] [data-fl-signin],
+  body.fl-has-tabbar [data-fl-nav] > a[href="/partner-hub"] { display: none !important; }
+  body.fl-has-tabbar [data-fl-nav] > button:not(.js-login-trigger),
+  body.fl-has-tabbar [data-fl-nav] > select { margin-left: auto; flex: 0 0 auto; }
+}
+
+
+/* ---------- 4. Sign in popup as a bottom sheet ---------- */
+@media (max-width: 760px) {
+  #auth-modal-overlay { align-items: flex-end !important; padding: 0 !important; }
+  #auth-modal-overlay .fla-card {
+    width: 100% !important;
+    margin: 0 !important;
+    max-height: 92vh; max-height: 92dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: 26px 26px 0 0 !important;
+    border-bottom: 0 !important;
+    padding: 34px 20px calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+    animation: fl-sheet-up .28s cubic-bezier(.2, .8, .2, 1);
+  }
+  #auth-modal-overlay .fla-card::before {
+    content: ""; position: absolute; top: 8px; left: 50%;
+    width: 40px; height: 4px; margin-left: -20px; border-radius: 2px;
+    background: rgba(255, 255, 255, .24);
+  }
+  @keyframes fl-sheet-up { from { transform: translateY(48px); opacity: .5; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    #auth-modal-overlay .fla-card { animation: none; }
+    .fl-sheet, .fl-sheet-overlay, .fl-tab { transition: none; }
+  }
+}
+
+
+/* ---------- 5. Page-specific fixes ---------- */
+@media (max-width: 760px) {
+  /* Exam guides page: its own "Find your exam" bar sits just above the tab bar instead of underneath it */
+  body.fl-has-tabbar .sticky {
+    bottom: calc(var(--fl-tab-h) + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: 12px !important;
+  }
+  body.fl-has-tabbar:has(.sticky:not(:empty)) { padding-bottom: calc(var(--fl-tab-h) + 84px + env(safe-area-inset-bottom, 0px)); }
+}
+
+@media (max-width: 760px) {
+  /* A top bar with only the logo (About, FAQ, Partners) wraps the logo instead of stretching across the screen */
+  body.fl-has-tabbar [data-fl-nav]:not(:has(> button:not(.js-login-trigger))):not(:has(> select)) {
+    width: fit-content;
+    max-width: 100%;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    padding-right: 18px !important;
+  }
+
+  /* About and FAQ: the picture beside the heading is smaller so the heading is not cut off */
+  main.wrap > div:first-child[style*="grid-template-columns:minmax(0,1fr) auto"] { gap: 14px !important; }
+  main.wrap > div:first-child[style*="grid-template-columns:minmax(0,1fr) auto"] > div:last-child > div { width: 104px !important; }
+}
+
+/* Installed on the home screen: keep the standalone pages without the site header clear of the status bar */
+@media (max-width: 760px) and (display-mode: standalone) {
+  body.fl-has-tabbar:not(:has([data-fl-page])) { padding-top: env(safe-area-inset-top, 0px); }
 }
