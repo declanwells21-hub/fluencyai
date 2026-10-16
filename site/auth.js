@@ -388,7 +388,8 @@
 
     goToAdminBtn.classList.add('hidden');
     const isAdmin = await checkIsAdmin(session);
-    if (isAdmin) goToAdminBtn.classList.remove('hidden');
+    // The Partner Hub page (body[data-fl-no-admin]) never shows the admin shortcut, even to an admin account.
+    if (isAdmin && !document.body.hasAttribute('data-fl-no-admin')) goToAdminBtn.classList.remove('hidden');
 
     refreshNavLoginState();
   }

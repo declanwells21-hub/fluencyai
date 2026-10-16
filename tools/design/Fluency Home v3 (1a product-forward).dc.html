@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <title>Fluency AI: stop freezing, start speaking</title>
+  <meta name="description" content="A speaking coach you talk to out loud. It answers like a person, then shows what you said, what to say, and why. French, German and English. Join the waitlist.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Fluency AI">
+  <meta property="og:title" content="Fluency AI: stop freezing, start speaking">
+  <meta property="og:description" content="A speaking coach you talk to out loud. It answers like a person, then shows what you said, what to say, and why. French, German and English. Join the waitlist.">
+  <meta property="og:image" content="assets/og-share.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Fluency AI: stop freezing, start speaking">
+  <meta name="twitter:description" content="A speaking coach you talk to out loud. It answers like a person, then shows what you said, what to say, and why. French, German and English. Join the waitlist.">
+  <meta name="twitter:image" content="assets/og-share.png">
+  <meta name="theme-color" content="#04121B">
+  <link rel="icon" href="assets/logo-appicon.png">
+  <link rel="stylesheet" href="ds/styles.css">
+  <script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.js"></script>
+  <script src="ds/_ds_bundle.js"></script>
+  <script src="fluency-config.js"></script>
+  <script src="fl-motion.js"></script>
+  <script src="fl-forms.js"></script>
+  <style>
+    html{scroll-behavior:smooth}
+    html,body{overflow-x:clip}
+    body{margin:0;background:#04121B;color:#D8E4EA;-webkit-font-smoothing:antialiased}
+    a{color:var(--teal-300);text-underline-offset:3px}
+    a:hover{color:var(--teal-200)}
+    input,select,button{font-family:inherit}
+    :focus-visible{outline:2px solid var(--teal-400);outline-offset:2px}
+    @keyframes flDot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+    @keyframes flCaret{50%{opacity:0}}
+    @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+    @media (max-width: 760px){
+      [data-fl-nav]{flex-wrap:wrap!important;border-radius:24px!important;padding:10px 12px!important;gap:10px!important}
+      [data-fl-links]{order:3;flex:1 1 100%!important;justify-content:flex-start!important;flex-wrap:nowrap!important;overflow-x:auto;gap:20px!important;padding:2px 4px!important;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent)}
+      [data-fl-links]::-webkit-scrollbar{display:none}
+      [data-fl-links] > *{white-space:nowrap;flex:0 0 auto}
+      [data-fl-main]{grid-template-columns:minmax(0,1fr)!important;gap:4px!important;padding:8px 16px 72px!important}
+      [data-fl-aside]{position:static!important;justify-self:center!important;padding-top:8px!important;max-width:100%!important}
+      [data-fl-aside] > div:first-child{width:128px!important}
+      [data-fl-aside] > span{display:none}
+      [data-fl-aside-card]{display:none!important}
+      [data-fl-chat]{gap:14px!important}
+      [data-fl-chat] h1{font-size:36px!important}
+      [data-fl-cover-row]{grid-template-columns:minmax(0,1fr) 88px!important}
+      [data-fl-table-row="3"]{grid-template-columns:minmax(0,1fr) auto auto!important}
+      [data-fl-table-row="2"]{grid-template-columns:minmax(0,1fr) auto!important}
+      [data-fl-hide-sm]{display:none!important}
+      [data-fl-switch]{bottom:10px!important}
+    }
+  </style>
+</helmet>
+
+<div data-fl-page style="min-height:100vh;background:radial-gradient(90% 40% at 50% 0%,#123A4C 0%,#04121B 60%);font-family:var(--font-body);">
+
+  <!-- NAV (shared) -->
+  <header style="position:sticky;top:0;z-index:30;padding:12px 16px;">
+    <nav data-fl-nav style="max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:20px;padding:10px 10px 10px 20px;border-radius:999px;background:rgba(11,34,51,.72);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);">
+      <a href="#top" aria-label="Fluency AI home" style="text-decoration:none;display:flex;">
+        <x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Wordmark" size="{{ n22 }}" tone="dark" hint-size="120px,24px"></x-import>
+      </a>
+      <div data-fl-links style="flex:1;display:flex;flex-wrap:wrap;gap:4px 18px;justify-content:center;font:600 14px/1 var(--font-body);">
+        <a href="#how" style="color:var(--ink-200);text-decoration:none;padding:8px 0;">How it works</a>
+        <a href="#features" style="color:var(--ink-200);text-decoration:none;padding:8px 0;">Features</a>
+        <a href="#pricing" style="color:var(--ink-200);text-decoration:none;padding:8px 0;">Pricing</a>
+        <a href="Store v3.dc.html" style="color:var(--ink-200);text-decoration:none;padding:8px 0;">Exam guides</a>
+        <a href="Partners v3.dc.html" style="color:var(--ink-200);text-decoration:none;padding:8px 0;">Partners</a>
+        <a href="#faq" style="color:var(--ink-200);text-decoration:none;padding:8px 0;">FAQ</a>
+      </div>
+      <x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Button" variant="primary" size="s" icon="{{ ctaIcon }}" on-click="{{ goJoin }}" hint-size="160px,36px">{{ ctaLabel }}</x-import>
+    </nav>
+  </header>
+
+  <!-- ===================== 1a · PRODUCT-FORWARD ===================== -->
+  <sc-if value="{{ isA }}" hint-placeholder-val="{{ false }}">
+  <main id="top" data-screen-label="1a Product-forward" style="display:block;">
+
+    <!-- HERO -->
+    <section style="position:relative;overflow:hidden;background:radial-gradient(110% 80% at 70% 0%,rgba(18,58,76,.8) 0%,rgba(4,18,27,0) 68%);padding:56px 24px 96px;">
+      <div data-fl-stagger style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:48px;align-items:center;">
+        <div style="display:grid;gap:24px;align-content:center;">
+          <span style="justify-self:start;display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:999px;background:rgba(37,215,155,.12);border:1px solid rgba(37,215,155,.3);color:var(--mint-300);font:600 13px/1 var(--font-body);"><span style="width:7px;height:7px;border-radius:50%;background:var(--mint-400);"></span>{{ stateBadge }}</span>
+          <h1 style="margin:0;font:800 clamp(44px,6.4vw,80px)/.98 var(--font-display);letter-spacing:-.035em;color:#fff;text-wrap:balance;">Stop freezing. Start speaking.</h1>
+          <p style="margin:0;max-width:520px;font:400 19px/1.55 var(--font-body);color:var(--ink-200);text-wrap:pretty;">Fluency is a speaking coach you talk to out loud. It hears how you actually speak, answers like a person, and shows the fix in three beats: what you said, what to say, why.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+            <x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Button" variant="primary" size="l" icon="{{ ctaIcon }}" on-click="{{ goJoin }}" hint-size="230px,64px">{{ ctaLabel }}</x-import>
+            <x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Button" variant="inverse" size="l" icon="play" on-click="{{ goHow }}" hint-size="200px,64px">See how it works</x-import>
+            <a href="Store v3.dc.html" style="display:inline-flex;align-items:center;height:64px;padding:0 8px;color:var(--teal-300);font:600 16px/1 var(--font-body);">Browse exam guides →</a>
+          </div>
+          <span style="font:500 14px/1.4 var(--font-body);color:var(--ink-400);">{{ platformNote }}</span>
+        </div>
+
+        <div style="position:relative;display:grid;justify-items:center;gap:0;">
+          <div style="width:min(360px,80%);aspect-ratio:1/1;">
+            <dc-import name="Coach" expression="{{ hs.expr }}" character="{{ character }}" frame="circle" crop="bust" style="width:100%;height:100%;" hint-size="100%,100%"></dc-import>
+          </div>
+          <div style="position:relative;width:min(480px,100%);margin-top:-64px;display:grid;gap:14px;padding:20px 22px;border-radius:28px;background:rgba(11,34,51,.78);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 30px 60px -24px rgba(0,0,0,.6);">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+              <span style="display:inline-flex;align-items:center;gap:8px;font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:{{ hs.color }};"><span style="width:8px;height:8px;border-radius:50%;background:{{ hs.color }};box-shadow:0 0 12px {{ hs.color }};"></span>{{ hs.label }}</span>
+              <span style="font:500 12px/1 var(--font-mono);color:var(--ink-400);">English · B1</span>
+            </div>
+            <p style="margin:0;min-height:60px;font:600 21px/1.4 var(--font-display);letter-spacing:-.01em;color:#fff;">
+              <sc-for list="{{ hs.words }}" as="w" hint-placeholder-count="5"><span style="text-decoration:{{ w.deco }};text-decoration-color:var(--cyan-400);text-decoration-thickness:2px;text-underline-offset:5px;">{{ w.text }} </span></sc-for><sc-if value="{{ hs.listening }}" hint-placeholder-val="{{ true }}"><span style="display:inline-block;width:2px;height:22px;vertical-align:-3px;background:var(--cyan-400);animation:flCaret 1s steps(1) infinite;"></span></sc-if>
+            </p>
+            <sc-if value="{{ hs.thinking }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:10px;font:500 14px/1 var(--font-body);color:var(--indigo-300);">{{ dots }}<span>Working out what you meant</span></div>
+            </sc-if>
+            <sc-if value="{{ hs.fix }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;gap:10px;padding:14px 16px;border-radius:18px;background:rgba(91,85,184,.16);border:1px solid rgba(122,117,208,.32);">
+                <span style="justify-self:start;height:22px;display:inline-flex;align-items:center;padding:0 10px;border-radius:999px;background:var(--indigo-500);color:#fff;font:700 11px/1 var(--font-body);letter-spacing:.06em;text-transform:uppercase;">{{ hs.type }}</span>
+                <div style="display:grid;grid-template-columns:64px minmax(0,1fr);gap:6px 12px;align-items:baseline;">
+                  <span style="font:600 12px/1.3 var(--font-body);color:var(--ink-400);">You said</span><span style="font:500 15px/1.4 var(--font-mono);color:var(--ink-300);">{{ hs.said }}</span>
+                  <span style="font:600 12px/1.3 var(--font-body);color:var(--mint-300);">Say</span><span style="font:700 17px/1.35 var(--font-display);color:#fff;">{{ hs.better }}</span>
+                  <span style="font:600 12px/1.3 var(--font-body);color:var(--ink-400);">Why</span><span style="font:400 14px/1.45 var(--font-body);color:var(--ink-200);">{{ hs.why }}</span>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ hs.reply }}" hint-placeholder-val="{{ false }}">
+              <p style="margin:0;font:600 17px/1.4 var(--font-display);color:var(--teal-300);">{{ hs.replyText }}</p>
+            </sc-if>
+            <div style="display:flex;gap:6px;">
+              <sc-for list="{{ demoDots }}" as="d" hint-placeholder-count="3"><button type="button" aria-label="{{ d.label }}" onClick="{{ d.pick }}" style="width:{{ d.w }};height:6px;padding:0;border:0;border-radius:3px;background:{{ d.bg }};cursor:pointer;transition:width .3s;"></button></sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHEN YOU GET STUCK -->
+    <section style="padding:96px 24px;background:transparent;">
+      <div data-fl-stagger style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:48px;align-items:center;">
+        <div style="display:grid;gap:16px;">
+          <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">When you get stuck</span>
+          <h2 style="margin:0;font:800 clamp(32px,4vw,48px)/1.04 var(--font-display);letter-spacing:-.03em;color:#fff;text-wrap:balance;">Four things you can say instead of giving up.</h2>
+          <p style="margin:0;max-width:460px;font:400 17px/1.55 var(--font-body);color:var(--ink-300);">Every conversation carries these repair moves. Tap one to see what happens.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;padding-top:8px;">
+            <sc-for list="{{ repairs }}" as="r" hint-placeholder-count="4">
+              <button type="button" onClick="{{ r.pick }}" aria-pressed="{{ r.pressed }}" style="display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:999px;cursor:pointer;font:600 15px/1 var(--font-body);background:{{ r.bg }};border:1px solid {{ r.bd }};color:{{ r.fg }};transition:background .2s,border-color .2s;">
+                <x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Icon" name="{{ r.icon }}" size="{{ n16 }}" hint-size="16px,16px"></x-import>{{ r.label }}
+              </button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:grid;gap:12px;padding:24px;border-radius:28px;background:linear-gradient(180deg,#0B2233,#04121B);border:1px solid rgba(255,255,255,.1);">
+          <span style="font:500 12px/1 var(--font-mono);color:var(--ink-400);">Role-play · At the café counter</span>
+          <div style="justify-self:start;max-width:85%;padding:12px 16px;border-radius:6px 20px 20px 20px;background:rgba(255,255,255,.07);font:600 18px/1.4 var(--font-display);color:var(--teal-300);">For here or to go?</div>
+          <div style="justify-self:end;max-width:85%;padding:12px 16px;border-radius:20px 6px 20px 20px;background:var(--teal-700);font:500 17px/1.4 var(--font-body);color:#fff;">{{ rep.you }}</div>
+          <div style="justify-self:start;max-width:90%;display:grid;gap:8px;padding:12px 16px;border-radius:6px 20px 20px 20px;background:rgba(255,255,255,.07);">
+            <sc-for list="{{ rep.out }}" as="o" hint-placeholder-count="1"><span style="font:600 18px/1.4 var(--font-display);color:var(--teal-300);">{{ o }}</span></sc-for>
+          </div>
+          <span style="display:flex;gap:8px;align-items:center;font:500 14px/1.45 var(--font-body);color:var(--ink-300);padding-top:4px;"><x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Icon" name="sparkles" size="{{ n16 }}" color="var(--mint-300)" hint-size="16px,16px"></x-import>{{ rep.does }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE FREEZE -->
+    <section style="padding:96px 24px;background:rgba(11,34,51,.45);">
+      <div data-fl-stagger style="max-width:1200px;margin:0 auto;display:grid;gap:48px;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:48px;align-items:end;">
+          <div style="display:grid;gap:16px;">
+            <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">The freeze</span>
+            <h2 style="margin:0;font:800 clamp(32px,4vw,48px)/1.04 var(--font-display);letter-spacing:-.03em;color:#fff;text-wrap:balance;">You know the word. It just won't come out.</h2>
+            <p style="margin:0;max-width:480px;font:400 17px/1.55 var(--font-body);color:var(--ink-300);">Years of lessons. Months of an app. Then someone at a counter asks one ordinary question and your mind goes blank.</p>
+          </div>
+          <div style="display:grid;gap:10px;padding:24px;border-radius:28px;background:#04121B;border:1px solid rgba(255,255,255,.1);">
+            <span style="font:500 12px/1 var(--font-mono);color:var(--ink-400);">At the counter · 0:04</span>
+            <span style="font:700 28px/1.2 var(--font-display);color:#fff;">“For here or to go?”</span>
+            <span style="font:400 15px/1.5 var(--font-body);color:var(--ink-300);">You know “to go”. It just won't come out.</span>
+            <div style="display:flex;align-items:end;gap:4px;height:28px;padding-top:6px;">
+              <span style="width:4px;height:6px;border-radius:2px;background:var(--ink-600);"></span><span style="width:4px;height:6px;border-radius:2px;background:var(--ink-600);"></span><span style="width:4px;height:6px;border-radius:2px;background:var(--ink-600);"></span><span style="width:4px;height:6px;border-radius:2px;background:var(--ink-600);"></span><span style="width:4px;height:6px;border-radius:2px;background:var(--ink-600);"></span><span style="font:500 12px/1 var(--font-mono);color:var(--ink-500);padding-left:8px;">silence</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px;">
+          <sc-for list="{{ freeze }}" as="f" hint-placeholder-count="3">
+            <div style="display:grid;gap:10px;padding:24px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);">
+              <span style="font:600 13px/1 var(--font-mono);color:var(--teal-300);">{{ f.n }}</span>
+              <span style="font:700 20px/1.25 var(--font-display);color:#fff;">{{ f.t }}</span>
+              <span style="font:400 15px/1.55 var(--font-body);color:var(--ink-300);">{{ f.b }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+
+    <!-- SAY IT BADLY FIRST -->
+    <section style="padding:96px 24px;background:transparent;">
+      <div data-fl-stagger style="max-width:1200px;margin:0 auto;display:grid;gap:40px;">
+        <div style="display:grid;gap:16px;max-width:680px;">
+          <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">The other way round</span>
+          <h2 style="margin:0;font:800 clamp(32px,4vw,48px)/1.04 var(--font-display);letter-spacing:-.03em;color:#fff;text-wrap:balance;">Say it badly first. Get it right second.</h2>
+          <p style="margin:0;font:400 17px/1.55 var(--font-body);color:var(--ink-300);">The conversation comes first and the correction second, so you never lose the thread of what you were trying to say.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:16px;">
+          <div style="display:grid;gap:14px;align-content:start;padding:28px;border-radius:28px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);">
+            <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-400);">Traditional</span>
+            <span style="font:700 24px/1.25 var(--font-display);color:var(--ink-300);">Study → test → forget → repeat</span>
+            <span style="font:400 15px/1.55 var(--font-body);color:var(--ink-400);">Points for finishing units. Silence where the speaking should be.</span>
+          </div>
+          <div style="display:grid;gap:14px;align-content:start;padding:28px;border-radius:28px;background:linear-gradient(160deg,rgba(16,184,184,.18),rgba(16,184,184,.04));border:1px solid rgba(34,207,203,.35);">
+            <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Fluency</span>
+            <span style="font:700 24px/1.25 var(--font-display);color:#fff;">Speak → be understood → be corrected → speak again</span>
+            <span style="font:400 15px/1.55 var(--font-body);color:var(--ink-200);">Two minutes of talking beats an hour of scrolling. Every correction is tied to a sentence you actually said.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section id="how" style="padding:96px 24px;background:rgba(11,34,51,.45);">
+      <div data-fl-stagger style="max-width:1200px;margin:0 auto;display:grid;gap:40px;">
+        <div style="display:grid;gap:16px;max-width:680px;">
+          <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">How it works</span>
+          <h2 style="margin:0;font:800 clamp(32px,4vw,48px)/1.04 var(--font-display);letter-spacing:-.03em;color:#fff;text-wrap:balance;">Five things happen between your sentence and the reply.</h2>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:24px;align-items:start;">
+          <div style="display:grid;gap:8px;">
+            <sc-for list="{{ stages }}" as="s" hint-placeholder-count="5">
+              <button type="button" onClick="{{ s.pick }}" aria-pressed="{{ s.pressed }}" style="display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 16px;border-radius:20px;text-align:left;cursor:pointer;background:{{ s.bg }};border:1px solid {{ s.bd }};color:#fff;transition:background .2s,border-color .2s;">
+                <span style="display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:rgba(16,184,184,.14);color:var(--teal-300);"><x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Icon" name="{{ s.icon }}" size="{{ n20 }}" hint-size="20px,20px"></x-import></span>
+                <span style="display:grid;gap:4px;"><span style="font:700 17px/1.2 var(--font-display);">{{ s.title }}</span><span style="font:400 14px/1.3 var(--font-body);color:var(--ink-300);">{{ s.blurb }}</span></span>
+                <span style="font:600 12px/1 var(--font-mono);color:var(--ink-400);">{{ s.tag }}</span>
+              </button>
+            </sc-for>
+          </div>
+          <div style="display:grid;gap:18px;padding:28px;border-radius:28px;background:radial-gradient(120% 90% at 50% 0%,#123A4C 0%,#04121B 72%);border:1px solid rgba(255,255,255,.12);min-height:340px;align-content:start;">
+            <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--cyan-300);">{{ st.label }}</span>
+            <span style="font:700 26px/1.2 var(--font-display);letter-spacing:-.02em;color:#fff;text-wrap:balance;">{{ st.headline }}</span>
+            <div style="display:grid;gap:8px;padding:18px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);">
+              <p style="margin:0;font:600 20px/1.4 var(--font-display);color:#fff;"><sc-for list="{{ st.words }}" as="w" hint-placeholder-count="4"><span style="opacity:{{ w.op }};text-decoration:{{ w.deco }};text-decoration-color:var(--cyan-400);text-decoration-thickness:2px;text-underline-offset:5px;">{{ w.text }} </span></sc-for></p>
+              <span style="font:500 14px/1.4 var(--font-mono);color:var(--teal-300);">{{ st.translation }}</span>
+            </div>
+            <span style="font:400 15px/1.55 var(--font-body);color:var(--ink-300);">{{ st.detail }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHAT YOU GET BACK -->
+    <section style="padding:96px 24px;background:transparent;">
+      <div data-fl-stagger style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:48px;align-items:center;">
+        <div style="display:grid;gap:16px;">
+          <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">What you get back</span>
+          <h2 style="margin:0;font:800 clamp(32px,4vw,48px)/1.04 var(--font-display);letter-spacing:-.03em;color:#fff;text-wrap:balance;">Ability, not points.</h2>
+          <p style="margin:0;max-width:460px;font:400 17px/1.55 var(--font-body);color:var(--ink-300);">After every conversation: minutes spoken, how often you were understood first time, and the few things worth fixing, quoted from your own words.</p>
+          <span style="font:500 13px/1.4 var(--font-body);color:var(--ink-500);">Example debrief. Your numbers come from your own sessions.</span>
+        </div>
+        <div style="display:grid;gap:12px;padding:22px;border-radius:28px;background:var(--ink-50);color:var(--ink-900);box-shadow:0 30px 60px -24px rgba(0,0,0,.6);">
+          <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font:700 17px/1 var(--font-display);">Today's debrief</span><span style="font:500 12px/1 var(--font-mono);color:var(--ink-500);">Café role-play · B1</span></div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;">
+            <sc-for list="{{ debrief }}" as="d" hint-placeholder-count="3">
+              <div style="display:grid;gap:4px;padding:14px;border-radius:14px;background:#fff;box-shadow:0 0 0 1px var(--ink-200);"><span style="font:800 24px/1 var(--font-numeric);color:var(--ink-900);">{{ d.v }}</span><span style="font:500 12px/1.3 var(--font-body);color:var(--ink-600);">{{ d.k }}</span></div>
+            </sc-for>
+          </div>
+          <div style="display:grid;gap:8px;padding:14px 16px;border-radius:14px;background:#fff;box-shadow:0 0 0 1px var(--ink-200);">
+            <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--indigo-500);">Recurring · grammar</span>
+            <span style="font:500 15px/1.4 var(--font-mono);color:var(--ink-700);">“since three years” → “for three years”</span>
+            <div style="display:flex;align-items:center;gap:10px;"><div style="flex:1;height:6px;border-radius:3px;background:var(--ink-100);overflow:hidden;"><div style="width:40%;height:100%;background:var(--indigo-400);border-radius:3px;"></div></div><span style="font:600 12px/1 var(--font-body);color:var(--ink-600);">4 times this week, down from 7</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:var(--mint-50);color:var(--mint-700);font:600 13px/1.35 var(--font-body);"><x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Icon" name="flame" size="{{ n16 }}" hint-size="16px,16px"></x-import>Talk streak: 6 days. A day counts when you speak for 2 minutes.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features" style="padding:96px 24px;background:rgba(11,34,51,.45);">
+      <div data-fl-stagger style="max-width:1200px;margin:0 auto;display:grid;gap:40px;">
+        <div style="display:grid;gap:16px;max-width:680px;">
+          <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Features</span>
+          <h2 style="margin:0;font:800 clamp(32px,4vw,48px)/1.04 var(--font-display);letter-spacing:-.03em;color:#fff;text-wrap:balance;">Talk the way you want to learn.</h2>
+          <p style="margin:0;font:400 17px/1.55 var(--font-body);color:var(--ink-300);">Mode, correction, level and voice speed sit one tap away inside every conversation.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px;">
+          <sc-for list="{{ modes }}" as="m" hint-placeholder-count="6">
+            <div style="display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;align-items:start;padding:20px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);">
+              <span style="display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:rgba(16,184,184,.14);color:var(--teal-300);"><x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Icon" name="{{ m.icon }}" size="{{ n20 }}" hint-size="20px,20px"></x-import></span>
+              <span style="display:grid;gap:6px;"><span style="font:700 17px/1.2 var(--font-display);color:#fff;">{{ m.title }}</span><span style="font:400 14px/1.5 var(--font-body);color:var(--ink-300);">{{ m.body }}</span></span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;">
+          <div style="display:grid;gap:16px;align-content:start;padding:28px;border-radius:28px;background:#04121B;border:1px solid rgba(255,255,255,.12);">
+            <span style="font:700 20px/1.2 var(--font-display);color:#fff;">Correction, your way</span>
+            <div role="radiogroup" aria-label="Correction" style="display:flex;flex-wrap:wrap;gap:6px;">
+              <sc-for list="{{ corrections }}" as="c" hint-placeholder-count="6"><button type="button" role="radio" aria-checked="{{ c.checked }}" onClick="{{ c.pick }}" style="height:36px;padding:0 14px;border-radius:999px;cursor:pointer;font:600 14px/1 var(--font-body);background:{{ c.bg }};border:1px solid {{ c.bd }};color:{{ c.fg }};">{{ c.label }}</button></sc-for>
+            </div>
+            <span style="font:400 15px/1.5 var(--font-body);color:var(--ink-300);">{{ corrDetail }}</span>
+            <div style="display:grid;gap:12px;padding:18px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);min-height:150px;align-content:start;">
+              <sc-for list="{{ corrLines }}" as="l" hint-placeholder-count="3">
+                <div style="display:grid;gap:4px;padding:{{ l.pad }};border-radius:12px;background:{{ l.bg }};"><span style="font:700 11px/1 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:{{ l.labelColor }};">{{ l.label }}</span><span style="font:{{ l.font }};color:{{ l.color }};">{{ l.text }}</span></div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:grid;gap:16px;align-content:start;padding:28px;border-radius:28px;background:#04121B;border:1px solid rgba(255,255,255,.12);">
+            <span style="font:700 20px/1.2 var(--font-display);color:#fff;">Explained in your language</span>
+            <div role="radiogroup" aria-label="Explanation language" style="display:flex;flex-wrap:wrap;gap:6px;">
+              <sc-for list="{{ explOpts }}" as="e" hint-placeholder-count="3"><button type="button" role="radio" aria-checked="{{ e.checked }}" onClick="{{ e.pick }}" style="height:36px;padding:0 14px;border-radius:999px;cursor:pointer;font:600 14px/1 var(--font-body);background:{{ e.bg }};border:1px solid {{ e.bd }};color:{{ e.fg }};">{{ e.label }}</button></sc-for>
+            </div>
+            <div style="justify-self:end;max-width:85%;padding:12px 16px;border-radius:20px 6px 20px 20px;background:var(--teal-700);font:500 16px/1.4 var(--font-body);color:#fff;">What does “stuck” mean?</div>
+            <sc-for list="{{ explLines }}" as="x" hint-placeholder-count="1">
+              <div style="justify-self:start;max-width:92%;display:grid;gap:6px;padding:14px 16px;border-radius:6px 20px 20px 20px;background:rgba(255,255,255,.07);"><span style="font:700 11px/1 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-400);">{{ x.label }}</span><span style="font:500 16px/1.5 var(--font-body);color:var(--ink-100);">{{ x.text }}</span></div>
+            </sc-for>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding-top:6px;">
+              <div style="display:grid;gap:8px;"><span style="font:600 12px/1 var(--font-body);color:var(--ink-400);">Level</span><div style="display:flex;flex-wrap:wrap;gap:4px;"><sc-for list="{{ levels }}" as="lv" hint-placeholder-count="6"><span style="height:28px;min-width:32px;display:grid;place-items:center;padding:0 6px;border-radius:999px;font:600 12px/1 var(--font-body);background:{{ lv.bg }};color:{{ lv.fg }};border:1px solid rgba(255,255,255,.12);">{{ lv.t }}</span></sc-for></div></div>
+              <div style="display:grid;gap:8px;"><span style="font:600 12px/1 var(--font-body);color:var(--ink-400);">Voice speed</span><div style="display:flex;flex-wrap:wrap;gap:4px;"><span style="height:28px;display:grid;place-items:center;padding:0 10px;border-radius:999px;font:600 12px/1 var(--font-body);color:var(--ink-300);border:1px solid rgba(255,255,255,.12);">Slow</span><span style="height:28px;display:grid;place-items:center;padding:0 10px;border-radius:999px;font:600 12px/1 var(--font-body);background:var(--teal-600);color:#fff;border:1px solid var(--teal-500);">Normal</span><span style="height:28px;display:grid;place-items:center;padding:0 10px;border-radius:999px;font:600 12px/1 var(--font-body);color:var(--ink-300);border:1px solid rgba(255,255,255,.12);">Fast</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+          <span style="font:600 13px/1 var(--font-body);color:var(--ink-400);padding-right:4px;">Also inside</span>
+          <sc-for list="{{ extras }}" as="x" hint-placeholder-count="4"><span style="display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);font:600 13px/1 var(--font-body);color:var(--ink-200);">{{ x.label }}<span style="font:600 11px/1 var(--font-body);color:{{ x.tagColor }};">{{ x.tag }}</span></span></sc-for>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRANSPARENCY -->
+    <section style="padding:96px 24px;background:transparent;">
+      <div data-fl-stagger style="max-width:1200px;margin:0 auto;display:grid;gap:40px;">
+        <div style="display:grid;gap:16px;max-width:680px;">
+          <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">How the listening works</span>
+          <h2 style="margin:0;font:800 clamp(32px,4vw,48px)/1.04 var(--font-display);letter-spacing:-.03em;color:#fff;text-wrap:balance;">No black box. You can see what it heard.</h2>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px;">
+          <sc-for list="{{ trust }}" as="t" hint-placeholder-count="3">
+            <div style="display:grid;gap:10px;align-content:start;padding:24px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);">
+              <span style="font:600 12px/1 var(--font-mono);color:var(--cyan-300);">{{ t.n }}</span>
+              <span style="font:700 20px/1.25 var(--font-display);color:#fff;">{{ t.t }}</span>
+              <span style="font:400 15px/1.55 var(--font-body);color:var(--ink-300);">{{ t.b }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <span style="font:500 15px/1.5 var(--font-body);color:var(--ink-300);">Your conversations are yours. Delete any of them, any time. <a href="Privacy.dc.html">Read the privacy policy</a></span>
+      </div>
+    </section>
+
+    <!-- LANGUAGES -->
+    <section style="padding:96px 24px;background:rgba(11,34,51,.45);">
+      <div data-fl-stagger style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:40px;align-items:center;">
+        <div style="display:grid;gap:16px;">
+          <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Languages</span>
+          <h2 style="margin:0;font:800 clamp(32px,4vw,48px)/1.04 var(--font-display);letter-spacing:-.03em;color:#fff;text-wrap:balance;">French, German and English. Live now.</h2>
+          <p style="margin:0;max-width:460px;font:400 17px/1.55 var(--font-body);color:var(--ink-300);">More are on the way. Tell us which one you want when you join.</p>
+        </div>
+        <div style="display:grid;gap:16px;">
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;">
+            <sc-for list="{{ live }}" as="l" hint-placeholder-count="3">
+              <div style="display:grid;gap:6px;padding:20px;border-radius:20px;background:rgba(16,184,184,.12);border:1px solid rgba(34,207,203,.35);"><span style="font:800 26px/1 var(--font-display);color:#fff;">{{ l.hello }}</span><span style="font:600 14px/1 var(--font-body);color:var(--teal-200);">{{ l.name }}</span></div>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <sc-for list="{{ soonLangs }}" as="l" hint-placeholder-count="8"><span style="height:32px;display:inline-flex;align-items:center;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);font:500 13px/1 var(--font-body);color:var(--ink-300);">{{ l }}</span></sc-for>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING -->
+    <section id="pricing" style="padding:96px 24px;background:transparent;">
+      <div data-fl-stagger style="max-width:1200px;margin:0 auto;display:grid;gap:40px;">
+        <div style="display:grid;gap:16px;max-width:680px;">
+          <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Pricing</span>
+          <h2 style="margin:0;font:800 clamp(32px,4vw,48px)/1.04 var(--font-display);letter-spacing:-.03em;color:#fff;text-wrap:balance;">One plan. Top up only if you need to.</h2>
+          <p style="margin:0;font:400 17px/1.55 var(--font-body);color:var(--ink-300);">{{ pricingSub }}</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px;align-items:stretch;">
+          <div style="display:grid;gap:18px;align-content:start;padding:28px;border-radius:28px;background:linear-gradient(160deg,rgba(16,184,184,.2),rgba(16,184,184,.04));border:1px solid rgba(34,207,203,.4);">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;"><span style="font:700 20px/1 var(--font-display);color:#fff;">Fluency Plus</span><span style="height:26px;display:inline-flex;align-items:center;padding:0 10px;border-radius:999px;background:var(--mint-400);color:var(--ink-900);font:700 12px/1 var(--font-body);">{{ planBadge }}</span></div>
+            <div style="display:flex;align-items:baseline;gap:8px;"><span style="font:800 56px/1 var(--font-numeric);letter-spacing:-.03em;color:#fff;">{{ planPrice }}</span><span style="font:500 17px/1 var(--font-body);color:var(--ink-300);">/ month</span></div>
+            <div style="display:grid;gap:10px;">
+              <sc-for list="{{ planIncludes }}" as="p" hint-placeholder-count="4"><span style="display:flex;gap:10px;align-items:start;font:500 15px/1.45 var(--font-body);color:var(--ink-100);"><x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Icon" name="check" size="{{ n18 }}" color="var(--mint-300)" hint-size="18px,18px"></x-import>{{ p }}</span></sc-for>
+            </div>
+            <x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Button" variant="primary" size="m" icon="{{ ctaIcon }}" full-width="{{ true }}" on-click="{{ goJoin }}" hint-size="100%,48px">{{ ctaLabel }}</x-import>
+          </div>
+          <div style="display:grid;gap:14px;align-content:start;padding:28px;border-radius:28px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);">
+            <span style="font:700 20px/1 var(--font-display);color:#fff;">Add talk time</span>
+            <span style="font:400 15px/1.5 var(--font-body);color:var(--ink-300);">One-time top-ups, used after your monthly time. They never expire.</span>
+            <sc-for list="{{ packs }}" as="p" hint-placeholder-count="3">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);"><span style="display:grid;gap:4px;"><span style="font:600 15px/1.2 var(--font-body);color:#fff;">{{ p.time }}</span><span style="font:500 12px/1 var(--font-mono);color:var(--ink-400);">{{ p.credits }}</span></span><span style="font:800 20px/1 var(--font-numeric);color:#fff;">{{ p.price }}</span></div>
+            </sc-for>
+          </div>
+          <div style="display:grid;gap:14px;align-content:start;padding:28px;border-radius:28px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);">
+            <span style="font:700 20px/1 var(--font-display);color:#fff;">Exam guides</span>
+            <span style="font:400 15px/1.5 var(--font-body);color:var(--ink-300);">20-minute PDF guides for Goethe, telc, DTZ, DELF, DALF, TCF IRN, TCF Canada and TEF Canada. Buy once, keep forever.</span>
+            <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="3">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);"><span style="display:grid;gap:4px;"><span style="font:600 15px/1.2 var(--font-body);color:#fff;">{{ t.label }}</span><span style="font:500 12px/1 var(--font-body);color:var(--ink-400);">{{ t.levels }}</span></span><span style="font:800 20px/1 var(--font-numeric);color:#fff;">{{ t.price }}</span></div>
+            </sc-for>
+            <button type="button" onClick="{{ openResources }}" style="justify-self:start;height:40px;padding:0 4px;border:0;background:none;color:var(--teal-300);font:600 15px/1 var(--font-body);cursor:pointer;">Browse the guides →</button>
+          </div>
+        </div>
+        <span style="font:500 13px/1.5 var(--font-body);color:var(--ink-500);">When your monthly time runs out, conversations pause until your plan resets, unless you have top-ups. Nothing is charged automatically. Plans and allowances may change; we'll always tell you before your next billing date.</span>
+      </div>
+    </section>
+
+    <!-- ECOSYSTEM -->
+    <section style="padding:96px 24px;background:rgba(11,34,51,.45);">
+      <div data-fl-stagger style="max-width:1200px;margin:0 auto;display:grid;gap:40px;">
+        <div style="display:grid;gap:16px;max-width:680px;">
+          <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">The Fluency ecosystem</span>
+          <h2 style="margin:0;font:800 clamp(32px,4vw,48px)/1.04 var(--font-display);letter-spacing:-.03em;color:#fff;text-wrap:balance;">More of Fluency, as each part is ready.</h2>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px;">
+          <sc-for list="{{ eco }}" as="e" hint-placeholder-count="3">
+            <div style="display:grid;gap:12px;align-content:start;padding:24px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);">
+              <div style="display:flex;justify-content:space-between;align-items:center;"><span style="display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:rgba(91,85,184,.2);color:var(--indigo-200);"><x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Icon" name="{{ e.icon }}" size="{{ n20 }}" hint-size="20px,20px"></x-import></span><span style="font:600 12px/1 var(--font-body);color:{{ e.tagColor }};">{{ e.tag }}</span></div>
+              <span style="font:700 20px/1.2 var(--font-display);color:#fff;">{{ e.title }}</span>
+              <span style="font:400 15px/1.55 var(--font-body);color:var(--ink-300);">{{ e.body }}</span>
+              <sc-if value="{{ e.hasAction }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ e.open }}" style="justify-self:start;height:40px;padding:0;border:0;background:none;color:var(--teal-300);font:600 15px/1 var(--font-body);cursor:pointer;">{{ e.action }} →</button></sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" style="padding:96px 24px;background:transparent;">
+      <div data-fl-stagger style="max-width:820px;margin:0 auto;display:grid;gap:32px;">
+        <h2 style="margin:0;font:800 clamp(32px,4vw,48px)/1.04 var(--font-display);letter-spacing:-.03em;color:#fff;text-wrap:balance;">Questions people ask before their first sentence.</h2>
+        <div style="display:grid;gap:8px;">
+          <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="6">
+            <div style="border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);">
+              <button type="button" onClick="{{ q.toggle }}" aria-expanded="{{ q.expanded }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 20px;border:0;background:none;color:#fff;text-align:left;cursor:pointer;font:600 17px/1.35 var(--font-display);">{{ q.q }}<span style="flex:0 0 auto;font:400 22px/1 var(--font-body);color:var(--teal-300);">{{ q.sign }}</span></button>
+              <sc-if value="{{ q.open }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding:0 20px 18px;font:400 16px/1.6 var(--font-body);color:var(--ink-300);max-width:680px;">{{ q.a }}</p></sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+  </main>
+  </sc-if>
+
+  <!-- ===================== 1b · CONVERSATIONAL ===================== -->
+  <sc-if value="{{ isB }}" hint-placeholder-val="{{ true }}">
+  <main id="top" data-screen-label="1b Conversational" style="display:block;">
+    <div data-fl-main style="max-width:1120px;margin:0 auto;padding:32px 24px 0;display:grid;grid-template-columns:minmax(200px,280px) minmax(0,1fr);gap:40px;align-items:start;">
+
+      <aside data-fl-aside style="position:sticky;top:96px;align-self:start;align-content:start;display:grid;justify-items:center;gap:14px;padding-top:24px;max-width:320px;">
+        <div style="width:min(260px,60vw);aspect-ratio:1/1;">
+          <dc-import name="Coach" expression="{{ coachB }}" character="{{ character }}" frame="circle" crop="bust" style="width:100%;height:100%;" hint-size="100%,100%"></dc-import>
+        </div>
+        <span style="display:inline-flex;align-items:center;gap:8px;font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:{{ coachBColor }};"><span style="width:8px;height:8px;border-radius:50%;background:{{ coachBColor }};"></span>{{ coachBLabel }}</span>
+        <span style="font:400 14px/1.45 var(--font-body);color:var(--ink-400);text-align:center;max-width:240px;">Your coach. Choose a look and voice inside the app.</span>
+      </aside>
+
+      <div data-fl-chat style="display:grid;gap:18px;padding-bottom:64px;min-width:0;">
+        <div data-cx="happy" style="display:grid;gap:16px;padding:24px 0 8px;">
+          <span style="justify-self:start;display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:999px;background:rgba(37,215,155,.12);border:1px solid rgba(37,215,155,.3);color:var(--mint-300);font:600 13px/1 var(--font-body);"><span style="width:7px;height:7px;border-radius:50%;background:var(--mint-400);"></span>{{ stateBadge }}</span>
+          <h1 style="margin:0;font:800 clamp(40px,5.6vw,68px)/1 var(--font-display);letter-spacing:-.035em;color:#fff;text-wrap:balance;">You've studied enough. Now say something.</h1>
+        </div>
+
+        <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Coach</span>
+        <div style="justify-self:start;max-width:min(600px,100%);display:grid;gap:12px;padding:16px 18px;border-radius:6px 22px 22px 22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font:400 18px/1.5 var(--font-body);color:var(--ink-100);">Hi. I'm a speaking coach you talk to out loud. Say anything, even badly. I'll answer first, then show you the fix. Like this:</div>
+
+        <div style="justify-self:start;width:min(560px,100%);display:grid;gap:14px;padding:20px 22px;border-radius:28px;background:rgba(11,34,51,.8);border:1px solid rgba(255,255,255,.14);">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <span style="display:inline-flex;align-items:center;gap:8px;font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:{{ hs.color }};"><span style="width:8px;height:8px;border-radius:50%;background:{{ hs.color }};box-shadow:0 0 12px {{ hs.color }};"></span>{{ hs.label }}</span>
+            <span style="font:500 12px/1 var(--font-mono);color:var(--ink-400);">English · B1</span>
+          </div>
+          <p style="margin:0;min-height:58px;font:600 21px/1.4 var(--font-display);color:#fff;"><sc-for list="{{ hs.words }}" as="w" hint-placeholder-count="5"><span style="text-decoration:{{ w.deco }};text-decoration-color:var(--cyan-400);text-decoration-thickness:2px;text-underline-offset:5px;">{{ w.text }} </span></sc-for></p>
+          <sc-if value="{{ hs.thinking }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:10px;font:500 14px/1 var(--font-body);color:var(--indigo-300);">{{ dots }}<span>Working out what you meant</span></div></sc-if>
+          <sc-if value="{{ hs.reply }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font:600 17px/1.4 var(--font-display);color:var(--teal-300);">{{ hs.replyText }}</p></sc-if>
+          <sc-if value="{{ hs.fix }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;grid-template-columns:64px minmax(0,1fr);gap:6px 12px;align-items:baseline;padding:14px 16px;border-radius:18px;background:rgba(91,85,184,.16);border:1px solid rgba(122,117,208,.32);">
+              <span style="font:600 12px/1.3 var(--font-body);color:var(--mint-300);">Say</span><span style="font:700 17px/1.35 var(--font-display);color:#fff;">{{ hs.better }}</span>
+              <span style="font:600 12px/1.3 var(--font-body);color:var(--ink-400);">Why</span><span style="font:400 14px/1.45 var(--font-body);color:var(--ink-200);">{{ hs.why }}</span>
+            </div>
+          </sc-if>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;padding:4px 0 24px;">
+          <x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Button" variant="primary" size="m" icon="{{ ctaIcon }}" on-click="{{ goJoin }}" hint-size="200px,48px">{{ ctaLabel }}</x-import>
+          <a href="Store v3.dc.html" style="display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 20px;border-radius:999px;border:1px solid rgba(255,255,255,.22);color:#fff;font:600 15px/1 var(--font-body);text-decoration:none;">Browse exam guides</a>
+          <span style="align-self:center;font:500 14px/1.4 var(--font-body);color:var(--ink-400);">{{ platformNote }}</span>
+        </div>
+
+        <!-- freeze -->
+        <span data-cx="listening" style="justify-self:end;font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-400);">You</span>
+        <div style="justify-self:end;max-width:min(460px,90%);padding:14px 18px;border-radius:22px 6px 22px 22px;background:var(--teal-700);color:#fff;font:500 18px/1.45 var(--font-body);">I know the words. But when someone actually talks to me, I freeze.</div>
+        <span data-cx="encouraging" style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Coach</span>
+        <div style="justify-self:start;max-width:min(600px,100%);display:grid;gap:14px;padding:16px 18px;border-radius:6px 22px 22px 22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font:400 18px/1.5 var(--font-body);color:var(--ink-100);">
+          <span>That's normal. Knowing and saying are different skills:</span>
+          <sc-for list="{{ freeze }}" as="f" hint-placeholder-count="3"><span style="display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;"><span style="font:600 13px/1.6 var(--font-mono);color:var(--teal-300);">{{ f.n }}</span><span><b style="color:#fff;font-weight:700;">{{ f.t }}.</b> <span style="color:var(--ink-300);">{{ f.b }}</span></span></span></sc-for>
+        </div>
+
+        <!-- stuck -->
+        <span data-cx="confused" style="justify-self:end;font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-400);">You</span>
+        <div style="justify-self:end;max-width:min(460px,90%);padding:14px 18px;border-radius:22px 6px 22px 22px;background:var(--teal-700);color:#fff;font:500 18px/1.45 var(--font-body);">And if I get stuck in the middle of a sentence?</div>
+        <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Coach</span>
+        <div style="justify-self:start;max-width:min(600px,100%);display:grid;gap:14px;padding:16px 18px;border-radius:6px 22px 22px 22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font:400 18px/1.5 var(--font-body);color:var(--ink-100);">
+          <span>Say one of these instead of giving up. Try one. I just asked you: <b style="color:var(--teal-300);">“For here or to go?”</b></span>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <sc-for list="{{ repairs }}" as="r" hint-placeholder-count="4"><button type="button" onClick="{{ r.pick }}" aria-pressed="{{ r.pressed }}" style="display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px;border-radius:999px;cursor:pointer;font:600 14px/1 var(--font-body);background:{{ r.bg }};border:1px solid {{ r.bd }};color:{{ r.fg }};"><x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Icon" name="{{ r.icon }}" size="{{ n14 }}" hint-size="14px,14px"></x-import>{{ r.label }}</button></sc-for>
+          </div>
+          <div style="display:grid;gap:6px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.05);">
+            <sc-for list="{{ rep.out }}" as="o" hint-placeholder-count="1"><span style="font:600 18px/1.4 var(--font-display);color:var(--teal-300);">{{ o }}</span></sc-for>
+            <span style="font:400 14px/1.45 var(--font-body);color:var(--ink-400);">{{ rep.does }}</span>
+          </div>
+        </div>
+
+        <!-- badly first -->
+        <span data-cx="thinking" style="justify-self:end;font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-400);">You</span>
+        <div style="justify-self:end;max-width:min(460px,90%);padding:14px 18px;border-radius:22px 6px 22px 22px;background:var(--teal-700);color:#fff;font:500 18px/1.45 var(--font-body);">Shouldn't I get the grammar right first?</div>
+        <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Coach</span>
+        <div style="justify-self:start;max-width:min(600px,100%);display:grid;gap:12px;padding:16px 18px;border-radius:6px 22px 22px 22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font:400 18px/1.5 var(--font-body);color:var(--ink-100);">
+          <span>The other way round. <b style="color:#fff;">Say it badly first. Get it right second.</b></span>
+          <span style="display:grid;gap:4px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.04);"><span style="font:600 12px/1 var(--font-body);color:var(--ink-400);">Usually</span><span style="color:var(--ink-300);">Study → test → forget → repeat</span></span>
+          <span style="display:grid;gap:4px;padding:12px 14px;border-radius:16px;background:rgba(16,184,184,.14);border:1px solid rgba(34,207,203,.3);"><span style="font:600 12px/1 var(--font-body);color:var(--teal-300);">With me</span><span style="color:#fff;">Speak → be understood → be corrected → speak again</span></span>
+          <span style="color:var(--ink-300);">Two minutes of talking beats an hour of scrolling.</span>
+        </div>
+
+        <!-- how -->
+        <span id="how" data-cx="listening" style="justify-self:end;font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-400);">You</span>
+        <div style="justify-self:end;max-width:min(460px,90%);padding:14px 18px;border-radius:22px 6px 22px 22px;background:var(--teal-700);color:#fff;font:500 18px/1.45 var(--font-body);">How does it actually work?</div>
+        <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Coach</span>
+        <div style="justify-self:start;max-width:min(600px,100%);display:grid;gap:12px;padding:16px 18px;border-radius:6px 22px 22px 22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font:400 18px/1.5 var(--font-body);color:var(--ink-100);">
+          <span>Five things happen between your sentence and my reply. Tap a step.</span>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <sc-for list="{{ stages }}" as="s" hint-placeholder-count="5"><button type="button" onClick="{{ s.pick }}" aria-pressed="{{ s.pressed }}" style="display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px;border-radius:999px;cursor:pointer;font:600 14px/1 var(--font-body);background:{{ s.bg }};border:1px solid {{ s.bd }};color:#fff;"><x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Icon" name="{{ s.icon }}" size="{{ n14 }}" hint-size="14px,14px"></x-import>{{ s.title }}</button></sc-for>
+          </div>
+          <div style="display:grid;gap:8px;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.05);">
+            <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--cyan-300);">{{ st.label }}</span>
+            <span style="font:600 19px/1.4 var(--font-display);color:#fff;"><sc-for list="{{ st.words }}" as="w" hint-placeholder-count="4"><span style="opacity:{{ w.op }};text-decoration:{{ w.deco }};text-decoration-color:var(--cyan-400);text-decoration-thickness:2px;text-underline-offset:5px;">{{ w.text }} </span></sc-for></span>
+            <span style="font:500 14px/1.4 var(--font-mono);color:var(--teal-300);">{{ st.translation }}</span>
+            <span style="font:400 15px/1.5 var(--font-body);color:var(--ink-300);">{{ st.detail }}</span>
+          </div>
+        </div>
+
+        <!-- get back -->
+        <span data-cx="happy" style="justify-self:end;font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-400);">You</span>
+        <div style="justify-self:end;max-width:min(460px,90%);padding:14px 18px;border-radius:22px 6px 22px 22px;background:var(--teal-700);color:#fff;font:500 18px/1.45 var(--font-body);">What do I get at the end?</div>
+        <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Coach</span>
+        <div style="justify-self:start;max-width:min(600px,100%);display:grid;gap:12px;padding:16px 18px;border-radius:6px 22px 22px 22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font:400 18px/1.5 var(--font-body);color:var(--ink-100);">
+          <span>A debrief. Ability, not points. Something like this:</span>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;">
+            <sc-for list="{{ debrief }}" as="d" hint-placeholder-count="3"><div style="display:grid;gap:4px;padding:12px;border-radius:14px;background:rgba(255,255,255,.06);"><span style="font:800 22px/1 var(--font-numeric);color:#fff;">{{ d.v }}</span><span style="font:500 12px/1.3 var(--font-body);color:var(--ink-300);">{{ d.k }}</span></div></sc-for>
+          </div>
+          <span style="font:500 15px/1.4 var(--font-mono);color:var(--ink-200);">“since three years” → “for three years” · 4 times this week, down from 7</span>
+        </div>
+
+        <!-- features -->
+        <span id="features" data-cx="speaking" style="justify-self:end;font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-400);">You</span>
+        <div style="justify-self:end;max-width:min(460px,90%);padding:14px 18px;border-radius:22px 6px 22px 22px;background:var(--teal-700);color:#fff;font:500 18px/1.45 var(--font-body);">Can I change how you correct me?</div>
+        <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Coach</span>
+        <div style="justify-self:start;max-width:min(600px,100%);display:grid;gap:12px;padding:16px 18px;border-radius:6px 22px 22px 22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font:400 18px/1.5 var(--font-body);color:var(--ink-100);">
+          <span>Any time, mid-conversation. Pick one and watch the same turn change:</span>
+          <div role="radiogroup" aria-label="Correction" style="display:flex;flex-wrap:wrap;gap:6px;">
+            <sc-for list="{{ corrections }}" as="c" hint-placeholder-count="6"><button type="button" role="radio" aria-checked="{{ c.checked }}" onClick="{{ c.pick }}" style="height:36px;padding:0 14px;border-radius:999px;cursor:pointer;font:600 14px/1 var(--font-body);background:{{ c.bg }};border:1px solid {{ c.bd }};color:{{ c.fg }};">{{ c.label }}</button></sc-for>
+          </div>
+          <div style="display:grid;gap:10px;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.05);">
+            <sc-for list="{{ corrLines }}" as="l" hint-placeholder-count="3"><div style="display:grid;gap:4px;padding:{{ l.pad }};border-radius:12px;background:{{ l.bg }};"><span style="font:700 11px/1 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:{{ l.labelColor }};">{{ l.label }}</span><span style="font:{{ l.font }};color:{{ l.color }};">{{ l.text }}</span></div></sc-for>
+          </div>
+          <span style="color:var(--ink-300);">You also choose the mode: <b style="color:#fff;font-weight:600;">{{ modeList }}</b>. Your level, A1 to C2. My voice speed. And whether I explain in your language, English, or both.</span>
+        </div>
+
+        <!-- transparency -->
+        <span data-cx="thinking" style="justify-self:end;font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-400);">You</span>
+        <div style="justify-self:end;max-width:min(460px,90%);padding:14px 18px;border-radius:22px 6px 22px 22px;background:var(--teal-700);color:#fff;font:500 18px/1.45 var(--font-body);">How do I know you really heard me?</div>
+        <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Coach</span>
+        <div style="justify-self:start;max-width:min(600px,100%);display:grid;gap:12px;padding:16px 18px;border-radius:6px 22px 22px 22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font:400 18px/1.5 var(--font-body);color:var(--ink-100);">
+          <span>No black box. You can see what I heard.</span>
+          <sc-for list="{{ trust }}" as="t" hint-placeholder-count="3"><span><b style="color:#fff;font-weight:700;">{{ t.t }}.</b> <span style="color:var(--ink-300);">{{ t.b }}</span></span></sc-for>
+          <span style="font-size:15px;color:var(--ink-300);">Delete any conversation, any time. <a href="Privacy.dc.html">Privacy policy</a></span>
+        </div>
+
+        <!-- languages -->
+        <span data-cx="welcome" style="justify-self:end;font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-400);">You</span>
+        <div style="justify-self:end;max-width:min(460px,90%);padding:14px 18px;border-radius:22px 6px 22px 22px;background:var(--teal-700);color:#fff;font:500 18px/1.45 var(--font-body);">Which languages?</div>
+        <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Coach</span>
+        <div style="justify-self:start;max-width:min(600px,100%);display:grid;gap:12px;padding:16px 18px;border-radius:6px 22px 22px 22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font:400 18px/1.5 var(--font-body);color:var(--ink-100);">
+          <div style="display:flex;flex-wrap:wrap;gap:8px;"><sc-for list="{{ live }}" as="l" hint-placeholder-count="3"><span style="display:inline-flex;align-items:baseline;gap:8px;padding:10px 14px;border-radius:16px;background:rgba(16,184,184,.14);border:1px solid rgba(34,207,203,.3);"><b style="font:800 20px/1 var(--font-display);color:#fff;">{{ l.hello }}</b><span style="font:600 13px/1 var(--font-body);color:var(--teal-200);">{{ l.name }}</span></span></sc-for></div>
+          <span style="color:var(--ink-300);">French, German and English, live now. More are on the way. Tell me which one you want when you join.</span>
+        </div>
+
+        <!-- pricing -->
+        <span id="pricing" data-cx="idle" style="justify-self:end;font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-400);">You</span>
+        <div style="justify-self:end;max-width:min(460px,90%);padding:14px 18px;border-radius:22px 6px 22px 22px;background:var(--teal-700);color:#fff;font:500 18px/1.45 var(--font-body);">How much is it?</div>
+        <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Coach</span>
+        <div style="justify-self:start;width:min(600px,100%);display:grid;gap:14px;padding:18px;border-radius:6px 22px 22px 22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font:400 18px/1.5 var(--font-body);color:var(--ink-100);">
+          <div style="display:grid;gap:12px;padding:18px;border-radius:20px;background:linear-gradient(160deg,rgba(16,184,184,.22),rgba(16,184,184,.05));border:1px solid rgba(34,207,203,.4);">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;"><span style="font:700 18px/1 var(--font-display);color:#fff;">Fluency Plus</span><span style="height:24px;display:inline-flex;align-items:center;padding:0 10px;border-radius:999px;background:var(--mint-400);color:var(--ink-900);font:700 12px/1 var(--font-body);">{{ planBadge }}</span></div>
+            <div style="display:flex;align-items:baseline;gap:8px;"><span style="font:800 44px/1 var(--font-numeric);color:#fff;">{{ planPrice }}</span><span style="font:500 16px/1 var(--font-body);color:var(--ink-300);">/ month</span></div>
+            <sc-for list="{{ planIncludes }}" as="p" hint-placeholder-count="4"><span style="display:flex;gap:8px;align-items:start;font:500 15px/1.4 var(--font-body);color:var(--ink-100);"><x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Icon" name="check" size="{{ n16 }}" color="var(--mint-300)" hint-size="16px,16px"></x-import>{{ p }}</span></sc-for>
+          </div>
+          <span style="color:var(--ink-300);">Need more time? Top-ups: <b style="color:#fff;font-weight:600;">{{ packLine }}</b>. They never expire. Exam guides are one-time, from $7.</span>
+          <span style="font-size:14px;color:var(--ink-400);">Nothing is charged automatically when your time runs out.</span>
+        </div>
+
+        <!-- ecosystem -->
+        <span data-cx="encouraging" style="justify-self:end;font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-400);">You</span>
+        <div style="justify-self:end;max-width:min(460px,90%);padding:14px 18px;border-radius:22px 6px 22px 22px;background:var(--teal-700);color:#fff;font:500 18px/1.45 var(--font-body);">Anything besides the app?</div>
+        <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Coach</span>
+        <div style="justify-self:start;max-width:min(600px,100%);display:grid;gap:10px;padding:16px 18px;border-radius:6px 22px 22px 22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font:400 18px/1.5 var(--font-body);color:var(--ink-100);">
+          <sc-for list="{{ eco }}" as="e" hint-placeholder-count="3">
+            <div style="display:grid;gap:4px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.04);">
+              <div style="display:flex;justify-content:space-between;gap:10px;"><b style="font:700 16px/1.3 var(--font-display);color:#fff;">{{ e.title }}</b><span style="font:600 12px/1.3 var(--font-body);color:{{ e.tagColor }};">{{ e.tag }}</span></div>
+              <span style="font:400 15px/1.5 var(--font-body);color:var(--ink-300);">{{ e.body }}</span>
+              <sc-if value="{{ e.hasAction }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ e.open }}" style="justify-self:start;height:36px;padding:0;border:0;background:none;color:var(--teal-300);font:600 15px/1 var(--font-body);cursor:pointer;">{{ e.action }} →</button></sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- faq -->
+        <span id="faq" data-cx="listening" style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Coach</span>
+        <div style="justify-self:start;max-width:min(600px,100%);display:grid;gap:12px;padding:16px 18px;border-radius:6px 22px 22px 22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font:400 18px/1.5 var(--font-body);color:var(--ink-100);">
+          <span>Other things people ask me. Tap one.</span>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="6"><button type="button" onClick="{{ q.toggle }}" aria-expanded="{{ q.expanded }}" style="min-height:36px;padding:8px 14px;border-radius:18px;cursor:pointer;text-align:left;font:600 14px/1.3 var(--font-body);background:{{ q.bg }};border:1px solid {{ q.bd }};color:#fff;">{{ q.q }}</button></sc-for>
+          </div>
+        </div>
+        <sc-if value="{{ faqOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="justify-self:end;max-width:min(460px,90%);padding:14px 18px;border-radius:22px 6px 22px 22px;background:var(--teal-700);color:#fff;font:500 18px/1.45 var(--font-body);">{{ faqQ }}</div>
+          <div style="justify-self:start;max-width:min(600px,100%);padding:16px 18px;border-radius:6px 22px 22px 22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font:400 18px/1.5 var(--font-body);color:var(--ink-100);">{{ faqA }}</div>
+        </sc-if>
+      </div>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- FINAL CTA + WAITLIST (shared) -->
+  <section id="join" data-screen-label="Waitlist" style="padding:96px 24px;background:radial-gradient(100% 80% at 50% 100%,rgba(18,58,76,.7) 0%,rgba(4,18,27,0) 70%);">
+    <div data-fl-stagger style="max-width:1080px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:40px;align-items:center;">
+      <div style="display:grid;gap:16px;">
+        <span style="font:700 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-300);">Your turn</span>
+        <h2 style="margin:0;font:800 clamp(36px,5vw,60px)/1 var(--font-display);letter-spacing:-.035em;color:#fff;text-wrap:balance;">Two minutes of speaking beats an hour of scrolling.</h2>
+        <p style="margin:0;max-width:460px;font:400 17px/1.55 var(--font-body);color:var(--ink-300);">{{ formNote }}</p>
+      </div>
+      <div style="display:grid;gap:14px;padding:28px;border-radius:28px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);">
+        <sc-if value="{{ notSubmitted }}" hint-placeholder-val="{{ true }}">
+          <span style="font:700 20px/1.2 var(--font-display);color:#fff;">{{ formTitle }}</span>
+          <label style="display:grid;gap:6px;font:600 13px/1 var(--font-body);color:var(--ink-200);">Email
+            <input type="email" value="{{ email }}" onChange="{{ setEmail }}" placeholder="you@example.com" autocomplete="email" style="height:48px;padding:0 16px;border-radius:14px;border:1px solid {{ emailBd }};background:rgba(4,18,27,.6);color:#fff;font:400 16px/1 var(--font-body);"></input>
+          </label>
+          <sc-if value="{{ emailErr }}" hint-placeholder-val="{{ false }}"><span role="alert" style="font:500 13px/1.3 var(--font-body);color:var(--coral-400);">{{ emailErr }}</span></sc-if>
+          <label style="display:grid;gap:6px;font:600 13px/1 var(--font-body);color:var(--ink-200);">Language you want to speak
+            <select value="{{ lang }}" onChange="{{ setLang }}" style="height:48px;padding:0 14px;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:rgba(4,18,27,.6);color:#fff;font:400 16px/1 var(--font-body);">
+              <option value="French">French</option><option value="German">German</option><option value="English">English</option><option value="Another language">Another language</option>
+            </select>
+          </label>
+          <x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Button" variant="primary" size="m" icon="{{ ctaIcon }}" full-width="{{ true }}" on-click="{{ submit }}" hint-size="100%,48px">{{ ctaLabel }}</x-import>
+          <span style="font:500 12px/1.4 var(--font-body);color:var(--ink-400);">We'll only email you about Fluency. <a href="Privacy.dc.html">Privacy</a></span>
+        </sc-if>
+        <sc-if value="{{ submitted }}" hint-placeholder-val="{{ false }}">
+          <span style="display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:rgba(37,215,155,.16);color:var(--mint-300);"><x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Icon" name="check" size="{{ n22 }}" hint-size="22px,22px"></x-import></span>
+          <span style="font:700 22px/1.2 var(--font-display);color:#fff;">You're on the list.</span>
+          <span style="font:400 16px/1.5 var(--font-body);color:var(--ink-300);">{{ successNote }}</span>
+        </sc-if>
+      </div>
+    </div>
+  </section>
+
+  <footer style="padding:40px 24px 96px;background:transparent;border-top:1px solid rgba(255,255,255,.08);">
+    <div style="max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;gap:24px;justify-content:space-between;align-items:center;">
+      <div style="display:grid;gap:8px;">
+        <x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Wordmark" size="{{ n20 }}" tone="dark" hint-size="110px,22px"></x-import>
+        <span style="font:400 14px/1.4 var(--font-body);color:var(--ink-400);">From studying a language to actually speaking it.</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px 20px;font:500 14px/1 var(--font-body);">
+        <a href="#how" style="color:var(--ink-300);text-decoration:none;">How it works</a>
+        <a href="#pricing" style="color:var(--ink-300);text-decoration:none;">Pricing</a>
+        <a href="Store v3.dc.html" style="color:var(--ink-300);text-decoration:none;">Exam guides</a>
+        <a href="Partners v3.dc.html" style="color:var(--ink-300);text-decoration:none;">Partners</a>
+        <a href="Partner Hub v3.dc.html" style="color:var(--ink-300);text-decoration:none;">Partner hub</a>
+        <a href="Privacy.dc.html" style="color:var(--ink-300);text-decoration:none;">Privacy</a>
+        <a href="Terms.dc.html" style="color:var(--ink-300);text-decoration:none;">Terms</a>
+        <a href="mailto:support@fluencyai.app" style="color:var(--ink-300);text-decoration:none;">support@fluencyai.app</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- DIRECTION SWITCHER -->
+  <div data-fl-switch role="radiogroup" aria-label="Design direction" style="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:40;display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(11,34,51,.9);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(12px);box-shadow:0 12px 30px rgba(0,0,0,.4);">
+    <sc-for list="{{ dirs }}" as="d" hint-placeholder-count="2"><button type="button" role="radio" aria-checked="{{ d.checked }}" onClick="{{ d.pick }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:999px;border:0;cursor:pointer;font:600 13px/1 var(--font-body);background:{{ d.bg }};color:{{ d.fg }};"><span style="font:700 11px/1 var(--font-mono);opacity:.8;">{{ d.id }}</span>{{ d.label }}</button></sc-for>
+  </div>
+
+  <!-- POP-UPS -->
+  <sc-if value="{{ popOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closePop }}" style="position:fixed;inset:0;z-index:50;background:rgba(4,18,27,.72);backdrop-filter:blur(6px);display:grid;place-items:center;padding:20px;">
+      <div role="dialog" aria-modal="true" aria-label="{{ popTitle }}" onClick="{{ stop }}" style="width:min(560px,100%);max-height:calc(100vh - 40px);overflow:auto;display:grid;gap:16px;padding:28px;border-radius:28px;background:#0B2233;border:1px solid rgba(255,255,255,.14);box-shadow:0 30px 80px rgba(0,0,0,.5);">
+        <div style="display:flex;justify-content:space-between;align-items:start;gap:16px;">
+          <span style="font:800 28px/1.1 var(--font-display);letter-spacing:-.02em;color:#fff;">{{ popTitle }}</span>
+          <button type="button" aria-label="Close" onClick="{{ closePop }}" style="flex:0 0 auto;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;"><x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Icon" name="x" size="{{ n18 }}" hint-size="18px,18px"></x-import></button>
+        </div>
+
+        <sc-if value="{{ popPartners }}" hint-placeholder-val="{{ false }}">
+          <span style="font:400 16px/1.55 var(--font-body);color:var(--ink-300);">Creators, teachers and affiliates share Fluency with a personal link and earn on what their audience buys.</span>
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;">
+            <sc-for list="{{ partnerFacts }}" as="p" hint-placeholder-count="4"><div style="display:grid;gap:4px;padding:14px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);"><span style="font:800 22px/1 var(--font-numeric);color:#fff;">{{ p.v }}</span><span style="font:500 13px/1.35 var(--font-body);color:var(--ink-300);">{{ p.k }}</span></div></sc-for>
+          </div>
+          <span style="font:500 13px/1.45 var(--font-body);color:var(--ink-400);">Commission is created only by a confirmed order carrying your code. Clicks never count. Example rates; they may change.</span>
+          <sc-if value="{{ partnerNotSent }}" hint-placeholder-val="{{ true }}">
+            <input type="email" value="{{ pEmail }}" onChange="{{ setPEmail }}" placeholder="Your email" aria-label="Your email" style="height:48px;padding:0 16px;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:rgba(4,18,27,.6);color:#fff;font:400 16px/1 var(--font-body);"></input>
+            <x-import component-from-global-scope="FluencyAIDesignSystem_b0c8f6.Button" variant="primary" size="m" icon="handshake" full-width="{{ true }}" on-click="{{ sendPartner }}" hint-size="100%,48px">Apply to become a partner</x-import>
+          </sc-if>
+          <sc-if value="{{ partnerSent }}" hint-placeholder-val="{{ false }}"><span style="padding:14px 16px;border-radius:16px;background:rgba(37,215,155,.12);color:var(--mint-300);font:600 15px/1.4 var(--font-body);">Thanks. We'll email your application link and Partner hub access.</span></sc-if>
+        </sc-if>
+
+        <sc-if value="{{ popResources }}" hint-placeholder-val="{{ false }}">
+          <span style="font:400 16px/1.55 var(--font-body);color:var(--ink-300);">20-minute PDF guides to the exams behind visas, residence and university places. Buy once, keep forever.</span>
+          <div style="display:grid;gap:8px;">
+            <sc-for list="{{ guides }}" as="g" hint-placeholder-count="5">
+              <a href="{{ g.url }}" target="_blank" rel="noopener" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);text-decoration:none;">
+                <span style="font:700 16px/1.25 var(--font-display);color:#fff;">{{ g.name }}</span>
+                <span style="grid-row:span 2;font:800 18px/1 var(--font-numeric);color:#fff;">{{ g.price }}</span>
+                <span style="font:500 13px/1.3 var(--font-body);color:var(--ink-300);">{{ g.purpose }}</span>
+              </a>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <sc-for list="{{ exams }}" as="x" hint-placeholder-count="5"><span style="height:30px;display:inline-flex;align-items:center;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);font:500 13px/1 var(--font-body);color:var(--ink-200);">{{ x }}</span></sc-for>
+          </div>
+          <span style="font:500 12px/1.45 var(--font-body);color:var(--ink-400);">Independent study guides. Fluency is not affiliated with or endorsed by the Goethe-Institut, telc, the BAMF or France Éducation International. Checkout runs on Selar.</span>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;direction&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;conversational&quot;,&quot;product&quot;],&quot;default&quot;:&quot;conversational&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;launchState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;waitlist&quot;,&quot;early_access&quot;,&quot;public_launch&quot;],&quot;default&quot;:&quot;waitlist&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;character&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dan&quot;,&quot;mia&quot;],&quot;default&quot;:&quot;dan&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;planPrice&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;$12&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const DEMOS = [
+  { words: ["I", "am", "living", "here", ["since"], "three", "years."], said: "I am living here since three years.", better: "I've been living here for three years.", why: "For a stretch of time up to now, English uses “have been” with “for”.", type: "Grammar", reply: "Three years! What brought you here?" },
+  { words: ["Yesterday", "I", ["have", 1], ["seen"], "a", "great", "film."], said: "Yesterday I have seen a great film.", better: "Yesterday I saw a great film.", why: "With a finished time like “yesterday”, use the simple past.", type: "Grammar", reply: "Nice. What was it about?" },
+  { words: ["Can", "you", "explain", ["me"], "the", "menu?"], said: "Can you explain me the menu?", better: "Can you explain the menu to me?", why: "“Explain” takes the thing first, then “to” plus the person.", type: "Word order", reply: "Of course. Starters are on the left." },
+];
+const VS = {
+  listening: ["Listening", "var(--cyan-400)", "listening"],
+  thinking: ["Thinking", "var(--indigo-300)", "thinking"],
+  speaking: ["Speaking", "var(--teal-300)", "speaking"],
+  happy: ["Understood", "var(--mint-300)", "happy"],
+};
+const REPAIRS = [
+  { icon: "repeat", label: "Say that again", you: "Sorry, can you say that again?", does: "Repeats the line once. Same words, no penalty.", out: ["For here or to go?"] },
+  { icon: "gauge", label: "Slower, please", you: "Slower, please.", does: "Replays it at slow speed, with clear gaps between words.", out: ["For… here… or… to go?"] },
+  { icon: "languages", label: "Explain differently", you: "I don't understand.", does: "Says the same thing in simpler words, still in English.", out: ["Do you want to eat here, or take it with you?"] },
+  { icon: "sparkles", label: "Give me a phrase", you: "How do I answer?", does: "Hands you two ready answers to say out loud.", out: ["“For here, please.”", "“To go, thanks.”"] },
+];
+const FREEZE = [
+  { n: "01", t: "Memorising isn't speaking", b: "You can recall 3,000 words and still not build one sentence in real time." },
+  { n: "02", t: "Grammar isn't confidence", b: "Knowing the rule and reaching for it mid-sentence are two different skills." },
+  { n: "03", t: "Reading isn't hearing", b: "Clean textbook audio is nothing like a tired waiter at native speed." },
+];
+const STAGES = [
+  { icon: "ear", title: "Listen", blurb: "Accent, speed, hesitation", label: "Step 01 · Listening", headline: "It hears the sentence you actually said, not the one the textbook expected.",
+    words: ["I'd", "like", "to", ["book"], ["a", 1], ["table", 1]], translation: "heard “book” at 61% · checked against context", detail: "Words it's unsure of are underlined in cyan, so you can see exactly what was misheard." },
+  { icon: "mic", title: "Speak", blurb: "No script to read", label: "Step 02 · Speaking", headline: "You talk. It waits the way a patient person would.",
+    words: ["Uh…", "a", "table", ["for…", 1], ["two?", 1]], translation: "pause 2.1 s · turn kept open", detail: "Pauses and filler don't end your turn. Say again, slower, or ask it to explain differently at any point." },
+  { icon: "scan-text", title: "Get feedback", blurb: "Said → better → why", label: "Step 03 · Correction", headline: "Three beats: what you said, what to say, and why.",
+    words: ["Can", "you", "explain", ["me"], "the", "menu?"], translation: "→ Can you explain the menu to me?", detail: "Fixes arrive when your thought is finished, so the conversation never stalls mid-sentence." },
+  { icon: "audio-lines", title: "Improve", blurb: "Sound by sound", label: "Step 04 · Pronunciation · Coming soon", soon: true, headline: "A physical instruction, not a score out of ten.",
+    words: [["th"], "ree"], translation: "/θriː/ · tongue lightly between the teeth", detail: "It tells you where the tongue goes. Then you say it again and it tells you whether that landed." },
+  { icon: "brain", title: "Remember", blurb: "Tomorrow builds on today", label: "Step 05 · Memory", headline: "The next conversation is built around what you got wrong in this one.",
+    words: ["A", "table", "for", "two,", "please."], translation: "Fourth time this week · no hesitation", detail: "Mistakes carry over between sessions. You choose what it remembers, and can clear it any time." },
+];
+const MODES = [
+  ["messages-square", "Conversation", "Talk about anything. It follows your lead and keeps you speaking."],
+  ["graduation-cap", "Tutor", "It explains, gives examples and checks you've got it before moving on."],
+  ["drama", "Role-play", "Order, complain, interview. It plays the other person and stays in character."],
+  ["scan-text", "Conversation + Correction", "Free talk, with fixes arriving between turns so the story keeps going."],
+  ["coffee", "Casual", "Relaxed, everyday English, the way friends talk."],
+  ["briefcase", "Professional", "Meetings, calls and interviews, in a work register."],
+];
+const CORRECTIONS = [
+  ["Off", "No corrections. Just keep talking.", ["you", "ai"]],
+  ["Immediate", "Fixed the moment you say it, then the conversation carries on.", ["you", "fix", "ai"]],
+  ["After", "It answers first, then shows the fix. Nothing stalls.", ["you", "ai", "fix"]],
+  ["Important only", "Only what blocks understanding. Small slips are let through.", ["you", "ai", "n:Understood as meant · small slip let through"]],
+  ["Detailed", "Every fix, with one line of why.", ["you", "ai", "fix", "why"]],
+  ["Teaching", "The fix, the reason, and a chance to say it again.", ["you", "ai", "fix", "why", "n:Your turn: say it again with “to me”."]],
+];
+const CL = {
+  you: { label: "You", text: "Can you explain me the menu?", font: "500 16px/1.4 var(--font-body)", color: "#fff", lc: "var(--ink-400)" },
+  ai: { label: "Coach", text: "Of course. Starters are on the left.", font: "600 16px/1.4 var(--font-display)", color: "var(--teal-300)", lc: "var(--ink-400)" },
+  fix: { label: "Better", text: "Can you explain the menu to me?", font: "700 16px/1.4 var(--font-display)", color: "#fff", lc: "var(--mint-300)", bg: "rgba(91,85,184,.2)", pad: "10px 12px" },
+  why: { label: "Why", text: "“Explain” takes the thing first, then “to” plus the person.", font: "400 14px/1.45 var(--font-body)", color: "var(--ink-300)", lc: "var(--indigo-300)" },
+};
+const EXPL = {
+  native: { label: "Your language · Español", text: "“Stuck” significa atascado: no puedes seguir adelante." },
+  target: { label: "In English", text: "“Stuck” means you can't move forward, like a door that won't open." },
+};
+const TRUST = [
+  { n: "01 / CONFIDENCE", t: "Uncertain words are marked", b: "If it's only 61% sure of a word, it underlines it instead of guessing silently." },
+  { n: "02 / INTENT", t: "Meaning before grammar", b: "It works out what you were reaching for, then decides whether the slip was worth stopping for." },
+  { n: "03 / MEMORY", t: "Your mistakes carry over", b: "Tomorrow's conversation is built around what you got wrong today. You control what it keeps." },
+];
+const PACKS = [["$5", "About 1 hour", "500 credits"], ["$10", "About 2½ hours", "1,100 credits · includes bonus"], ["$20", "About 5½ hours", "2,400 credits · includes bonus"]];
+const GUIDES = [
+  ["goethe-b1", "Goethe B1", "For residence, study & training", "$9", "900z05076s"],
+  ["telc-b1", "telc B1", "For citizenship, residence & training", "$9", "wztx6q0107"],
+  ["dtz-b1", "DTZ (A2–B1)", "For settlement & citizenship", "$9", "xnb0501601"],
+  ["delf-b2", "DELF B2", "For French universities", "$9", "101dp7y109"],
+  ["tcf-a2", "TCF IRN A2", "For your carte de séjour pluriannuelle", "$7", "828g94lwgz"],
+];
+
+class Component extends DCLogic {
+  state = { tick: 0, demo: 0, repair: 0, stage: 0, corr: 2, expl: "native", faq: null, pop: null, dir: null,
+    email: "", lang: "French", emailErr: "", submitted: false, pEmail: "", pSent: false, coachB: "welcome" };
+
+  componentDidMount() {
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    this._t = setInterval(() => {
+      if (reduce) return;
+      this.setState((s) => {
+        const n = DEMOS[s.demo].words.length, end = n + 16;
+        return s.tick + 1 > end ? { tick: 0, demo: (s.demo + 1) % DEMOS.length } : { tick: s.tick + 1 };
+      });
+    }, 420);
+    if (reduce) this.setState({ tick: 30 });
+    this._observe();
+    this._key = (e) => { if (e.key === "Escape" && this.state.pop) this.setState({ pop: null }); };
+    window.addEventListener("keydown", this._key);
+  }
+  componentDidUpdate(pp, ps) {
+    if (this._dir() !== this._lastDir) setTimeout(() => this._observe(), 60);
+  }
+  componentWillUnmount() { clearInterval(this._t); if (this._io) this._io.disconnect(); window.removeEventListener("keydown", this._key); }
+  _dir() { return this.state.dir || this.props.direction || "conversational"; }
+  _observe() {
+    this._lastDir = this._dir();
+    if (this._io) this._io.disconnect();
+    this._io = new IntersectionObserver((es) => {
+      es.forEach((e) => { if (e.isIntersecting) this.setState({ coachB: e.target.getAttribute("data-cx") }); });
+    }, { rootMargin: "-35% 0px -55% 0px" });
+    document.querySelectorAll("[data-cx]").forEach((el) => this._io.observe(el));
+  }
+  _scroll(id) {
+    if (window.flScrollTo) return window.flScrollTo(id);
+    const el = document.getElementById(id); if (!el) return;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 90, behavior: "smooth" });
+  }
+  _launch() {
+    const st = this.props.launchState || "waitlist";
+    if (st === "public_launch") return { cta: "Start speaking", icon: "mic", badge: "Now on iOS and Android", platform: "Available on iOS and Android.", title: "Get the app link", note: "We'll send a download link to your inbox.", planBadge: "Cancel any time", sub: "Fluency Plus covers about 7 hours of conversation a month. Top up only if you want more." };
+    if (st === "early_access") return { cta: "Get early access", icon: "sparkles", badge: "Early access open", platform: "Early access on iOS and Android.", title: "Request early access", note: "We'll send your invite by email. Early members keep their launch price.", planBadge: "Early-access price", sub: "Early-access members keep this price when Fluency launches." };
+    return { cta: "Join the waitlist", icon: "bell", badge: "Waitlist open · French, German and English", platform: "Launching on iOS and Android. Waitlist members lock the launch price.", title: "Join the waitlist", note: "We'll email you when early access opens. Your launch price is locked.", planBadge: "Locked for the waitlist", sub: "Join the waitlist and the launch price is locked for you." };
+  }
+  _faqs() {
+    return [
+      ["What is Fluency AI?", "A speaking coach you talk to out loud. It answers like a person, and corrects and explains your mistakes without breaking the conversation."],
+      ["Which languages can I practise?", "French, German and English are live. More are on the way; choose the one you want when you join."],
+      ["How much will it cost?", "Fluency Plus is $12 a month and includes about 7 hours of conversation, voice or text. One-time top-ups start at $5 and never expire."],
+      ["What happens when my monthly time runs out?", "You can use top-up time if you have it, or buy more. Otherwise conversations pause until your plan resets. Nothing is charged automatically."],
+      ["Can I control how it corrects me?", "Yes: off, immediate, after its reply, important only, detailed or teaching. Change it mid-conversation."],
+      ["Can I role-play situations?", "Yes. Pick a scene or describe your own, like a job interview or complaining about a bill, and it stays in character."],
+      ["Do I need to be at a certain level?", "No. Say one sentence, badly is fine, and it works out where you are. You can also set A1 to C2 yourself."],
+      ["Is there a streak?", "A gentle one. A day counts when you speak for 2 minutes. Rest days are earned by practising, never bought."],
+      ["Is there exam preparation?", "Yes: 20-minute guides for Goethe, telc, DTZ, DELF, DALF, TCF IRN, TCF Canada and TEF Canada, from $7. They're independent and not affiliated with the exam bodies."],
+      ["How does the Partner Program work?", "Creators, teachers and affiliates get a personal link and earn 20% on confirmed orders it brings in, tracked in the Partner hub."],
+    ];
+  }
+  renderVals() {
+    const s = this.state, dir = this._dir(), ls = this._launch();
+    const D = DEMOS[s.demo], n = D.words.length, t = s.tick;
+    const phase = t <= n + 1 ? "listening" : t <= n + 4 ? "thinking" : t <= n + 12 ? "speaking" : "happy";
+    const shown = phase === "listening" ? Math.min(t, n) : n;
+    const word = (w) => Array.isArray(w) ? { text: w[0], deco: w[1] ? "none" : "underline", op: w[1] ? ".55" : "1" } : { text: w, deco: "none", op: "1" };
+    const pill = (on) => ({ bg: on ? "var(--teal-600)" : "rgba(255,255,255,.05)", bd: on ? "var(--teal-400)" : "rgba(255,255,255,.14)", fg: on ? "#fff" : "var(--ink-200)" });
+    const ipill = (on) => ({ bg: on ? "var(--indigo-500)" : "rgba(255,255,255,.05)", bd: on ? "var(--indigo-400)" : "rgba(255,255,255,.14)", fg: on ? "#fff" : "var(--ink-200)" });
+    const vs = VS[phase], cb = VS[s.coachB] || { welcome: ["Hello", "var(--mint-300)"], encouraging: ["Encouraging", "var(--mint-300)"], confused: ["Not sure yet", "var(--amber-400)"], idle: ["Idle", "var(--ink-400)"] }[s.coachB] || ["Hello", "var(--mint-300)"];
+    const st = STAGES[s.stage], C = CORRECTIONS[s.corr], R = REPAIRS[s.repair];
+    const faqs = this._faqs();
+    const openPop = (k) => () => this.setState({ pop: k });
+    const dotStyle = (d) => ({ display: "inline-block", width: 6, height: 6, borderRadius: 3, background: "var(--indigo-300)", animation: "flDot 1.2s " + d + "s infinite ease-in-out" });
+    const ECO = [
+      { icon: "handshake", title: "Fluency Partners", body: "Creators, teachers and affiliates share Fluency and earn on what their audience buys.", tag: "Open", tagColor: "var(--mint-300)", hasAction: true, action: "See how it works", open: openPop("partners") },
+      { icon: "book-open", title: "Exam guides", body: "20-minute PDF guides for Goethe, telc, DTZ, DELF, DALF, TCF IRN, TCF Canada and TEF Canada.", tag: "Available", tagColor: "var(--mint-300)", hasAction: true, action: "Browse guides", open: openPop("resources") },
+      { icon: "users", title: "Community", body: "One official Fluency community on WhatsApp and Telegram, for challenges and early testing.", tag: "Opening soon", tagColor: "var(--indigo-200)", hasAction: false, action: "", open: null },
+    ];
+    return {
+      n14: 14, n16: 16, n18: 18, n20: 20, n22: 22,
+      isA: dir !== "conversational", isB: dir === "conversational",
+      character: this.props.character || "dan",
+      dirs: [["1a", "Product-forward", "product"], ["1b", "Conversational", "conversational"]].map(([id, label, v]) => ({ id, label, checked: String(dir === v), pick: () => this.setState({ dir: v }), bg: dir === v ? "var(--teal-600)" : "transparent", fg: dir === v ? "#fff" : "var(--ink-200)" })),
+      ctaLabel: ls.cta, ctaIcon: ls.icon, stateBadge: ls.badge, platformNote: ls.platform, formTitle: ls.title, formNote: ls.note, planBadge: ls.planBadge, pricingSub: ls.sub,
+      hs: { label: vs[0], color: vs[1], expr: vs[2], words: D.words.slice(0, shown).map(word), listening: phase === "listening", thinking: phase === "thinking",
+        fix: phase === "speaking" || phase === "happy", reply: phase === "speaking" || phase === "happy", replyText: D.reply, said: D.said, better: D.better, why: D.why, type: D.type },
+      dots: React.createElement("span", { style: { display: "inline-flex", gap: 4 } }, [0, 0.15, 0.3].map((d) => React.createElement("span", { key: d, style: dotStyle(d) }))),
+      demoDots: DEMOS.map((_, i) => ({ label: "Example " + (i + 1), w: i === s.demo ? "28px" : "8px", bg: i === s.demo ? "var(--teal-400)" : "rgba(255,255,255,.2)", pick: () => this.setState({ demo: i, tick: 0 }) })),
+      coachB: s.coachB, coachBLabel: cb[0], coachBColor: cb[1],
+      repairs: REPAIRS.map((r, i) => ({ ...r, ...pill(i === s.repair), pressed: String(i === s.repair), pick: () => this.setState({ repair: i }) })),
+      rep: R, freeze: FREEZE,
+      stages: STAGES.map((x, i) => ({ ...x, tag: x.soon ? "Soon" : "0" + (i + 1), pressed: String(i === s.stage), bg: i === s.stage ? "rgba(16,184,184,.16)" : "rgba(255,255,255,.03)", bd: i === s.stage ? "rgba(34,207,203,.45)" : "rgba(255,255,255,.1)", pick: () => this.setState({ stage: i }) })),
+      st: { ...st, words: st.words.map(word) },
+      debrief: [{ v: "14 min", k: "spoken" }, { v: "82%", k: "understood first time" }, { v: "3", k: "things worth fixing" }],
+      modes: MODES.map(([icon, title, body]) => ({ icon, title, body })),
+      modeList: MODES.map((m) => m[1]).join(", "),
+      corrections: CORRECTIONS.map((c, i) => ({ label: c[0], checked: String(i === s.corr), ...ipill(i === s.corr), pick: () => this.setState({ corr: i }) })),
+      corrDetail: C[1],
+      corrLines: C[2].map((k) => {
+        if (k.startsWith("n:")) return { label: "", text: k.slice(2), font: "500 13px/1.4 var(--font-mono)", color: "var(--ink-400)", labelColor: "transparent", bg: "transparent", pad: "0" };
+        const d = CL[k]; return { label: d.label, text: d.text, font: d.font, color: d.color, labelColor: d.lc, bg: d.bg || "transparent", pad: d.pad || "0" };
+      }),
+      explOpts: [["native", "Your language"], ["target", "English"], ["both", "Both"]].map(([k, label]) => ({ label, checked: String(s.expl === k), ...pill(s.expl === k), pick: () => this.setState({ expl: k }) })),
+      explLines: s.expl === "both" ? [EXPL.native, EXPL.target] : [EXPL[s.expl]],
+      levels: ["A1", "A2", "B1", "B2", "C1", "C2"].map((x) => ({ t: x, bg: x === "B1" ? "var(--teal-600)" : "transparent", fg: x === "B1" ? "#fff" : "var(--ink-300)" })),
+      extras: [["Word bank", "Available"], ["Your path", "Available"], ["Talk streak", "Available"], ["Pronunciation breakdown", "Soon"]].map(([label, tag]) => ({ label, tag, tagColor: tag === "Soon" ? "var(--indigo-200)" : "var(--mint-300)" })),
+      trust: TRUST,
+      live: [{ name: "French", hello: "Salut" }, { name: "German", hello: "Hallo" }, { name: "English", hello: "Hello" }],
+      soonLangs: ["Spanish", "Italian", "Portuguese", "Dutch", "Turkish", "Polish", "Arabic", "Japanese"],
+      planPrice: this.props.planPrice || "$12",
+      planIncludes: ["About 7 hours of conversation a month (3,000 credits)", "Voice or text, your choice, same time", "All six modes and correction settings", "Explanations in your language, English, or both"],
+      packs: PACKS.map(([price, time, credits]) => ({ price, time, credits })),
+      packLine: PACKS.map((p) => p[0] + " for " + p[1].toLowerCase()).join(", "),
+      tiers: [["Starter", "A1, A2 and TCF A2", "$7"], ["Core", "B1, B2, telc, DTZ, DELF", "$9"], ["Advanced", "C1, C2, DALF", "$12"]].map(([label, levels, price]) => ({ label, levels, price })),
+      eco: ECO,
+      faqs: faqs.map(([q, a], i) => ({ q, a, open: s.faq === i, expanded: String(s.faq === i), sign: s.faq === i ? "–" : "+", bg: s.faq === i ? "var(--teal-700)" : "rgba(255,255,255,.05)", bd: s.faq === i ? "var(--teal-500)" : "rgba(255,255,255,.14)", toggle: () => this.setState({ faq: s.faq === i ? null : i }) })),
+      faqOpen: s.faq !== null, faqQ: s.faq !== null ? faqs[s.faq][0] : "", faqA: s.faq !== null ? faqs[s.faq][1] : "",
+      goJoin: () => this._scroll("join"), goHow: () => this._scroll("how"),
+      email: s.email, lang: s.lang, emailErr: s.emailErr, emailBd: s.emailErr ? "var(--coral-400)" : "rgba(255,255,255,.16)",
+      setEmail: (e) => this.setState({ email: e.target.value, emailErr: "" }),
+      setLang: (e) => this.setState({ lang: e.target.value }),
+      submit: () => { if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.email.trim())) return this.setState({ emailErr: "Add a complete email so we can reach you." }); this.setState({ submitted: true }); window.flSubmit && window.flSubmit("waitlist", { email: s.email.trim(), language: s.lang, state: this.props.launchState || "waitlist" }); },
+      notSubmitted: !s.submitted, submitted: s.submitted,
+      successNote: "We'll email " + (s.email.trim() || "you") + " when early access opens. You picked " + s.lang + ".",
+      popOpen: !!s.pop, popPartners: s.pop === "partners", popResources: s.pop === "resources",
+      popTitle: s.pop === "partners" ? "Fluency Partners" : "Exam guides",
+      openPartners: openPop("partners"), openResources: openPop("resources"),
+      closePop: () => this.setState({ pop: null }), stop: (e) => e.stopPropagation(),
+      partnerFacts: [{ v: "20%", k: "on guides, subscriptions and bundles" }, { v: "30 days", k: "your link is remembered" }, { v: "$20", k: "minimum payout" }, { v: "14 days", k: "refund hold before payout" }],
+      pEmail: s.pEmail, setPEmail: (e) => this.setState({ pEmail: e.target.value }),
+      sendPartner: () => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.pEmail.trim()) && this.setState({ pSent: true }),
+      partnerNotSent: !s.pSent, partnerSent: s.pSent,
+      guides: GUIDES.map(([id, name, purpose, price, selar]) => ({ name, purpose, price, url: "https://selar.com/" + selar })),
+      exams: ["Goethe A1–C2", "telc B1–C1", "DTZ", "DELF / DALF", "TCF IRN"],
+    };
+  }
+}
+</script>
+</body>
+</html>

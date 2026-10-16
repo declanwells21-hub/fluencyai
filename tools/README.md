@@ -17,17 +17,23 @@ a <fl-coach> element), removes the React runtime attributes, maps page links to 
 adds a press effect class to design-system buttons, and writes the page head and styles.
 What it does NOT do: page behaviour (tabs, filters, calculators, forms). Those are written by hand per page.
 
-# Home page (tools/build_home.py)
+# Home page, design 1a "Product-forward" (tools/build_home_1a.py)
 
-Home is built from the handoff's "Conversational" direction (1b). Three steps, all run from the repo root:
+Home is compiled, like Store, Pricing and Partners (no recording). The design file is kept in the repo at
+`tools/design/Fluency Home v3 (1a product-forward).dc.html`. Run from the repo root:
 
-    python3 tools/record_home.py    # records the hero frames, widget states and coach expressions -> /tmp/home_rec.json
-    python3 tools/record_home2.py   # records the pop-ups and waitlist form states              -> /tmp/home_rec2.json
-    python3 tools/build_home.py     # writes site/index.html and site/assets/js/home-states.js
+    python3 tools/build_home_1a.py     # writes site/index.html and site/assets/js/home.js
+    python3 tools/test_home_1a.py      # 41 browser checks (interactions, forms, pop-ups, links, mobile, SEO data)
 
-The recorders drive the real design (its own React runtime) and store what it renders; site/assets/js/home.js replays
-those states in the browser. Scripts import rec_common.py and dc2static.py from tools/ (they expect them on sys.path, and
-use /tmp for the recordings). Re-run all three if the handoff's Home page changes.
+`build_home_1a.py` keeps the 1a direction and the shared sections, removes the 1b direction and the review-only direction
+switcher, compiles the design's own template and script, and pre-renders it in headless Chromium. Every change from the
+design file is listed at the top of the script and asserted, so if the design file changes in a way a patch no longer fits,
+the build fails loudly instead of silently dropping it. The head of the page (SEO tags, structured data, app tags) is taken
+from the current site/index.html, so edit those there. To use a newer design: replace the design file and re-run both commands.
+
+**Superseded:** `build_home.py`, `record_home.py`, `record_home2.py`, `test_home.py` and `compare_dom.py` built the earlier
+"Conversational" Home by recording the design in its own React runtime. They are kept for reference only; running them would
+overwrite the new Home with the old one.
 
 # Store, Pricing and Partners (tools/build_pages.py)
 
