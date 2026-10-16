@@ -99,6 +99,7 @@
       loadCreditUsage(); // has its own error handling, so a missing migration never blocks the dashboard
       loadPartnerPayouts(); // same
       loadSelarOrders(); // same
+      loadBillingEvents(); // same
       try {
         await loadWaitlistStats();
       } catch (err) {
@@ -296,6 +297,55 @@
     }
   });
 
+  // ---------- Billing events ----------
+
+  async function loadBillingEvents() {
+    const box = document.getElementById('billing-events');
+    box.textContent = 'Loading...';
+    try {
+      const status = document.getElementById('billing-filter').value;
+      const d = await apiFetch('/admin/billing-events?status=' + encodeURIComponent(status));
+      if (!d.events.length) { box.textContent = status === 'attention' ? 'Nothing needs your attention.' : 'No billing events yet.'; return; }
+      const th = (t) => `<th style="text-align:left;padding:6px 10px;color:var(--tx-3);font-weight:600">${t}</th>`;
+      const td = (t) => `<td style="padding:6px 10px;vertical-align:top">${t}</td>`;
+      const colors = { processed: 'var(--mint-400)', ignored: 'var(--tx-3)', needs_review: 'var(--coral-400)', error: 'var(--coral-400)', received: 'var(--tx-3)' };
+      const rows = d.events.map((e) => {
+        const when = new Date(e.received_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        const open = ['needs_review', 'error'].includes(e.outcome);
+        return `<tr>
+          ${td(when)}
+          ${td(`<code>${escHtml(e.event_type)}</code>${e.user_id ? `<br><span style="color:var(--tx-3)">${escHtml(e.user_id)}</span>` : ''}`)}
+          ${td(`<b style="color:${colors[e.outcome] || 'var(--tx-3)'}">${escHtml(e.outcome.replace('_', ' '))}</b>${e.note ? `<br><span style="color:var(--tx-3)">${escHtml(e.note)}</span>` : ''}`)}
+          ${td((open ? `<button class="row-btn" data-billing-done="${escHtml(e.event_id)}">Done</button> ` : '') + `<button class="row-btn" data-billing-raw="${escHtml(e.event_id)}">Raw</button>`)}
+        </tr>`;
+      }).join('');
+      box.innerHTML = `<table><thead><tr>${th('When')}${th('Event')}${th('What happened')}${th('')}</tr></thead><tbody>${rows}</tbody></table>`;
+    } catch (err) {
+      box.textContent = 'Billing events are not available yet (' + err.message + '). Has scripts/supabase_migration_billing.sql been run?';
+    }
+  }
+  document.getElementById('billing-refresh').addEventListener('click', loadBillingEvents);
+  document.getElementById('billing-filter').addEventListener('change', loadBillingEvents);
+  document.getElementById('billing-events').addEventListener('click', async (e) => {
+    const raw = e.target.closest('button[data-billing-raw]');
+    const done = e.target.closest('button[data-billing-done]');
+    try {
+      if (raw) {
+        const d = await apiFetch('/admin/billing-events?id=' + encodeURIComponent(raw.dataset.billingRaw));
+        alert(JSON.stringify(d.event.raw, null, 2));
+      } else if (done) {
+        const note = prompt('What did you do? (optional note for the record). Press Cancel to stop.', '');
+        if (note === null) return;
+        done.disabled = true;
+        await apiFetch('/admin/billing-event-resolve', { method: 'POST', body: JSON.stringify({ eventId: done.dataset.billingDone, note }) });
+        await loadBillingEvents();
+      }
+    } catch (err) {
+      alert(err.message);
+      await loadBillingEvents();
+    }
+  });
+
   // ---------- Selar orders ----------
 
   const SELAR_STATUS = {
@@ -455,23 +505,23 @@
     }
     const b = info.balance;
     const answer = prompt(
-      `${email} has ${b.total} credits (monthly ${b.monthly}, top-up ${b.topup}).\n\nHow many top-up credits do you want to add? They never expire. Press Cancel to leave things as they are.`,
+      `${email} has ${b.total} credits (monthly ${b.monthly}, top-up ${b.topup}).\n\nHow many top-up credits do you want to add? They never expire.\n\nTo TAKE credits back (for example a refunded top-up), enter a negative number such as -500. Only top-up credits are taken, never below zero.\n\nPress Cancel to leave things as they are.`,
       '500'
     );
     if (answer === null) return;
     const amount = Number(answer.trim());
-    if (!Number.isInteger(amount) || amount < 1) {
-      alert('Enter a whole number, for example 500.');
+    if (!Number.isInteger(amount) || amount === 0) {
+      alert('Enter a whole number, for example 500 (or -500 to take credits back).');
       return;
     }
     const note = prompt('A short note for the record (optional):', 'early access');
     if (note === null) return;
     try {
-      const out = await apiFetch('/admin/credits-grant', {
+      const out = await apiFetch(amount > 0 ? '/admin/credits-grant' : '/admin/credits-revoke', {
         method: 'POST',
-        body: JSON.stringify({ userId: id, amount, note, idempotencyKey: window.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) }),
+        body: JSON.stringify({ userId: id, amount: Math.abs(amount), note, idempotencyKey: window.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) }),
       });
-      alert(`Done. ${email} now has ${out.balance.total} credits.`);
+      alert(amount > 0 ? `Done. ${email} now has ${out.balance.total} credits.` : `Took back ${out.revoked} credits. ${email} now has ${out.balance.total}.`);
     } catch (err) {
       alert(err.message);
     }

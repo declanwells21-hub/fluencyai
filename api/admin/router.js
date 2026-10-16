@@ -35,6 +35,7 @@ const { requireAdmin } = require('../_lib/adminAuth');
 const { sendBrandedEmail } = require('../_lib/emailTemplate');
 const adminCredits = require('../_lib/adminCredits');
 const adminSelar = require('../_lib/adminSelar');
+const adminBilling = require('../_lib/adminBilling');
 const adminPartners = require('../_lib/adminPartners');
 const { sendDecisionEmail } = require('../_lib/partnerEmails');
 
@@ -107,6 +108,15 @@ module.exports = async (req, res) => {
     }
     if (route === 'credits-usage' && req.method === 'GET') {
       return adminCredits.handleCreditsUsage(auth, req, res);
+    }
+    if (route === 'credits-revoke' && req.method === 'POST') {
+      return adminCredits.handleCreditsRevoke(auth, req, res);
+    }
+    if (route === 'billing-events' && req.method === 'GET') {
+      return adminBilling.handleBillingEvents(auth, req, res);
+    }
+    if (route === 'billing-event-resolve' && req.method === 'POST') {
+      return adminBilling.handleBillingEventResolve(auth, req, res);
     }
     if (route === 'selar-orders' && req.method === 'GET') {
       return adminSelar.handleSelarOrders(auth, req, res);

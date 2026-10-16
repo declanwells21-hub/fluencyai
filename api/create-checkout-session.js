@@ -8,21 +8,18 @@
 // and it handles sales tax/VAT and the actual payment processing - this
 // file only ever creates a checkout session and hands back its URL.
 //
-// Three purchase options are supported, driven by the `plan` field in the
-// request body - each maps to a Product you create ahead of time in the
-// Creem dashboard (Products -> New Product):
+// What can be bought, chosen by the `plan` field in the request body. Each maps to a Product created ahead of time
+// in the Creem dashboard (Products -> New Product); docs/billing.md has the exact setup.
 //
-//   plan: 'founding'  - a ONE-TIME product, for lifetime access.
-//   plan: 'weekly' |
-//   plan: 'yearly'    - a recurring SUBSCRIPTION product. Set the 3-day
-//                       free trial on the product itself in the Creem
-//                       dashboard when you create it - unlike Stripe,
-//                       Creem does not take a trial length on the
-//                       checkout request, only as a product setting.
+//   plan: 'plus'                          Fluency Plus, $12 a month (recurring) with 3,000 monthly credits.
+//   plan: 'topup5' | 'topup10' | 'topup20'  one-time credit packs: 500 / 1,100 / 2,400 credits, never expire.
+//   plan: 'founding' | 'weekly' | 'yearly'  LEGACY products from before credits. Still accepted so nothing existing
+//                                           breaks; they are removed together with the Flutter paywall rework.
 //
-// All three are shown together, both in the app's paywall
-// (lib/features/paywall/presentation/paywall_content.dart) and on the
-// site's pricing section (site/index.html, wired up in site/auth.js).
+// Plus and top-ups need a signed-in person: send the account's "Authorization: Bearer <token>" header. The person is
+// taken from that token, never from the request body. (Legacy plans still accept a userId in the body.)
+//   - Plus is refused while the person already has an active subscription.
+//   - A top-up needs an active Plus, unless ALLOW_TOPUP_WITHOUT_PLUS=true.
 //
 // REQUIRED ENV VARS (set these wherever you deploy this proxy):
 //   CREEM_API_KEY          starts with "creem_test_..." while you're in
@@ -31,9 +28,11 @@
 //                          api.creem.io) is detected automatically from
 //                          this prefix, so you never need to change code
 //                          to go live, just swap the key.
-//   CREEM_PRODUCT_FOUNDING prod_... - the one-time "founding user" Product
-//   CREEM_PRODUCT_WEEKLY   prod_... - the recurring weekly Product
-//   CREEM_PRODUCT_YEARLY   prod_... - the recurring yearly Product
+//   CREEM_PRODUCT_PLUS     prod_... - the recurring monthly Plus product ($12)
+//   CREEM_PRODUCT_TOPUP_5 / _10 / _20   prod_... - the three one-time top-up products ($5 / $10 / $20)
+//   CREEM_PRODUCT_FOUNDING / _WEEKLY / _YEARLY   prod_... - legacy products, only if still sold
+//   PLUS_MONTHLY_CREDITS   optional, default 3000 (read by api/_lib/billing.js)
+//   ALLOW_TOPUP_WITHOUT_PLUS  optional, "true" lets someone buy a top-up without a subscription
 //   APP_SUCCESS_URL        default success redirect, used when the caller
 //                          (the app or the site) doesn't send its own
 //
@@ -46,6 +45,10 @@
 // calls api/creem-webhook.js after the checkout completes. Until that
 // webhook is wired up and scripts/supabase_migration_subscription.sql has
 // been run, checkout will work but the app will never see the upgrade.
+
+const { getUserFromRequest } = require('./_lib/userAuth');
+const { getServiceClient } = require('./_lib/supabase');
+const { CHECKOUT_PLANS } = require('./_lib/billing');
 
 const ALLOWED_REDIRECT_HOSTS = new Set(['fluencyai.app', 'www.fluencyai.app', 'localhost', '127.0.0.1']);
 
@@ -69,7 +72,7 @@ function safeRedirect(candidate, fallback) {
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -84,12 +87,41 @@ module.exports = async (req, res) => {
   const baseUrl = apiKey.startsWith('creem_test_') ? 'https://test-api.creem.io' : 'https://api.creem.io';
 
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
-  const { plan, userId, email, successUrl } = body;
+  const { plan, successUrl } = body;
+  const planKey = plan === undefined || plan === null || plan === '' ? 'weekly' : String(plan); // no plan = the old default
+  const planInfo = CHECKOUT_PLANS[planKey];
+  if (!planInfo) return res.status(400).json({ error: 'Unknown plan' });
+
+  // Who is buying. Plus and top-ups: only a verified sign-in counts. Legacy plans keep accepting a body userId.
+  let userId = body.userId;
+  let email = body.email;
+  const auth = await getUserFromRequest(req);
+  if (auth.ok) {
+    userId = auth.user.id;
+    email = auth.user.email || email;
+  } else if (planInfo.kind !== 'legacy') {
+    return res.status(auth.status || 401).json({ error: 'Please sign in to continue.', code: 'auth_required' });
+  }
   if (!userId) return res.status(400).json({ error: 'Missing userId' });
+
+  if (planInfo.kind === 'plus' || planInfo.kind === 'topup') {
+    const { data: profile, error: profileErr } = await getServiceClient().from('profiles').select('subscription_status').eq('id', userId).maybeSingle();
+    if (profileErr) {
+      console.error('create-checkout-session: could not read the profile:', profileErr.message);
+      return res.status(500).json({ error: 'Could not start checkout.' });
+    }
+    const subscribed = !!profile && ['active', 'trialing'].includes(profile.subscription_status);
+    if (planInfo.kind === 'plus' && subscribed) {
+      return res.status(409).json({ error: 'You already have an active Fluency Plus subscription.', code: 'already_subscribed' });
+    }
+    if (planInfo.kind === 'topup' && !subscribed && String(process.env.ALLOW_TOPUP_WITHOUT_PLUS || '').toLowerCase() !== 'true') {
+      return res.status(403).json({ error: 'Top-ups are for Fluency Plus members. Start Plus first.', code: 'plus_required' });
+    }
+  }
 
   const resolvedSuccessUrl = safeRedirect(successUrl, process.env.APP_SUCCESS_URL || 'https://example.com/checkout-success');
 
-  const productEnvVar = plan === 'founding' ? 'CREEM_PRODUCT_FOUNDING' : plan === 'yearly' ? 'CREEM_PRODUCT_YEARLY' : 'CREEM_PRODUCT_WEEKLY';
+  const productEnvVar = planInfo.env;
   const productId = process.env[productEnvVar];
   if (!productId) {
     return res.status(503).json({ error: `Payments are not configured yet - missing ${productEnvVar}.` });
@@ -104,8 +136,8 @@ module.exports = async (req, res) => {
         // Lets the webhook find the right Supabase user without a DB
         // lookup - Creem echoes this metadata back on the webhook events
         // tied to this checkout (see api/creem-webhook.js).
-        metadata: { supabase_user_id: userId },
-        request_id: `${plan || 'founding'}_${userId}_${Date.now()}`,
+        metadata: { supabase_user_id: userId, plan: planKey },
+        request_id: `${planKey}_${userId}_${Date.now()}`,
         customer: email ? { email } : undefined,
         success_url: resolvedSuccessUrl,
       }),

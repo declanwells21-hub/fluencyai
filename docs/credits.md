@@ -42,7 +42,7 @@ These are starting points, not measured costs. Tune them from the admin "Credit 
 5. Compare the usage with your real bills from Claude, Deepgram and ElevenLabs, and adjust the prices.
 6. **Only set `CREDITS_MODE=enforce` when both of these are true:**
    - the Flutter app sends the login token (`Authorization: Bearer ...`) with every AI request, and
-   - the billing webhook gives subscribers their monthly credits by calling `fl_credit_set_monthly` (billing rework, the next backend step).
+   - the billing webhook gives subscribers their monthly credits (done: see `docs/billing.md`; set up the Creem products and run the billing migration first).
    Until then subscribers have 0 credits and everyone would be stopped. Waitlist and early-access members need an admin grant first.
 
 ## What the app should do (for the Flutter step)
@@ -56,7 +56,7 @@ These are starting points, not measured costs. Tune them from the admin "Credit 
 - Users, "Credits": see a balance and add top-up credits with a note. Safe against a double click (idempotency key).
 - "Credit usage": per endpoint and per chat mode, calls, credits, people, tokens, audio seconds and characters, plus the 10 heaviest users.
 
-## For the billing step (next)
+## How billing uses these (built: docs/billing.md)
 
 - Monthly allowance: `fl_credit_set_monthly(user, 3000, period_end, note, key)`. It replaces the previous monthly amount; use the billing event id as `key`.
 - Top-up purchase: `fl_credit_grant(user, 500 | 1100 | 2400, 'topup', note, null, key)`; again use the billing event id as `key`.

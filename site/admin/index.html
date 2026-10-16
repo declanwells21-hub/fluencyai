@@ -212,6 +212,20 @@ td.email{color:var(--tx);font-weight:600}
       </div>
       <div class="card" style="margin-top:28px">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px">
+          <div style="font-weight:700">Billing events that need you (Creem)</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <select id="billing-filter" class="row-btn" aria-label="Filter billing events">
+              <option value="attention">Needs attention</option>
+              <option value="all">All recent events</option>
+            </select>
+            <button class="row-btn" id="billing-refresh" type="button">Refresh</button>
+          </div>
+        </div>
+        <p style="color:var(--tx-3);font-size:13px;margin:0 0 12px">Payments, renewals and refunds are handled automatically. Anything the system could not safely decide (a refund of a top-up, a chargeback, a commission already paid out) shows here with what to do. Press "Done" once you have handled it.</p>
+        <div id="billing-events" style="overflow-x:auto;color:var(--tx-2);font-size:13px"></div>
+      </div>
+      <div class="card" style="margin-top:28px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px">
           <div style="font-weight:700">Exam blueprint orders (Selar)</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <select id="selar-filter" class="row-btn" aria-label="Filter orders">

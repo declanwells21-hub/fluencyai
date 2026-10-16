@@ -19,6 +19,8 @@ The Vercel function logs say "Run scripts/supabase_migration_backend_foundation.
 | Variable | Default | What it does |
 |---|---|---|
 | `REQUIRE_AUTH_AI` | unset (off) | Set to `true` to refuse `/api/chat`, `/api/stt`, `/api/tts` unless the caller sends a valid sign-in token. |
+| `CREEM_PRODUCT_PLUS`, `CREEM_PRODUCT_TOPUP_5` / `_10` / `_20` | none | The Creem product ids for Plus and the three top-ups. See `docs/billing.md`. |
+| `PLUS_MONTHLY_CREDITS`, `ALLOW_TOPUP_WITHOUT_PLUS` | 3000, off | Optional billing settings. See `docs/billing.md`. |
 | `SELAR_WEBHOOK_SECRET` | none | Required for the Selar order receiver. A long random string; it goes in the webhook URL as `?key=`. Without it every request is refused. |
 | `SELAR_USD_RATES` | none | Optional JSON of exchange rates to US dollars for orders Selar reports in another currency, e.g. `{"NGN":0.00065}`. |
 | `CREDITS_MODE` | `off` | `shadow` records what each call would cost (nobody charged); `enforce` charges and blocks at zero. See `docs/credits.md`. |
@@ -65,4 +67,4 @@ What callers get back:
 ## 5. Tests
 
 `node tests/backend_foundation.test.js` runs 32 checks against an in-memory fake of Supabase (no keys, network or database needed).
-`node tests/partner_hub.test.js` (22 checks), `node tests/credits.test.js` (31 checks) and `node tests/selar.test.js` (41 checks) work the same way.
+`node tests/partner_hub.test.js` (22 checks), `node tests/credits.test.js` (31 checks) and `node tests/selar.test.js` (41 checks) and `node tests/billing.test.js` (43 checks) work the same way.

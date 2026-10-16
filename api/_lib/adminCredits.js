@@ -80,4 +80,27 @@ async function handleCreditsUsage(auth, req, res) {
   });
 }
 
-module.exports = { handleCreditsBalance, handleCreditsGrant, handleCreditsUsage };
+async function handleCreditsRevoke(auth, req, res) {
+  const body = req.body || {};
+  const userId = String(body.userId || '');
+  const amount = Number(body.amount);
+  if (!UUID_RE.test(userId)) return res.status(400).json({ error: 'userId must be an account id (uuid)' });
+  if (!Number.isInteger(amount) || amount < 1 || amount > MAX_GRANT) {
+    return res.status(400).json({ error: `amount must be a whole number between 1 and ${MAX_GRANT.toLocaleString('en-US')}` });
+  }
+  const { data, error } = await auth.supabase.rpc('fl_credit_revoke', {
+    p_user: userId,
+    p_amount: amount,
+    p_note: String(body.note || '').trim().slice(0, 200) || null,
+    p_by: auth.user.email || auth.user.id,
+    p_key: String(body.idempotencyKey || '').trim().slice(0, 100) || null,
+  });
+  if (error) {
+    console.error('admin/credits-revoke failed:', error.message);
+    return res.status(500).json({ error: 'Could not take the credits back' });
+  }
+  const row = (Array.isArray(data) ? data[0] : data) || {};
+  return res.status(200).json({ ok: true, duplicate: !!row.duplicate, revoked: Number(row.revoked) || 0, balance: toBalance(row) });
+}
+
+module.exports = { handleCreditsBalance, handleCreditsGrant, handleCreditsUsage, handleCreditsRevoke };

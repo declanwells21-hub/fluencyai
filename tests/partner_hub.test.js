@@ -12,7 +12,7 @@ const { Readable } = require('stream');
 // ---------- a small in-memory Supabase ----------
 const db = { tables: {}, calls: [], rpcCalls: [], rpcResult: {}, failures: {}, users: {} };
 function resetDb() {
-  db.tables = { profiles: [{ id: 'admin-1', role: 'admin' }, { id: 'u1', referred_by_code: 'ANNA' }, { id: 'u2' }], creators: [], creator_applications: [], referral_events: [] };
+  db.tables = { profiles: [{ id: 'admin-1', role: 'admin' }, { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', referred_by_code: 'ANNA' }, { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2' }], creators: [], creator_applications: [], referral_events: [] };
   db.calls = []; db.rpcCalls = []; db.rpcResult = {}; db.failures = {};
   db.users = { 'admin-token': { id: 'admin-1', email: 'boss@example.com' } };
 }
@@ -172,7 +172,7 @@ const UID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
     assert.strictEqual(res.statusCode, 502); assert.ok(!db.tables.creators[0].welcome_email_sent_at, 'not marked as sent when it failed');
   });
   await test('the new admin routes need an admin (a normal signed-in user gets 403)', async () => {
-    db.users['user-token'] = { id: 'u2', email: 'u2@example.com' };
+    db.users['user-token'] = { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2', email: 'u2@example.com' };
     const res = mockRes(); await router(mockReq({ method: 'GET', headers: { authorization: 'Bearer user-token' }, query: { path: ['partner-balances'] } }), res);
     assert.strictEqual(res.statusCode, 403);
   });
@@ -204,30 +204,33 @@ const UID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
     req.headers = { 'creem-signature': crypto.createHmac('sha256', secret).update(raw).digest('hex') };
     const res = mockRes(); await webhook(req, res); return res;
   };
-  const checkout = (userId, id = 'evt_1') => ({ id, eventType: 'checkout.completed', object: { metadata: { supabase_user_id: userId }, subscription: { id: 's1' }, customer: { id: 'c1' }, order: { amount: 1200, currency: 'USD' } } });
+  // Since the billing rework (step 7) the commission is recorded on the first paid subscription payment, not at checkout.
+  const checkout = (userId, id = 'evt_1') => ({ id, eventType: 'subscription.paid', object: { id: 's1', object: 'subscription', metadata: { supabase_user_id: userId }, customer: { id: 'c1' },
+    product: { id: 'prod_x', name: 'Fluency Plus', price: 1200, currency: 'USD' }, last_transaction_id: 'tran_1', current_period_start_date: '2026-10-12T11:58:38.000Z', current_period_end_date: '2026-11-12T11:58:38.000Z' } });
   const log = console.log; const quiet = () => { console.log = () => {}; }; const loud = () => { console.log = log; };
 
-  await test('billing: a referred person\'s first payment records the commission (once per sale id)', async () => {
+  await test('billing: a referred person\'s first payment records the commission (once per transaction id)', async () => {
     db.tables.creators.push({ id: UID, code: 'ANNA', commission_rate: 0.2, status: 'active' });
-    quiet(); const res = await post(checkout('u1')); loud();
+    db.rpcResult.fl_record_partner_commission = [{ created: true, reason: 'ok', commission_cents: 240 }];
+    quiet(); const res = await post(checkout('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1')); loud();
     assert.strictEqual(res.statusCode, 200);
     const c = db.rpcCalls.find((x) => x.name === 'fl_record_partner_commission'); assert.ok(c, 'commission function called');
-    assert.deepStrictEqual([c.args.p_code, c.args.p_kind, c.args.p_user, c.args.p_gross_cents, c.args.p_currency, c.args.p_source_ref], ['ANNA', 'app_subscription', 'u1', 1200, 'USD', 'evt_1']);
-    assert.strictEqual(db.tables.referral_events.length, 1, 'the admin dashboard event is still written');
+    assert.deepStrictEqual([c.args.p_code, c.args.p_kind, c.args.p_user, c.args.p_gross_cents, c.args.p_currency, c.args.p_source_ref], ['ANNA', 'app_subscription', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', 1200, 'usd', 'tran_1']);
+    assert.strictEqual(db.tables.referral_events.length, 1, 'the admin dashboard event is still written when a commission is created');
   });
   await test('billing: someone who was not referred earns nobody anything', async () => {
     db.tables.creators.push({ id: UID, code: 'ANNA', commission_rate: 0.2, status: 'active' });
-    quiet(); await post(checkout('u2')); loud();
+    quiet(); await post(checkout('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2')); loud();
     assert.strictEqual(db.rpcCalls.filter((x) => x.name === 'fl_record_partner_commission').length, 0);
   });
   await test('billing: a commission error never fails the webhook (Creem would retry and double-process)', async () => {
     db.tables.creators.push({ id: UID, code: 'ANNA', commission_rate: 0.2, status: 'active' }); db.failures['rpc:fl_record_partner_commission'] = 'db down';
-    const err = console.error; console.error = () => {}; quiet(); const res = await post(checkout('u1')); loud(); console.error = err;
+    const err = console.error; console.error = () => {}; quiet(); const res = await post(checkout('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1')); loud(); console.error = err;
     assert.strictEqual(res.statusCode, 200);
   });
   await test('billing: a forged signature is rejected and nothing is recorded', async () => {
     db.tables.creators.push({ id: UID, code: 'ANNA', commission_rate: 0.2, status: 'active' });
-    const err = console.error; console.error = () => {}; const res = await post(checkout('u1'), 'wrong-secret'); console.error = err;
+    const err = console.error; console.error = () => {}; const res = await post(checkout('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1'), 'wrong-secret'); console.error = err;
     assert.strictEqual(res.statusCode, 400); assert.strictEqual(db.rpcCalls.length, 0);
   });
 
