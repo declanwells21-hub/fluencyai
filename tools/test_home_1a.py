@@ -144,14 +144,33 @@ try:
         html = open(os.path.join(SITE, 'index.html'), encoding='utf-8').read()
         ld = [json.loads(x) for x in re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S)]
         faq = next((j for j in ld if j.get('@type') == 'FAQPage'), None)
-        design = open(os.path.join(ROOT, 'tools/design/Fluency Home v3 (1a product-forward).dc.html'), encoding='utf-8').read()
-        block = design[design.index('_faqs() {'):]; block = block[:block.index('];')]
-        pairs = [(json.loads('"' + q + '"'), json.loads('"' + a + '"')) for q, a in re.findall(r'\["((?:[^"\\]|\\.)*)",\s*"((?:[^"\\]|\\.)*)"\]', block)]
-        check('the design FAQ was read from the design file (10 questions)', len(pairs) == 10, len(pairs))
         check('structured data: a FAQPage exists with 10 questions', faq is not None and len(faq['mainEntity']) == 10)
-        if faq and pairs:
-            got = [(q['name'], q['acceptedAnswer']['text']) for q in faq['mainEntity']]
-            check('structured data: questions AND answers equal the design FAQ, in order', got == pairs, [(g[0], p[0]) for g, p in zip(got, pairs) if g != p])
+        pg = open_page(b); scroll_all(pg); pg.locator('#faq').scroll_into_view_if_needed(); pg.wait_for_timeout(400)
+        norm = lambda t: ' '.join(t.split())
+        bad = []
+        for item in faq['mainEntity']:
+            btn = pg.locator('#faq button').filter(has_text=item['name']).first
+            btn.click(); pg.wait_for_timeout(250)
+            if norm(item['acceptedAnswer']['text']) not in norm(pg.locator('#faq').inner_text()): bad.append(item['name'])
+            btn.click(); pg.wait_for_timeout(150)
+        check('structured data: every question and answer equals what the page shows', not bad, bad)
+
+        # ---- the confirmed commission rule (20% on a referred first subscription payment and on exam blueprint sales only)
+        body = norm(pg.inner_text('body')) + ' ' + norm(html)
+        check('commission wording: the old "guides, subscriptions and bundles" and "confirmed orders" lines are gone', 'guides, subscriptions and bundles' not in body and 'confirmed orders it brings in' not in body)
+        pg.locator('#faq button').filter(has_text='Partner Program work').first.click(); pg.wait_for_timeout(250)
+        check('commission wording: the FAQ answer states the rule', 'earn 20% on exam blueprint sales and on a referred person\'s first subscription payment' in norm(pg.locator('#faq').inner_text()))
+        pg.evaluate('window.scrollTo(0,0)'); pg.get_by_role('button', name='See how it works →').click(); pg.wait_for_timeout(400)
+        pop = norm(pg.locator('[role=dialog][aria-label="Fluency Partners"]').inner_text())
+        check('commission wording: the Partners pop-up states the rule in its intro, tile and footnote', "first subscription payment." in pop and 'on exam guides and a first subscription payment' in pop and 'confirmed exam blueprint order or a first subscription payment carrying your code' in pop, pop[:400])
+        check('commission wording: the ecosystem card states the rule', 'earn 20% on exam blueprint sales and first subscription payments' in norm(pg.inner_text('body')) or 'earn 20% on exam blueprint sales and first subscription payments' in norm(html))
+        pg.close()
+
+        # ---- About link
+        pg = open_page(b)
+        check('footer has the About link, pointing at /about', pg.locator('footer a[href="/about"]').count() == 1 and pg.locator('footer a[href="/about"]').inner_text().strip() == 'About')
+        pg.close()
+
         hub = open(os.path.join(SITE, 'partner-hub.html'), encoding='utf-8').read()
         auth = open(os.path.join(SITE, 'auth.js'), encoding='utf-8').read()
         check('Partner Hub: the admin shortcut is switched off on that page', re.search(r'<body[^>]*data-fl-no-admin', hub) is not None and "!document.body.hasAttribute('data-fl-no-admin')" in auth)

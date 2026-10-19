@@ -11,13 +11,18 @@ What is changed from the design file, and nothing else (every change is listed i
   - the waitlist form and the partner pop-up send their email to the site's forms (fl-forms.js);
   - a "Sign in" button is added to the nav (it opens the site account popup), as on every other page;
   - the footer's "Partner hub" link points at /partner-hub;
+  - an "About" link is added to the footer;
+  - the partner commission wording says the confirmed rule (20% on exam blueprint sales and on a referred person's FIRST
+    subscription payment only) in the places the design describes it: the Partners pop-up intro, its "20%" tile and its footnote,
+    the ecosystem card, and the FAQ answer;
+  - the FAQPage structured data in the head is regenerated from the page's own FAQ text, so search results always match what is shown;
   - the guide links in the "Exam guides" pop-up carry the visitor's partner code (?ref=) like the Store does, so a sale from there is credited.
 The head of the page (SEO tags, structured data, mobile app tags, connected scripts) is kept from the current site/index.html.
 
 Run from the repo root:   python3 tools/build_home_1a.py
 Needs: python3, playwright with chromium. No network.
 """
-import os, re, sys, shutil, subprocess, tempfile, time
+import json, os, re, sys, shutil, subprocess, tempfile, time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = os.path.join(ROOT, 'site') + os.sep
@@ -60,6 +65,26 @@ OLD_WL = 'state: this.props.launchState || "waitlist" });'
 assert src.count(OLD_WL) == 1, 'waitlist submit'
 src = src.replace(OLD_WL, 'state: this.props.launchState || "waitlist", source: "home_waitlist" });')
 
+RULE = "earn 20% on exam blueprint sales and on a referred person's first subscription payment"
+for old, new in [
+    ("Creators, teachers and affiliates share Fluency with a personal link and earn on what their audience buys.",
+     "Creators, teachers and affiliates share Fluency with a personal link and " + RULE + "."),
+    ('"Creators, teachers and affiliates get a personal link and earn 20% on confirmed orders it brings in, tracked in the Partner hub."',
+     '"Creators, teachers and affiliates get a personal link and ' + RULE + ', tracked in the Partner hub."'),
+    ('"Creators, teachers and affiliates share Fluency and earn on what their audience buys."',
+     '"Creators, teachers and affiliates share Fluency and earn 20% on exam blueprint sales and first subscription payments."'),
+    ("Commission is created only by a confirmed order carrying your code.",
+     "Commission is created only by a confirmed exam blueprint order or a first subscription payment carrying your code."),
+    ('{ v: "20%", k: "on guides, subscriptions and bundles" }',
+     '{ v: "20%", k: "on exam guides and a first subscription payment" }'),
+]:
+    assert src.count(old) == 1, 'commission wording: ' + old[:50]
+    src = src.replace(old, new)
+
+ABOUT_AFTER = '<a href="Partner Hub v3.dc.html" style="color:var(--ink-300);text-decoration:none;">Partner hub</a>\n'
+assert src.count(ABOUT_AFTER) == 1, 'footer after the hub link'
+src = src.replace(ABOUT_AFTER, ABOUT_AFTER + '        <a href="/about" style="color:var(--ink-300);text-decoration:none;">About</a>\n')
+
 OLD_URL = 'url: "https://selar.com/" + selar }))'
 NEW_URL = ('url: "https://selar.com/" + selar + (() => { try { const r = JSON.parse(localStorage.getItem("fl_ref") || "null"); '
            'return r && r.code && Date.now() - r.at < 30 * 864e5 ? "?ref=" + encodeURIComponent(r.code) : ""; } catch (e) { return ""; } })() }))')
@@ -87,6 +112,25 @@ open(SITE + 'assets/js/home.js', 'w', encoding='utf-8').write(
 # ---------- page shell: keep the current head and the connected scripts ----------
 cur = open(SITE + 'index.html', encoding='utf-8').read()
 head = cur[:cur.index('</head>') + len('</head>')]
+
+def faq_pairs(template):
+    block = template[template.index('_faqs() {'):]
+    block = block[:block.index('];')]
+    return [(json.loads('"' + q + '"'), json.loads('"' + a + '"')) for q, a in re.findall(r'\["((?:[^"\\]|\\.)*)",\s*"((?:[^"\\]|\\.)*)"\]', block)]
+
+def refresh_faq_json(h, pairs):
+    """Rewrites the FAQPage structured data from the page's own FAQ text."""
+    def swap(m):
+        data = json.loads(m.group(1))
+        if data.get('@type') != 'FAQPage': return m.group(0)
+        data['mainEntity'] = [{'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in pairs]
+        return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + '</script>'
+    out, n = re.subn(r'<script type="application/ld\+json">(.*?)</script>', swap, h, flags=re.S)
+    return out
+
+PAIRS = faq_pairs(src)
+assert len(PAIRS) == 10, 'expected 10 FAQ entries, found %d' % len(PAIRS)
+head = refresh_faq_json(head, PAIRS)
 SCRIPTS = ['/fluency-config.js', '/fl-forms.js', '/assets/js/fl-icons.js', '/assets/js/fl-dc.js', '/assets/js/fl-components.js', '/assets/js/home.js',
            '/fl-motion.js', '/assets/js/fluency-coach.js', '/assets/js/fl-ref.js', '/config.js', '/assets/js/fl-partner-route.js',
            '/assets/js/fl-account.js', '/auth.js', '/assets/js/fl-mobile.js']
