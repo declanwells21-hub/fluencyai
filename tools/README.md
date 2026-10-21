@@ -48,3 +48,7 @@ semantics, its Icon, Wordmark and Button components, and a React-style patcher.
 Pages are pre-rendered (for search engines and no flash) by running the same runtime in headless Chromium.
 Catalogue data lives in site/fluency-data.js (guides, Selar codes, prices, commission rules).
 The Partner Hub sample data that used to ship inside it is kept in docs/partner-hub-sample-data.txt for Phase 5.
+
+# Account popup (consent, download my data, delete my account)
+
+    python3 tools/test_account_ui.py   # 31 browser checks with a fake sign-in backend (no network needed)

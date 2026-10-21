@@ -41,6 +41,10 @@
   ],
   "rewrites": [
     {
+      "source": "/api/account",
+      "destination": "/api/create-checkout-session?hook=account"
+    },
+    {
       "source": "/api/selar-order",
       "destination": "/api/referral?hook=selar"
     },

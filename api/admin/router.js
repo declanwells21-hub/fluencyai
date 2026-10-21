@@ -36,6 +36,8 @@ const { sendBrandedEmail } = require('../_lib/emailTemplate');
 const adminCredits = require('../_lib/adminCredits');
 const adminSelar = require('../_lib/adminSelar');
 const adminBilling = require('../_lib/adminBilling');
+const account = require('../_lib/account');
+const { unsubscribeUrl } = require('../_lib/waitlistUnsub');
 const adminPartners = require('../_lib/adminPartners');
 const { sendDecisionEmail } = require('../_lib/partnerEmails');
 
@@ -108,6 +110,9 @@ module.exports = async (req, res) => {
     }
     if (route === 'credits-usage' && req.method === 'GET') {
       return adminCredits.handleCreditsUsage(auth, req, res);
+    }
+    if (route === 'user-export' && req.method === 'GET') {
+      return account.handleAdminUserExport(auth, req, res);
     }
     if (route === 'credits-revoke' && req.method === 'POST') {
       return adminCredits.handleCreditsRevoke(auth, req, res);
@@ -273,21 +278,8 @@ async function handleSuspendUser(auth, req, res) {
 // and cannot be undone.
 
 async function handleDeleteUser(auth, req, res) {
-  const { userId } = req.body || {};
-  if (!userId) {
-    return res.status(400).json({ error: 'Body must include userId' });
-  }
-  if (userId === auth.user.id) {
-    return res.status(400).json({ error: "Can't delete your own account from here." });
-  }
-
-  const { error } = await auth.supabase.auth.admin.deleteUser(userId);
-  if (error) {
-    console.error('admin/delete-user failed:', error.message);
-    return res.status(500).json({ error: error.message });
-  }
-
-  res.status(200).json({ ok: true, userId });
+  // The full deletion (cancels billing, removes or de-identifies data, deletes the login): see api/_lib/account.js.
+  return account.handleAdminDeleteUser(auth, req, res);
 }
 
 // ---------- Communication center ----------
@@ -636,13 +628,16 @@ async function handleWaitlistNotifyLaunch(auth, req, res) {
     return res.status(400).json({ error: 'Provide at least one of iosUrl or androidUrl.' });
   }
 
+  // Anyone who unsubscribed is skipped. If the unsubscribed_at column does not exist yet this fails on purpose rather than
+  // risk emailing someone who opted out: run scripts/supabase_migration_compliance.sql first.
   const { data: rows, error } = await auth.supabase
     .from('waitlist_signups')
     .select('email')
-    .is('notified_at', null);
+    .is('notified_at', null)
+    .is('unsubscribed_at', null);
   if (error) {
     console.error('admin/waitlist-notify-launch: select failed:', error.message);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: /unsubscribed_at/.test(error.message) ? 'Run scripts/supabase_migration_compliance.sql first (it adds the unsubscribe column), then try again.' : error.message });
   }
 
   const recipients = (rows || []).map((r) => r.email);
@@ -654,7 +649,7 @@ async function handleWaitlistNotifyLaunch(auth, req, res) {
   const body = waitlistLaunchBody(iosUrl, androidUrl, note);
 
   const results = await Promise.allSettled(
-    recipients.map((email) => sendBrandedEmail({ to: email, subject, textBody: body }).then(() => email))
+    recipients.map((email) => sendBrandedEmail({ to: email, subject, textBody: body, unsubscribeUrl: unsubscribeUrl(email) }).then(() => email))
   );
 
   const succeeded = results.filter((r) => r.status === 'fulfilled').map((r) => r.value);

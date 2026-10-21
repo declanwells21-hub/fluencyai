@@ -19,6 +19,9 @@
   const SUPABASE_URL = (window.__SUPABASE_URL || '').replace(/\/$/, '');
   const SUPABASE_ANON_KEY = window.__SUPABASE_ANON_KEY || '';
   const configured = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+  // The version of the Terms and Privacy Policy people agree to = the "Last updated" date on those pages (fluency-config.js).
+  const LEGAL = (window.FL_CONFIG && window.FL_CONFIG.legal) || { termsVersion: '2026-09-09', privacyVersion: '2026-09-09' };
+  const CONSENT_INTENT_KEY = 'fl_consent_intent';
 
   // ---------- Low-level REST helper ----------
   async function authRequest(path, { method = 'POST', body, accessToken, query } = {}) {
@@ -179,6 +182,15 @@
   const joinWaitlistBtn = document.getElementById('auth-join-waitlist');
   const stayOnSiteBtn = document.getElementById('auth-stay-on-site');
   const logOutBtn = document.getElementById('auth-log-out');
+  const agreeBox = document.getElementById('auth-agree');
+  const consentBox = document.getElementById('auth-consent-agree');
+  const consentSubmit = document.getElementById('auth-consent-submit');
+  const consentDecline = document.getElementById('auth-consent-decline');
+  const downloadDataBtn = document.getElementById('auth-download-data');
+  const deleteAccountBtn = document.getElementById('auth-delete-account');
+  const deleteConfirmInput = document.getElementById('auth-delete-confirm');
+  const deleteSubmit = document.getElementById('auth-delete-submit');
+  const deleteCancel = document.getElementById('auth-delete-cancel');
 
   const forgotLink = document.getElementById('auth-forgot-link');
   const forgotLinkFromLogin = document.getElementById('auth-forgot-link-login');
@@ -334,7 +346,15 @@
     }).toString();
     window.location.href = url;
   }
-  if (googleSignupBtn) googleSignupBtn.addEventListener('click', beginGoogleAuth);
+  if (googleSignupBtn) googleSignupBtn.addEventListener('click', () => {
+    if (agreeBox && !agreeBox.checked) {
+      showError('auth-signup-error', 'Please confirm you are 16 or older and agree to the Terms and Privacy Policy.');
+      return;
+    }
+    // The page leaves for Google and comes back, so remember the tick until the account is signed in.
+    try { sessionStorage.setItem(CONSENT_INTENT_KEY, JSON.stringify({ terms: LEGAL.termsVersion, privacy: LEGAL.privacyVersion, age16: true })); } catch (_) { /* the gate asks again */ }
+    beginGoogleAuth();
+  });
   if (googleLoginBtn) googleLoginBtn.addEventListener('click', beginGoogleAuth);
 
   // Reads the '#access_token=...' fragment Supabase appends after a Google
@@ -381,7 +401,52 @@
   // a password - the only differences are the heading/subtext and whether
   // "Go to admin dashboard" is shown, so this is one function instead of
   // three near-duplicate screens.
+  // ---------- Agreeing to the Terms and Privacy Policy (and being 16 or older) ----------
+  // Every way of signing in ends in showWelcome(), which first makes sure the person has agreed to the CURRENT versions.
+  // Ticked the box when signing up (email or Google)? That is recorded for them. Otherwise they are asked, once.
+  // If the check itself cannot run (offline, or the compliance migration is not in the database yet) people are not locked out.
+  let pendingWelcome = null;
+  let consentRecordedFor = null; // the access token of a session whose agreement was just saved: no second check needed
+  function recordConsent(session, source) {
+    return authRequest('/rest/v1/rpc/fl_record_consent', {
+      body: { p_terms: LEGAL.termsVersion, p_privacy: LEGAL.privacyVersion, p_age_confirmed: true, p_source: source },
+      accessToken: session.access_token,
+    });
+  }
+  function consentIntentIsCurrent() {
+    try {
+      const i = JSON.parse(sessionStorage.getItem(CONSENT_INTENT_KEY) || 'null');
+      return !!i && i.age16 === true && i.terms === LEGAL.termsVersion && i.privacy === LEGAL.privacyVersion;
+    } catch (_) { return false; }
+  }
+  async function ensureConsent(session) {
+    if (consentRecordedFor && consentRecordedFor === session.access_token) return true;
+    try {
+      const rows = await authRequest('/rest/v1/rpc/fl_my_consent', { body: {}, accessToken: session.access_token });
+      const row = Array.isArray(rows) ? rows[0] : rows;
+      if (row && row.age_16_confirmed && row.terms_version === LEGAL.termsVersion && row.privacy_version === LEGAL.privacyVersion) return true;
+      const meta = (session.user && session.user.user_metadata) || {};
+      const tickedAtSignup = meta.age_16_confirmed === true && meta.terms_version === LEGAL.termsVersion && meta.privacy_version === LEGAL.privacyVersion;
+      if (tickedAtSignup || consentIntentIsCurrent()) {
+        await recordConsent(session, 'signup_form');
+        consentRecordedFor = session.access_token;
+        try { sessionStorage.removeItem(CONSENT_INTENT_KEY); } catch (_) { /* fine */ }
+        return true;
+      }
+      if (!consentBox) return true; // a page without the popup markup cannot ask
+      consentBox.checked = false;
+      clearError('auth-consent-error');
+      showStep('consent');
+      return false;
+    } catch (err) {
+      console.error('consent check could not run, continuing:', err.message);
+      return true;
+    }
+  }
+
   async function showWelcome({ title, subtitle, session }) {
+    pendingWelcome = { title, subtitle, session };
+    if (!(await ensureConsent(session))) { refreshNavLoginState(); return; }
     welcomeTitle.textContent = title;
     welcomeSub.textContent = subtitle;
     showStep('welcome');
@@ -474,10 +539,15 @@
     clearError('auth-signup-error');
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value;
+    if (agreeBox && !agreeBox.checked) {
+      showError('auth-signup-error', 'Please confirm you are 16 or older and agree to the Terms and Privacy Policy.');
+      return;
+    }
 
     setLoading(signupSubmit, true);
     try {
-      await authRequest('/auth/v1/signup', { body: { email, password } });
+      // The tick travels with the new account (it is recorded properly once the email is confirmed and they sign in).
+      await authRequest('/auth/v1/signup', { body: { email, password, data: { age_16_confirmed: true, terms_version: LEGAL.termsVersion, privacy_version: LEGAL.privacyVersion, consent_at: new Date().toISOString() } } });
       setPendingEmail(email);
       document.getElementById('auth-verify-email').textContent = email;
       showStep('verify');
@@ -583,6 +653,83 @@
     clearSession();
     refreshNavLoginState();
     showStep('login');
+  });
+
+  // ---------- Consent step ----------
+  if (consentSubmit) consentSubmit.addEventListener('click', async () => {
+    clearError('auth-consent-error');
+    if (!consentBox.checked) { showError('auth-consent-error', 'Please tick the box to continue.'); return; }
+    const session = pendingWelcome && pendingWelcome.session;
+    if (!session) { showStep('login'); return; }
+    setLoading(consentSubmit, true);
+    try {
+      await recordConsent(session, 'consent_gate');
+      consentRecordedFor = session.access_token;
+      await showWelcome(pendingWelcome);
+    } catch (err) {
+      showError('auth-consent-error', humanizeError(err));
+    } finally {
+      setLoading(consentSubmit, false);
+    }
+  });
+  if (consentDecline) consentDecline.addEventListener('click', () => logOutBtn.click());
+
+  // ---------- Download my data / Delete my account ----------
+  async function accountRequest(action, extra) {
+    const session = await getValidSession();
+    if (!session) throw new Error('Please sign in again.');
+    const res = await fetch('/api/account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token },
+      body: JSON.stringify({ action, ...(extra || {}) }),
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      throw new Error(j.error || 'Something went wrong. Please try again.');
+    }
+    return res;
+  }
+  if (downloadDataBtn) downloadDataBtn.addEventListener('click', async () => {
+    clearError('auth-account-msg');
+    downloadDataBtn.disabled = true;
+    showError('auth-account-msg', 'Preparing your data\u2026', true);
+    try {
+      const res = await accountRequest('export');
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = 'fluency-ai-data.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      showError('auth-account-msg', 'Your data has been downloaded. Conversations and your coach\u2019s memory are on your device: export them in the app.', true);
+    } catch (err) {
+      showError('auth-account-msg', err.message);
+    } finally {
+      downloadDataBtn.disabled = false;
+    }
+  });
+  if (deleteAccountBtn) deleteAccountBtn.addEventListener('click', () => {
+    clearError('auth-delete-error');
+    deleteConfirmInput.value = '';
+    showStep('delete');
+    deleteConfirmInput.focus();
+  });
+  if (deleteCancel) deleteCancel.addEventListener('click', () => showStep('welcome'));
+  if (deleteSubmit) deleteSubmit.addEventListener('click', async () => {
+    clearError('auth-delete-error');
+    if (deleteConfirmInput.value.trim() !== 'DELETE') { showError('auth-delete-error', 'Type DELETE (in capital letters) to confirm.'); return; }
+    setLoading(deleteSubmit, true);
+    try {
+      await accountRequest('delete', { confirm: 'DELETE' });
+      clearSession();
+      try { sessionStorage.removeItem(CONSENT_INTENT_KEY); } catch (_) { /* fine */ }
+      refreshNavLoginState();
+      showStep('login');
+      showError('auth-login-error', 'Your account has been deleted.', true);
+    } catch (err) {
+      showError('auth-delete-error', err.message);
+    } finally {
+      setLoading(deleteSubmit, false);
+    }
   });
 
   // ---------- Forgot password / recovery flow ----------

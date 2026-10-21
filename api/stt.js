@@ -10,6 +10,7 @@ function buffer(req) {
 
 const { guardAiRequest } = require('./_lib/aiGuard');
 const credits = require('./_lib/credits');
+const { mipOptOut } = require('./_lib/privacy');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -26,7 +27,7 @@ module.exports = async (req, res) => {
     if (!(await credits.checkAllowance(req, res, 'stt', { audioSeconds }))) return;
 
     const dgRes = await fetch(
-      `https://api.deepgram.com/v1/listen?smart_format=true&language=${encodeURIComponent(language)}`,
+      `https://api.deepgram.com/v1/listen?smart_format=true&language=${encodeURIComponent(language)}${mipOptOut()}`,
       {
         method: 'POST',
         headers: {

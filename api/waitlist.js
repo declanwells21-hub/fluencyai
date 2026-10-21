@@ -20,6 +20,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const { sendBrandedEmail } = require('./_lib/emailTemplate');
 const { hit, getClientIp } = require('./_lib/rateLimit');
+const { verify: verifyUnsub, unsubscribeUrl } = require('./_lib/waitlistUnsub');
 
 function getServiceClient() {
   const url = process.env.SUPABASE_URL;
@@ -73,7 +74,35 @@ Thanks for your patience while we get this right.
 
 \u2014 The Fluency AI team`;
 
+// GET /api/waitlist?unsubscribe=<email>&t=<token>  - the link at the bottom of every waitlist email.
+async function handleUnsubscribe(req, res) {
+  const email = String((req.query && req.query.unsubscribe) || '').trim().toLowerCase();
+  const page = (title, text, status = 200) => {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-store');
+    return res.status(status).send(`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${title}</title></head><body style="margin:0;background:#04121B;color:#D8E4EA;font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;padding:24px"><main style="max-width:420px;text-align:center"><h1 style="color:#fff;font-size:26px;margin:0 0 12px">${title}</h1><p style="line-height:1.6;margin:0 0 20px">${text}</p><a href="https://fluencyai.app/" style="color:#5EE2E6">Back to fluencyai.app</a></main></body></html>`);
+  };
+  if (!email || !verifyUnsub(email, req.query && req.query.t)) {
+    return page('This link did not work', 'The unsubscribe link is incomplete or has expired. Write to support@fluencyai.app and we will remove you.', 400);
+  }
+  try {
+    const supabase = getServiceClient();
+    let { error } = await supabase.from('waitlist_signups').update({ unsubscribed_at: new Date().toISOString() }).eq('email', email);
+    if (error) {
+      // The column is missing (compliance migration not run yet): remove the address instead, which also stops the emails.
+      console.error('api/waitlist: unsubscribe column missing, deleting the row instead:', error.message);
+      ({ error } = await supabase.from('waitlist_signups').delete().eq('email', email));
+      if (error) throw new Error(error.message);
+    }
+  } catch (err) {
+    console.error('api/waitlist: unsubscribe failed:', err.message);
+    return page('Something went wrong', 'We could not process that just now. Please try the link again in a few minutes, or write to support@fluencyai.app.', 500);
+  }
+  return page('You are unsubscribed', 'We will not email this address about the Fluency AI launch any more. If you change your mind, you can join the waitlist again at any time.');
+}
+
 module.exports = async (req, res) => {
+  if (req.method === 'GET' && req.query && req.query.unsubscribe) return handleUnsubscribe(req, res);
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -113,6 +142,8 @@ module.exports = async (req, res) => {
   }
 
   if (existing) {
+    // Joining again is a fresh request for launch news: lift an earlier unsubscribe (ignored if the column is not there yet).
+    await supabase.from('waitlist_signups').update({ unsubscribed_at: null }).eq('email', email);
     return res.status(200).json({ ok: true, alreadyJoined: true });
   }
 
@@ -146,7 +177,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    await sendBrandedEmail({ to: email, subject: CONFIRMATION_SUBJECT, textBody: CONFIRMATION_BODY });
+    await sendBrandedEmail({ to: email, subject: CONFIRMATION_SUBJECT, textBody: CONFIRMATION_BODY, unsubscribeUrl: unsubscribeUrl(email) });
     await supabase
       .from('waitlist_signups')
       .update({ confirmation_sent_at: new Date().toISOString() })

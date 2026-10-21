@@ -43,7 +43,11 @@
     });
     const res = await fetch('/api' + path, Object.assign({}, options, { headers }));
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || 'Request failed (' + res.status + ')');
+    if (!res.ok) {
+      const err = new Error(data.error || 'Request failed (' + res.status + ')');
+      err.code = data.code;
+      throw err;
+    }
     return data;
   }
 
@@ -233,6 +237,7 @@
             <button class="row-btn" data-action="${isAdmin ? 'demote' : 'promote'}" data-id="${u.id}">${isAdmin ? 'Demote' : 'Promote'}</button>
             <button class="row-btn" data-action="${isSubscribed ? 'revoke' : 'grant'}" data-id="${u.id}">${isSubscribed ? 'Revoke' : 'Grant'}</button>
             <button class="row-btn" data-action="credits" data-id="${u.id}" data-email="${u.email}">Credits</button>
+            <button class="row-btn" data-action="export" data-id="${u.id}" data-email="${u.email}">Export data</button>
             <button class="row-btn" data-action="${isSuspended ? 'unsuspend' : 'suspend'}" data-id="${u.id}">${isSuspended ? 'Unsuspend' : 'Suspend'}</button>
             <button class="row-btn" data-action="delete" data-id="${u.id}" data-email="${u.email}" style="border-color:var(--coral-400);color:var(--coral-400)">Delete</button>
           </td>
@@ -255,8 +260,26 @@
       await handleCredits(id, email);
       return;
     }
+    if (action === 'export') {
+      // A data request that arrived by email: download everything the servers hold about this person.
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/admin/user-export?userId=' + encodeURIComponent(id), { headers: { Authorization: 'Bearer ' + accessToken } });
+        if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || 'Export failed (' + res.status + ')'); }
+        const blob = await res.blob();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'fluency-ai-data-' + (email || id) + '.json';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      } catch (err) {
+        alert(err.message);
+      }
+      btn.disabled = false;
+      return;
+    }
     if (action === 'delete') {
-      if (!confirm(`Permanently delete ${email}? This deletes their account and all their data. This cannot be undone.`)) {
+      if (!confirm(`Permanently delete ${email}? Any subscription is cancelled, their data is removed or de-identified and the login is deleted. Exam guide order records are kept for accounting. This cannot be undone.`)) {
         return;
       }
     }
@@ -284,10 +307,16 @@
           body: JSON.stringify({ userId: id, suspend: action === 'suspend' }),
         });
       } else if (action === 'delete') {
-        await apiFetch('/admin/delete-user', {
-          method: 'POST',
-          body: JSON.stringify({ userId: id }),
-        });
+        try {
+          await apiFetch('/admin/delete-user', { method: 'POST', body: JSON.stringify({ userId: id }) });
+        } catch (err) {
+          // A partner with unpaid earnings is not deleted by accident; an admin can still choose to.
+          if (err.code === 'partner_balance' && confirm(err.message + '\n\nThis person is a partner with unpaid earnings. Delete anyway? Those earnings will not be paid out.')) {
+            await apiFetch('/admin/delete-user', { method: 'POST', body: JSON.stringify({ userId: id, force: true }) });
+          } else {
+            throw err;
+          }
+        }
       }
       await loadUsers();
       await loadStats();

@@ -32,6 +32,9 @@ window.FL_CONFIG = {
   commission: { guides: 0.2, subscriptions: 0.2, attributionDays: 30, payoutMinimumUSD: 20, refundHoldDays: 14, payoutDay: 15 },
 
   // ---- App / launch ----
+  /* The "Last updated" date printed on /terms and /privacy. People agree to a version; when you publish a new one, change the date
+     here and everyone is asked to agree again the next time they sign in. */
+  legal: { termsVersion: "2026-09-09", privacyVersion: "2026-09-09" },
   launchState: "waitlist",           // "waitlist" | "early_access" | "public_launch"  (also a Tweak on Fluency Home v3)
   appStoreUrl: "",                   // REQUEST: App Store listing
   playStoreUrl: "",                  // REQUEST: Google Play listing

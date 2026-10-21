@@ -126,7 +126,7 @@ const DEEPGRAM_VOICE_MAP = {
 
 async function speakWithDeepgram({ text, targetLanguage }, res, done) {
   const model = DEEPGRAM_VOICE_MAP[targetLanguage];
-  const dgRes = await fetch(`https://api.deepgram.com/v1/speak?model=${model}`, {
+  const dgRes = await fetch(`https://api.deepgram.com/v1/speak?model=${model}${mipOptOut()}`, {
     method: 'POST',
     headers: {
       Authorization: `Token ${process.env.DEEPGRAM_API_KEY}`,
@@ -146,6 +146,7 @@ async function speakWithDeepgram({ text, targetLanguage }, res, done) {
 
 const { guardAiRequest } = require('./_lib/aiGuard');
 const credits = require('./_lib/credits');
+const { mipOptOut } = require('./_lib/privacy');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');

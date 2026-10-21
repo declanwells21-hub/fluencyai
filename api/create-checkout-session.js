@@ -70,6 +70,9 @@ function safeRedirect(candidate, fallback) {
 }
 
 module.exports = async (req, res) => {
+  // Account actions (download my data, delete my account) arrive here too (rewrite /api/account in vercel.json):
+  // the project is at the 12-function limit, so this function carries both jobs.
+  if (req.query && req.query.hook === 'account') return require('./_lib/account').handleAccount(req, res);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
