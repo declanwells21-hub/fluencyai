@@ -610,7 +610,7 @@ function waitlistLaunchBody(iosUrl, androidUrl, note) {
 Download it now:
 ${links}
 
-Thank you for waiting for us. We built Fluency AI so you can stop freezing and start speaking, in 40 languages, and we're glad you'll be trying it.${note ? '\n\n' + note : ''}
+Thank you for waiting for us. We built Fluency AI so you can stop freezing and start speaking, in French, German or English, and we're glad you'll be trying it.${note ? '\n\n' + note : ''}
 
 If you have any questions getting started, just reply to this email.
 

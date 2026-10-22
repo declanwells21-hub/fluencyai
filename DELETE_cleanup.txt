@@ -1,0 +1,5 @@
+DELETE these files from the repo:
+  site/app.js
+  site/data.js
+  site/creators.html
+(nothing loads them any more; /creators still redirects to /partners)

@@ -1,7 +1,7 @@
 // api/referral.js
 //
 // Public, unauthenticated endpoint used by two things on the marketing
-// site (site/app.js and site/creators.html):
+// site (the Home page's partner pop-up and the Partners page):
 //
 //   POST /api/referral  { type: "click", code }
 //     Fired once, quietly, when someone lands on the site with a ?ref=CODE
@@ -10,7 +10,7 @@
 //     used to enumerate which codes are valid.
 //
 //   POST /api/referral  { type: "apply", name, email, platform, handle, ... }
-//     The "Apply to join" form on site/creators.html. Writes to
+//     The "Apply" form on the Partners page. Writes to
 //     creator_applications for an admin to review - see api/admin/router.js
 //     (routes "applications" and "application-decide").
 //
