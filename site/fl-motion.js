@@ -47,12 +47,13 @@
     layer.id = "fl-void"; layer.setAttribute("aria-hidden", "true");
     layer.style.cssText = "position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;contain:strict;";
     // Words stay vivid at the edges and fade almost out behind the reading column
-    const fade = innerWidth < 760 ? "linear-gradient(180deg,#000 0%,rgba(0,0,0,.35) 18%,rgba(0,0,0,.18) 50%,rgba(0,0,0,.35) 82%,#000 100%)" : "linear-gradient(90deg,#000 0%,rgba(0,0,0,.55) 18%,rgba(0,0,0,.14) 38%,rgba(0,0,0,.14) 72%,rgba(0,0,0,.55) 88%,#000 100%)";
-    layer.style.webkitMaskImage = fade; layer.style.maskImage = fade;
+    const small = innerWidth < 760 || matchMedia("(pointer: coarse)").matches;
+    const fade = small ? "none" : "linear-gradient(90deg,#000 0%,rgba(0,0,0,.55) 18%,rgba(0,0,0,.14) 38%,rgba(0,0,0,.14) 72%,rgba(0,0,0,.55) 88%,#000 100%)";
+    if (!small) { layer.style.webkitMaskImage = fade; layer.style.maskImage = fade; }
     const k = parseFloat(root.getAttribute("data-fl-void") || "1");
     layer.style.backgroundColor = cs.backgroundColor; layer.style.backgroundImage = cs.backgroundImage;
     root.style.background = "transparent"; root.style.position = "relative"; root.style.zIndex = "1";
-    const small = innerWidth < 760, n = small ? 20 : HELLO.length, cols = small ? 4 : 8, rows = Math.ceil(n / cols);
+    const n = small ? 14 : HELLO.length, cols = small ? 4 : 8, rows = Math.ceil(n / cols);
     const order = HELLO.slice().sort(() => Math.random() - .5).slice(0, n);
     order.forEach((w, i) => {
       const c = i % cols, r = Math.floor(i / cols);
@@ -60,12 +61,14 @@
       const s = document.createElement("span");
       const size = small ? 14 + Math.random() * 16 : 16 + Math.random() * 30;
       s.textContent = w;
-      s.style.cssText = "position:absolute;white-space:nowrap;font-family:var(--font-display),system-ui,sans-serif;font-weight:700;letter-spacing:-.01em;color:#fff;will-change:transform;";
+      s.style.cssText = "position:absolute;white-space:nowrap;font-family:var(--font-display),system-ui,sans-serif;font-weight:700;letter-spacing:-.01em;color:#fff;" + (small ? "" : "will-change:transform;");
       s.style.left = x + "%"; s.style.top = y + "%"; s.style.fontSize = size.toFixed(0) + "px";
-      s.style.opacity = (k * (0.03 + (size / 46) * 0.035)).toFixed(3);
+      // phones: the edge fade is baked into each word's opacity instead of a screen-sized mask, and the words stay still
+      const edge = small ? 0.18 + 0.82 * Math.pow(Math.abs(y / 50 - 1), 2) : 1;
+      s.style.opacity = (k * edge * (0.03 + (size / 46) * 0.035)).toFixed(3);
       s.style.transform = "translate(-50%,-50%)";
       layer.appendChild(s);
-      if (!reduce) {
+      if (!reduce && !small) {
         const amp = 10 + size * .45, dur = 9000;
         s.animate([{ transform: `translate(-50%,calc(-50% - ${amp}px))` }, { transform: `translate(-50%,calc(-50% + ${amp}px))` }],
           { duration: dur, iterations: Infinity, direction: "alternate", easing: "cubic-bezier(.45,0,.55,1)", delay: -((x / 100) * dur * 1.6 + (y / 100) * dur * .4) });
@@ -101,8 +104,8 @@
     if (r.top < innerHeight * 0.9 && r.bottom > 0 && performance.now() < 1200) return; // already on screen at load: no flash
     const js = getComputedStyle(el).justifySelf;
     const dx = js === "end" ? -0 : 0; // Y-only: X offsets caused horizontal overflow
-    const from = { opacity: 0, transform: `translate3d(${dx}px, 22px, 0) scale(.985)`, transformOrigin: js === "end" ? "100% 0" : "0 0" };
-    const a = el.animate([from, { opacity: 1, transform: "none" }], { duration: 760, easing: EASE, fill: "backwards" });
+    const from = { opacity: 0, transform: fine ? `translate3d(${dx}px, 22px, 0) scale(.985)` : "translate3d(0, 12px, 0)", transformOrigin: js === "end" ? "100% 0" : "0 0" };
+    const a = el.animate([from, { opacity: 1, transform: "none" }], { duration: fine ? 760 : 420, easing: EASE, fill: "backwards" });
     a.pause(); a.currentTime = 0; el.__flAnim = a;
     io.observe(el);
   };

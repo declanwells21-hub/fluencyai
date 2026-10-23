@@ -302,3 +302,32 @@ html.fl-lock { overflow: hidden; }
 @media (max-width: 760px) and (display-mode: standalone) {
   body.fl-has-tabbar:not(:has([data-fl-page])) { padding-top: env(safe-area-inset-top, 0px); }
 }
+
+
+/* ---------- 6. Smooth scrolling and the Exam guides country shortcuts ---------- */
+@media (max-width: 760px) {
+  /* Blur filters are redrawn on every scroll frame on phones. The bars are almost solid anyway, so they are made solid. */
+  [data-fl-nav] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: rgba(11, 34, 51, .97) !important;
+  }
+  .fl-tabbar {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: rgba(4, 18, 27, .98) !important;
+  }
+
+  /* Country shortcuts (Germany, France, Canada, more soon): they used to stick at a fixed distance from the top and slid
+     over the headline. Now they sit in the page and scroll away with it, and wrap onto a second line if they do not fit. */
+  [data-fl-country-bar] {
+    position: static !important;
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 2px 0 !important;
+  }
+
+  /* The scrolling pages only repaint what changed */
+  [data-fl-page] { contain: paint; }
+}

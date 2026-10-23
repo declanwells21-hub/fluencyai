@@ -120,7 +120,7 @@ window.FluencyData = (() => {
     work: { label: "Work & training", icon: "briefcase", photo: "Nurse or trainee at work, smiling" },
     residence: { label: "Residence permits", icon: "key-round", photo: "Person holding keys at a new front door" },
     citizenship: { label: "Settlement & citizenship", icon: "landmark", photo: "Citizenship ceremony, certificate in hand" },
-    immigration: { label: "Canada immigration", icon: "plane", photo: "Family arriving at a Canadian airport" },
+    immigration: { label: "Immigration", icon: "plane", photo: "Family arriving at a Canadian airport" },
     university: { label: "University admission", icon: "graduation-cap", photo: "Student on a European campus" },
     mastery: { label: "Top-level mastery", icon: "award", photo: "Speaker presenting to a room" },
   };
