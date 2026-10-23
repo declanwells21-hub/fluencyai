@@ -206,7 +206,7 @@ const makeSub = (status = 'active') => { S.t.profiles[0].subscription_status = s
     const run2 = async () => { const res = mockRes(); await router({ method: 'POST', headers: bearer('admin-token'), query: { path: ['waitlist-notify-launch'] }, body: { iosUrl: 'https://apps.apple.com/x' } }, res); return res; };
     const res = await run2(); assert.strictEqual(res.statusCode, 200); const mails = brevoCalls(); const to = mails.map((m) => m.to[0].email).sort();
     assert.deepStrictEqual(to, ['ada@example.com', 'bob@example.com']); assert.ok(mails.every((m) => m.htmlContent.includes('>Unsubscribe</a>') && m.headers['List-Unsubscribe'].includes(encodeURIComponent(m.to[0].email))));
-    reset(); S.missingUnsubColumn = true; const bad = await run2(); assert.strictEqual(bad.statusCode, 500); assert.ok(/compliance\.sql/.test(bad.body.error)); assert.strictEqual(brevoCalls().length, 0);
+    reset(); S.missingUnsubColumn = true; const bad = await run2(); assert.strictEqual(bad.statusCode, 500); assert.ok(bad.body.error && !/\.sql/.test(bad.body.error)); assert.strictEqual(brevoCalls().length, 0);
   });
 
   // ---------------- speech providers keep nothing ----------------

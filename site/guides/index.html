@@ -782,7 +782,7 @@ function buyButton(p, label) {
   if (p.checkout) return `<a class="btn btn-primary" href="${esc(p.checkout)}" target="_blank" rel="noopener">${label} ${ICON.right}</a>`;
   return `<button class="btn btn-primary" type="button" data-pending>${label} ${ICON.right}</button>`;
 }
-function pendingNote() { return `<div class="pending-note" role="status">Checkout link not connected yet. Paste this guide's Selar link into <b>checkout</b> in the page settings.</div>`; }
+function pendingNote() { return `<div class="pending-note" role="status">Checkout for this guide opens soon.</div>`; }
 
 function card(p) {
   return `<a class="card" href="#${p.slug}">

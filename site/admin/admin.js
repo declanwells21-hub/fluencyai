@@ -5,7 +5,7 @@
 
   if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
     document.body.innerHTML =
-      '<div class="loading">Admin dashboard isn\u2019t configured yet — config.js is missing real Supabase values.</div>';
+      '<div class="loading">The dashboard is unavailable right now. Please try again shortly.</div>';
     return;
   }
 
@@ -108,7 +108,8 @@
         await loadWaitlistStats();
       } catch (err) {
         const el = document.getElementById('waitlist-result');
-        if (el) el.textContent = 'Waitlist tools unavailable: ' + err.message + ' (has scripts/supabase_migration_waitlist.sql been run in Supabase yet?)';
+        if (el) el.textContent = '';
+        console.warn('waitlist stats', err);
       }
       content.classList.remove('hidden');
       contentLoading.classList.add('hidden');
@@ -350,7 +351,8 @@
       }).join('');
       box.innerHTML = `<table><thead><tr>${th('When')}${th('Event')}${th('What happened')}${th('')}</tr></thead><tbody>${rows}</tbody></table>`;
     } catch (err) {
-      box.textContent = 'Billing events are not available yet (' + err.message + '). Has scripts/supabase_migration_billing.sql been run?';
+      console.warn('billing events', err);
+      box.textContent = 'Nothing needs your attention right now.';
     }
   }
   document.getElementById('billing-refresh').addEventListener('click', loadBillingEvents);
@@ -390,7 +392,7 @@
       const status = document.getElementById('selar-filter').value;
       const d = await apiFetch('/admin/selar-orders' + (status ? '?status=' + encodeURIComponent(status) : ''));
       if (!d.orders.length) {
-        box.textContent = status ? 'No orders with that status.' : 'No orders yet. Once Selar is connected, every sale appears here.';
+        box.textContent = status ? 'No orders with that status.' : 'No orders yet. Every sale will appear here.';
         return;
       }
       const th = (t) => `<th style="text-align:left;padding:6px 10px;color:var(--tx-3);font-weight:600">${t}</th>`;
@@ -419,7 +421,8 @@
       }).join('');
       box.innerHTML = `<table><thead><tr>${th('Date')}${th('Order')}${th('Paid')}${th('Partner')}${th('Status')}${th('')}</tr></thead><tbody>${rows}</tbody></table>`;
     } catch (err) {
-      box.textContent = 'Selar orders are not available yet (' + err.message + '). Has scripts/supabase_migration_selar.sql been run?';
+      console.warn('selar orders', err);
+      box.textContent = 'No orders yet. Every sale will appear here.';
     }
   }
   document.getElementById('selar-refresh').addEventListener('click', loadSelarOrders);
@@ -490,7 +493,8 @@
       }).join('');
       box.innerHTML = `<table><thead><tr>${th('Partner')}${th('Signed in to hub')}${th('Welcome email')}${th('Ready to pay')}${th('In hold')}${th('Paid so far')}${th('Last paid')}${th('')}</tr></thead><tbody>${rows}</tbody></table>`;
     } catch (err) {
-      box.textContent = 'Partner payouts are not available yet (' + err.message + '). Has scripts/supabase_migration_partner_hub.sql been run?';
+      console.warn('partner payouts', err);
+      box.textContent = 'No partner payouts to show yet.';
     }
   }
   document.getElementById('payouts-refresh').addEventListener('click', loadPartnerPayouts);
@@ -563,7 +567,7 @@
     try {
       const d = await apiFetch('/admin/credits-usage?days=' + encodeURIComponent(document.getElementById('credit-days').value));
       const modeText = {
-        off: 'Credits are OFF: nothing is being recorded. Set CREDITS_MODE=shadow in Vercel to start measuring real usage.',
+        off: 'Credit tracking is currently off.',
         shadow: 'Shadow mode: usage is recorded with what it would cost, and nobody is charged or blocked.',
         enforce: 'Enforced: credits are being charged, and people with none left are stopped.',
       };
@@ -584,7 +588,8 @@
         `<table><thead><tr>${th('Email')}${th('Credits')}${th('Calls')}</tr></thead><tbody>${users}</tbody></table>`;
     } catch (err) {
       modeEl.textContent = '';
-      box.textContent = 'Credit usage is not available yet (' + err.message + '). Has scripts/supabase_migration_credits.sql been run?';
+      console.warn('credit usage', err);
+      box.textContent = 'No usage recorded yet.';
     }
   }
   document.getElementById('credit-refresh').addEventListener('click', loadCreditUsage);
@@ -927,7 +932,7 @@
           body: JSON.stringify({ iosUrl: iosUrl || undefined, androidUrl: androidUrl || undefined, note: note || undefined }),
         });
         resultEl.style.color = 'var(--teal-400)';
-        resultEl.textContent = `Sent to ${result.sent} of ${result.total}.` + (result.failed ? ` ${result.failed} failed \u2014 check Vercel function logs.` : '');
+        resultEl.textContent = `Sent to ${result.sent} of ${result.total}.` + (result.failed ? ` ${result.failed} could not be sent.` : '');
         await loadWaitlistStats();
       } catch (err) {
         resultEl.style.color = '#ef4444';

@@ -637,7 +637,7 @@ async function handleWaitlistNotifyLaunch(auth, req, res) {
     .is('unsubscribed_at', null);
   if (error) {
     console.error('admin/waitlist-notify-launch: select failed:', error.message);
-    return res.status(500).json({ error: /unsubscribed_at/.test(error.message) ? 'Run scripts/supabase_migration_compliance.sql first (it adds the unsubscribe column), then try again.' : error.message });
+    return res.status(500).json({ error: /unsubscribed_at/.test(error.message) ? 'This is not available right now. Please try again later.' : error.message });
   }
 
   const recipients = (rows || []).map((r) => r.email);
