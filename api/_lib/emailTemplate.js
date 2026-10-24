@@ -63,16 +63,21 @@ ${html}
 </body></html>`;
 }
 
-async function sendBrandedEmail({ to, subject, textBody, footerNote, unsubscribeUrl }) {
+// Optional extras (everything below is skipped when not given, so existing callers behave exactly as before):
+//   htmlContent  - a ready-made HTML email (the three welcome emails); the plain-text-to-HTML builder is skipped
+//   textContent  - the plain-text twin of htmlContent
+//   fromAddress  - sends from this address instead of EMAIL_FROM_ADDRESS (the welcome emails use WELCOME_FROM_ADDRESS)
+//   replyTo      - where replies go
+async function sendBrandedEmail({ to, subject, textBody, footerNote, unsubscribeUrl, htmlContent: readyHtml, textContent, fromAddress, replyTo }) {
   const BREVO_API_KEY = process.env.BREVO_API_KEY;
-  const FROM_EMAIL = process.env.EMAIL_FROM_ADDRESS;
+  const FROM_EMAIL = fromAddress || process.env.EMAIL_FROM_ADDRESS;
   const FROM_NAME = process.env.EMAIL_FROM_NAME || 'Fluency AI';
 
   if (!BREVO_API_KEY || !FROM_EMAIL) {
     throw new Error('Email sending is not configured (missing BREVO_API_KEY or EMAIL_FROM_ADDRESS env vars).');
   }
 
-  const htmlContent = buildEmailHtml(subject, textBody, footerNote, unsubscribeUrl);
+  const htmlContent = readyHtml || buildEmailHtml(subject, textBody, footerNote, unsubscribeUrl);
 
   const brevoRes = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
@@ -86,6 +91,8 @@ async function sendBrandedEmail({ to, subject, textBody, footerNote, unsubscribe
       to: [{ email: to }],
       subject,
       htmlContent,
+      ...(textContent ? { textContent } : {}),
+      ...(replyTo ? { replyTo: { email: replyTo } } : {}),
       ...(unsubscribeUrl ? { headers: { 'List-Unsubscribe': `<${unsubscribeUrl}>` } } : {}),
     }),
   });

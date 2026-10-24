@@ -83,6 +83,21 @@
     localStorage.setItem(SESSION_KEY, JSON.stringify(toStore));
     announceAuthChange();
     claimReferralOnce(toStore);
+    requestWelcomeEmail(toStore);
+  }
+
+  // A brand-new account gets one welcome email. The server decides (it only ever sends once, and only to new,
+  // confirmed accounts), so this just asks, at most once per browser and account, and never blocks sign-in.
+  function requestWelcomeEmail(session) {
+    try {
+      const user = session && session.user;
+      if (!user || !user.id || !session.access_token) return;
+      if (!(Date.now() - Date.parse(user.created_at || 0) < 3 * 86400000)) return;
+      const key = 'fl_welcome_asked_' + user.id;
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, '1');
+      fetch('/api/welcome-email', { method: 'POST', headers: { Authorization: 'Bearer ' + session.access_token } }).catch(function () {});
+    } catch (_) { /* never in the way of signing in */ }
   }
   function clearSession() {
     localStorage.removeItem(SESSION_KEY);

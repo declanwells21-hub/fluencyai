@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fluency AI</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#04121B">
+<link rel="icon" href="/assets/icon-192.png">
+<link rel="stylesheet" href="/ds/styles.css">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:#04121B;color:#B7CCD6;font-family:var(--font-body,system-ui,-apple-system,"Segoe UI",sans-serif);-webkit-text-size-adjust:100%}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;padding:32px 16px;padding-top:max(32px,env(safe-area-inset-top));padding-bottom:max(32px,env(safe-area-inset-bottom))}
+  .brand{font-weight:900;font-size:30px;letter-spacing:-.035em;color:#fff;line-height:1;margin:0 0 26px;text-decoration:none}
+  .brand b{color:#10B8B8;font-weight:900}
+  .brand sup{font-size:10px;letter-spacing:.1em;color:#10B8B8;margin-left:3px;vertical-align:top;font-weight:800}
+  .card{width:100%;max-width:520px;background:#0B2233;border:1px solid rgba(255,255,255,.09);border-radius:24px;padding:40px 32px}
+  .tag{display:inline-block;padding:6px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(16,184,184,.1);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#10B8B8}
+  .tag.amber{background:rgba(255,201,51,.1);color:#FFC933}
+  h1{margin:20px 0 12px;font-weight:900;font-size:32px;line-height:1.1;letter-spacing:-.03em;color:#fff}
+  p{margin:0 0 22px;font-size:16px;line-height:1.6}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 30px;border:0;border-radius:999px;background:#10B8B8;color:#04121B;font:700 16px/1 var(--font-body,system-ui,sans-serif);cursor:pointer;text-decoration:none;touch-action:manipulation}
+  a.btn,a.btn:hover,a.btn:visited{color:#04121B;text-decoration:none}
+  .btn:hover{background:#18c8c8}
+  h1:focus{outline:none}
+  .btn:disabled{opacity:.6;cursor:default}
+  .btn.block{width:100%}
+  label{display:block;margin:0 0 16px;font-size:13px;font-weight:700;color:#B7CCD6}
+  input{display:block;width:100%;margin-top:7px;padding:14px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:#04121B;color:#fff;font:500 16px/1.2 var(--font-body,system-ui,sans-serif)}
+  input:focus{outline:2px solid #10B8B8;outline-offset:1px}
+  .err{min-height:20px;margin:0 0 14px;font-size:14px;line-height:1.45;color:#FF8F8F}
+  .note{margin:22px 0 0;font-size:13px;color:#8FB0C0}
+  .note a{color:#8FB0C0}
+  .spin{width:18px;height:18px;border-radius:50%;border:3px solid rgba(4,18,27,.25);border-top-color:#04121B;animation:s .8s linear infinite}
+  @keyframes s{to{transform:rotate(360deg)}}
+  [hidden]{display:none!important}
+  @media (max-width:420px){.card{padding:32px 22px}h1{font-size:28px}}
+  @media (prefers-reduced-motion:reduce){.spin{animation-duration:2s}}
+</style>
+</head>
+<body>
+<a class="brand" href="/" aria-label="Fluency AI home"><b>F</b>luency<sup>AI</sup></a>
+
+<main class="card" id="card" aria-live="polite">
+
+  <!-- Confirm email -->
+  <section id="v-confirm" hidden>
+    <span class="tag">Step 1 of 2</span>
+    <h1>Confirm your email to start speaking.</h1>
+    <p>One tap and your Fluency AI account is ready.</p>
+    <p class="err" id="confirm-err" role="alert"></p>
+    <button class="btn block" id="confirm-btn" type="button">Confirm my email</button>
+    <p class="note">If you didn't create a Fluency AI account, you can close this page.</p>
+  </section>
+
+  <!-- Choose a new password -->
+  <section id="v-reset" hidden>
+    <span class="tag amber">Password reset</span>
+    <h1>Choose a new password.</h1>
+    <p>Pick something you haven't used before. You'll sign in with it straight after.</p>
+    <form id="reset-form" novalidate>
+      <label>New password
+        <input id="pw1" type="password" autocomplete="new-password" minlength="6" required>
+      </label>
+      <label>Type it again
+        <input id="pw2" type="password" autocomplete="new-password" minlength="6" required>
+      </label>
+      <p class="err" id="reset-err" role="alert"></p>
+      <button class="btn block" id="reset-btn" type="submit">Save new password</button>
+    </form>
+    <p class="note">Didn't ask for this? Close this page. Your password stays the same.</p>
+  </section>
+
+  <!-- Done -->
+  <section id="v-done" hidden>
+    <span class="tag" id="done-tag">Done</span>
+    <h1 id="done-title"></h1>
+    <p id="done-text"></p>
+    <a class="btn block" href="/#signin">Sign in</a>
+  </section>
+
+  <!-- Problem -->
+  <section id="v-problem" hidden>
+    <span class="tag amber">One moment</span>
+    <h1 id="problem-title">This link can't be used.</h1>
+    <p id="problem-text"></p>
+    <a class="btn block" href="/#signin">Go to sign in</a>
+  </section>
+
+</main>
+
+<script src="/config.js"></script>
+<script>
+(function () {
+  var BASE = (window.__SUPABASE_URL || '').replace(/\/$/, '');
+  var KEY = window.__SUPABASE_ANON_KEY || '';
+  var params = new URLSearchParams(location.search);
+  var tokenHash = (params.get('token_hash') || '').trim();
+  var type = (params.get('type') || '').trim();
+
+  function $(id) { return document.getElementById(id); }
+  function show(id) {
+    ['v-confirm', 'v-reset', 'v-done', 'v-problem'].forEach(function (s) { $(s).hidden = (s !== id); });
+    var h = $(id).querySelector('h1'); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); }
+  }
+  function problem(title, text) {
+    $('problem-title').textContent = title; $('problem-text').textContent = text; show('v-problem');
+  }
+  function busy(btn, on, label) {
+    btn.disabled = on;
+    btn.innerHTML = on ? '<span class="spin" aria-hidden="true"></span><span>Please wait\u2026</span>' : '';
+    if (!on) btn.textContent = label;
+  }
+
+  function api(path, opts) {
+    opts = opts || {};
+    var headers = { apikey: KEY, 'Content-Type': 'application/json' };
+    if (opts.token) headers.Authorization = 'Bearer ' + opts.token;
+    return fetch(BASE + path, { method: opts.method || 'POST', headers: headers, body: opts.body ? JSON.stringify(opts.body) : undefined })
+      .catch(function () { var e = new Error('network'); e.kind = 'network'; throw e; })
+      .then(function (res) {
+        return res.text().then(function (t) {
+          var data = {}; try { data = t ? JSON.parse(t) : {}; } catch (_) { /* not JSON */ }
+          if (!res.ok) {
+            var e = new Error(data.msg || data.message || data.error_description || data.error || 'failed');
+            e.code = data.error_code || data.code || ''; e.status = res.status; throw e;
+          }
+          return data;
+        });
+      });
+  }
+
+  function friendly(err, ctx) {
+    if (err && err.kind === 'network') return 'We couldn\u2019t reach the server. Check your connection and try again.';
+    var msg = ((err && (err.code + ' ' + err.message)) || '');
+    if (/same_password|different from the old/i.test(msg)) return 'Please choose a password you haven\u2019t used before.';
+    if (/weak|least|short|characters|password/i.test(msg) && ctx === 'reset') {
+      var m = err && err.message;
+      return (m && /^password/i.test(m) && m.length < 140) ? m : 'Please use a stronger password.';
+    }
+    if (/rate|too many|over_.*limit/i.test(msg)) return 'Too many tries. Please wait a minute and try again.';
+    return null;
+  }
+  function expired(err) {
+    return err && (err.status === 401 || err.status === 403 || err.status === 404 || err.status === 410 || err.status === 422)
+      && /expired|invalid|otp|token|not found|already|used/i.test((err.code || '') + ' ' + (err.message || ''));
+  }
+  function welcome(session) {
+    // Ask for the welcome email now: this page is where a new account is confirmed. The server sends it once only.
+    if (!session || !session.access_token) return;
+    fetch('/api/welcome-email', { method: 'POST', headers: { Authorization: 'Bearer ' + session.access_token }, keepalive: true }).catch(function () { /* not important to the person */ });
+  }
+  function revoke(session) {
+    // The page never keeps anyone signed in: sign-in happens on the normal sign-in screen.
+    if (!session || !session.access_token) return;
+    api('/auth/v1/logout?scope=local', { token: session.access_token }).catch(function () { /* nothing to do */ });
+  }
+
+  // ---------- Start ----------
+  if (!BASE || !KEY) {
+    problem('This page is unavailable right now.', 'Please try again in a little while.');
+    return;
+  }
+  if (!tokenHash || (type !== 'signup' && type !== 'recovery')) {
+    problem('This link looks incomplete.', 'Open the link from your email again. If you already confirmed, you can just sign in.');
+    return;
+  }
+  document.title = type === 'signup' ? 'Confirm your email | Fluency AI' : 'Choose a new password | Fluency AI';
+  show(type === 'signup' ? 'v-confirm' : 'v-reset');
+
+  var usedUp = 'This link has expired or was already used. If you already confirmed your email or changed your password, just sign in. Otherwise, sign in and ask for a new one.';
+
+  // ---------- Confirm email ----------
+  $('confirm-btn').addEventListener('click', function () {
+    var btn = $('confirm-btn'); $('confirm-err').textContent = '';
+    busy(btn, true);
+    api('/auth/v1/verify', { body: { type: 'signup', token_hash: tokenHash } })
+      .then(function (session) {
+        welcome(session);
+        revoke(session);
+        $('done-tag').textContent = 'Step 2 of 2';
+        $('done-title').textContent = 'Email confirmed.';
+        $('done-text').textContent = 'Your account is ready. Sign in to start speaking.';
+        show('v-done');
+      })
+      .catch(function (err) {
+        busy(btn, false, 'Confirm my email');
+        if (expired(err)) return problem('This link can\u2019t be used.', usedUp);
+        $('confirm-err').textContent = friendly(err, 'confirm') || 'Something went wrong. Please try again.';
+      });
+  });
+
+  // ---------- Choose a new password ----------
+  var session = null; // kept in memory so a retry after a weak password does not need the (already used) link again
+  $('reset-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var btn = $('reset-btn'), p1 = $('pw1').value, p2 = $('pw2').value; $('reset-err').textContent = '';
+    if (p1.length < 6) { $('reset-err').textContent = 'Please use a password with at least 6 characters.'; return; }
+    if (p1 !== p2) { $('reset-err').textContent = 'The two passwords don\u2019t match.'; return; }
+    busy(btn, true);
+    var step = session ? Promise.resolve(session) : api('/auth/v1/verify', { body: { type: 'recovery', token_hash: tokenHash } });
+    step
+      .then(function (s) {
+        session = s;
+        return api('/auth/v1/user', { method: 'PUT', token: s.access_token, body: { password: p1 } });
+      })
+      .then(function () {
+        revoke(session); session = null;
+        $('done-tag').textContent = 'Password reset';
+        $('done-title').textContent = 'Password updated.';
+        $('done-text').textContent = 'Sign in with your new password.';
+        show('v-done');
+      })
+      .catch(function (err) {
+        busy(btn, false, 'Save new password');
+        if (!session && expired(err)) return problem('This link can\u2019t be used.', usedUp);
+        $('reset-err').textContent = friendly(err, 'reset') || 'Something went wrong. Please try again.';
+      });
+  });
+})();
+</script>
+</body>
+</html>

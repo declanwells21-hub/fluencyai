@@ -24,7 +24,11 @@
 
 const { createClient } = require('@supabase/supabase-js');
 
+const { welcomeHook, sendAccountWelcomeOnce } = require('./_lib/welcomeEmails');
+
 module.exports = async (req, res) => {
+  // POST /api/welcome-email is routed here as ?hook=welcome (vercel.json) to keep the number of functions down.
+  if (req.query && req.query.hook === 'welcome') return welcomeHook(req, res);
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -78,6 +82,14 @@ module.exports = async (req, res) => {
   if (error) {
     console.error('track-activity: upsert failed:', error.message);
     return res.status(500).json({ error: error.message });
+  }
+
+  // The app pings this right after every sign-in. For a brand-new confirmed account it is also the moment to send the
+  // welcome email (once only: later pings do nothing). A failed email must never make sign-in look broken.
+  try {
+    await sendAccountWelcomeOnce(userData.user);
+  } catch (err) {
+    console.error('track-activity: welcome email failed:', err.message);
   }
 
   res.status(200).json({ ok: true });

@@ -3,6 +3,7 @@
 // The two emails a person gets when their Partner Program application is decided, so nobody has to be told by hand.
 
 const { sendBrandedEmail } = require('./emailTemplate');
+const { partnerWelcome } = require('./welcomeEmails');
 
 const SITE = 'https://fluencyai.app';
 const FOOTER = "You're receiving this because you applied to the Fluency AI Partner Program.";
@@ -17,7 +18,13 @@ function percent(rate) {
 }
 
 function acceptedEmail({ name, email, code, rate }) {
+  const designed = partnerWelcome({ name, email, code, rate }); // the branded HTML version of this same message
   return {
+    htmlContent: designed.htmlContent,
+    textContent: designed.textContent,
+    // sent from the welcome address (WELCOME_FROM_ADDRESS); with it unset the usual EMAIL_FROM_ADDRESS is used
+    fromAddress: process.env.WELCOME_FROM_ADDRESS || undefined,
+    replyTo: process.env.WELCOME_REPLY_TO || 'support@fluencyai.app',
     subject: "You're in: welcome to the Fluency AI Partner Program",
     textBody: [
       `Hi ${firstName(name)},`,

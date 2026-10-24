@@ -18,7 +18,7 @@
 // actually launches. See api/admin/router.js: handleWaitlistNotifyLaunch.
 
 const { createClient } = require('@supabase/supabase-js');
-const { sendBrandedEmail } = require('./_lib/emailTemplate');
+const { sendWaitlistWelcome } = require('./_lib/welcomeEmails');
 const { hit, getClientIp } = require('./_lib/rateLimit');
 const { verify: verifyUnsub, unsubscribeUrl } = require('./_lib/waitlistUnsub');
 
@@ -58,21 +58,7 @@ function isMissingColumn(error) {
   return !!error && (error.code === '42703' || error.code === 'PGRST204' || /column .* does not exist|could not find the .* column/i.test(error.message || ''));
 }
 
-const CONFIRMATION_SUBJECT = "You're on the Fluency AI waitlist";
-
-const CONFIRMATION_BODY = `Thanks for joining the Fluency AI waitlist.
-
-You'll be one of the first to know the moment Fluency AI is available to download on iOS and Android - before we announce it anywhere else.
-
-What to expect next:
-
-- One email, right when we launch, with direct links to download the app.
-- No spam in between. This list is only ever used for that one announcement.
-- You can start speaking right now if you don't want to wait: create a free account at fluencyai.app and try it in your browser.
-
-Thanks for your patience while we get this right.
-
-\u2014 The Fluency AI team`;
+// The "you're on the list" email itself lives in api/_lib/welcomeEmails.js (waitlistWelcome).
 
 // GET /api/waitlist?unsubscribe=<email>&t=<token>  - the link at the bottom of every waitlist email.
 async function handleUnsubscribe(req, res) {
@@ -177,7 +163,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    await sendBrandedEmail({ to: email, subject: CONFIRMATION_SUBJECT, textBody: CONFIRMATION_BODY, unsubscribeUrl: unsubscribeUrl(email) });
+    await sendWaitlistWelcome({ to: email, unsubscribeUrl: unsubscribeUrl(email) });
     await supabase
       .from('waitlist_signups')
       .update({ confirmation_sent_at: new Date().toISOString() })

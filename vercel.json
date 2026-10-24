@@ -41,6 +41,14 @@
   ],
   "rewrites": [
     {
+      "source": "/api/welcome-email",
+      "destination": "/api/track-activity?hook=welcome"
+    },
+    {
+      "source": "/auth/confirm",
+      "destination": "/auth-confirm.html"
+    },
+    {
       "source": "/api/account",
       "destination": "/api/create-checkout-session?hook=account"
     },
