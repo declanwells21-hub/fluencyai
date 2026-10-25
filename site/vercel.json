@@ -1,0 +1,163 @@
+{
+  "buildCommand": "bash build.sh",
+  "outputDirectory": "dist",
+  "installCommand": "echo 'skip - flutter deps installed in build.sh'",
+  "functions": {
+    "api/bot.js": {
+      "includeFiles": "api/_lib/bot/knowledge.md"
+    }
+  },
+  "redirects": [
+    {
+      "source": "/creators",
+      "destination": "/partners",
+      "permanent": true
+    },
+    {
+      "source": "/problem",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/how",
+      "destination": "/#how",
+      "permanent": true
+    },
+    {
+      "source": "/product",
+      "destination": "/#features",
+      "permanent": true
+    },
+    {
+      "source": "/waitlist",
+      "destination": "/#join",
+      "permanent": true
+    },
+    {
+      "source": "/r/:code",
+      "destination": "/?ref=:code",
+      "permanent": false
+    },
+    {
+      "source": "/r/:code/:target",
+      "destination": "/:target?ref=:code",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/welcome-email",
+      "destination": "/api/track-activity?hook=welcome"
+    },
+    {
+      "source": "/auth/confirm",
+      "destination": "/auth-confirm.html"
+    },
+    {
+      "source": "/api/account",
+      "destination": "/api/create-checkout-session?hook=account"
+    },
+    {
+      "source": "/api/selar-order",
+      "destination": "/api/referral?hook=selar"
+    },
+    {
+      "source": "/api/tatoeba-lists",
+      "destination": "/api/tatoeba?hook=lists"
+    },
+    {
+      "source": "/api/tatoeba-audio",
+      "destination": "/api/tatoeba?hook=audio"
+    },
+    {
+      "source": "/api/bot/:op",
+      "destination": "/api/bot?op=:op"
+    },
+    {
+      "source": "/app",
+      "destination": "/app/index.html"
+    },
+    {
+      "source": "/app/:path*",
+      "destination": "/app/index.html"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/pricing.html"
+    },
+    {
+      "source": "/store",
+      "destination": "/store.html"
+    },
+    {
+      "source": "/partners",
+      "destination": "/partners.html"
+    },
+    {
+      "source": "/partner-hub",
+      "destination": "/partner-hub.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/faq",
+      "destination": "/faq.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html"
+    },
+    {
+      "source": "/guides",
+      "destination": "/guides/index.html"
+    },
+    {
+      "source": "/api/admin/:path*",
+      "destination": "/api/admin/router?path=:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/app/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/app",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/guides/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/assets/vendor/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800, stale-while-revalidate=2592000"
+        }
+      ]
+    }
+  ]
+}
