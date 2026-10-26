@@ -245,3 +245,17 @@
   doc.body.appendChild(overlay);
   doc.body.classList.add('fl-has-tabbar');
 })();
+
+/* Website assistant: loads the chat widget (/assets/js/fl-bot.js) on the public pages, which all include this file.
+   The widget skips the Partner Hub itself. To take the chat off the whole site, set  botEnabled: false  in
+   fluency-config.js (FL_CONFIG), or delete this block. */
+(function () {
+  'use strict';
+  if (window.__flBotLoaded || (window.FL_CONFIG && window.FL_CONFIG.botEnabled === false)) return;
+  if (document.querySelector('script[data-fl-bot]')) return;
+  var s = document.createElement('script');
+  s.src = '/assets/js/fl-bot.js';
+  s.defer = true;
+  s.setAttribute('data-fl-bot', '');
+  document.head.appendChild(s);
+})();

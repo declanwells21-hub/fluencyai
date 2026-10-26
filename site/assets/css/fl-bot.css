@@ -1,0 +1,181 @@
+/* Fluency AI: website assistant (chat widget). Loaded by /assets/js/fl-bot.js.
+   Self-contained: it carries its own copy of the brand tokens (ds/tokens/*.css), because the legal pages do not load the
+   design system. Everything is scoped under .flbot so it cannot touch the page. */
+
+.flbot {
+  --b-teal-50: #E8FBFA; --b-teal-200: #93ECE8; --b-teal-400: #22CFCB; --b-teal-500: #10B8B8; --b-teal-700: #0E7B7E; --b-teal-800: #0F6265;
+  --b-mint-400: #25D79B;
+  --b-ink-950: #04121B; --b-ink-900: #0B2233; --b-ink-800: #153345; --b-ink-700: #22485C; --b-ink-500: #5B8497; --b-ink-400: #8CACBB;
+  --b-ink-300: #B7CCD6; --b-ink-200: #D8E4EA; --b-ink-100: #EDF3F6; --b-ink-50: #F6FAFB;
+  --b-amber-100: #FFF0D1; --b-amber-600: #C8801A; --b-coral-600: #D93D46;
+  --b-font: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --b-ring: 0 0 0 3px #fff, 0 0 0 6px rgba(34, 207, 203, .55);
+  font-family: var(--b-font);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--b-ink-700);
+  -webkit-font-smoothing: antialiased;
+}
+.flbot *, .flbot *::before, .flbot *::after { box-sizing: border-box; }
+.flbot [hidden] { display: none !important; }
+.flbot button, .flbot textarea { font-family: inherit; font-size: inherit; }
+.flbot a { color: #0E7B7E; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.flbot a:hover { color: var(--b-teal-800); }
+.flbot :focus-visible { outline: none; box-shadow: var(--b-ring); }
+
+/* ---------- launcher ---------- */
+.flbot-launcher {
+  position: fixed; z-index: 800;
+  right: 20px; bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  display: inline-flex; align-items: center; gap: 10px;
+  height: 56px; padding: 0 22px 0 16px;
+  border: 0; border-radius: 999px; cursor: pointer;
+  background: linear-gradient(135deg, var(--b-teal-400) 0%, var(--b-mint-400) 100%);
+  color: var(--b-ink-950); font-weight: 700; letter-spacing: -.005em;
+  box-shadow: inset 0 -3px 0 rgba(14, 123, 126, .85), 0 8px 30px -8px rgba(16, 184, 184, .55), 0 2px 6px rgba(11, 34, 51, .18);
+  transition: transform .22s cubic-bezier(.2, .7, .2, 1), box-shadow .22s;
+}
+.flbot-launcher:hover { transform: translateY(-2px); }
+.flbot-launcher:active { transform: scale(.97) translateY(2px); box-shadow: 0 4px 14px -6px rgba(16, 184, 184, .5); }
+.flbot-launcher svg { width: 24px; height: 24px; flex: none; }
+.flbot-launcher[aria-expanded="true"] .flbot-launcher-label { display: none; }
+.flbot-launcher[aria-expanded="true"] { padding: 0 16px; }
+
+/* ---------- panel ---------- */
+.flbot-panel {
+  position: fixed; z-index: 801;
+  right: 20px; bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  width: 384px; max-width: calc(100vw - 24px);
+  height: min(620px, calc(100vh - 120px)); height: min(620px, calc(100dvh - 120px));
+  display: flex; flex-direction: column;
+  background: #fff; border-radius: 20px; overflow: hidden;
+  border: 1px solid var(--b-ink-200);
+  box-shadow: 0 20px 44px -12px rgba(11, 34, 51, .28), 0 4px 10px rgba(11, 34, 51, .08);
+  animation: flbot-pop .22s cubic-bezier(.16, 1, .3, 1);
+  transform-origin: bottom right;
+}
+@keyframes flbot-pop { from { transform: scale(.94) translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.flbot-head {
+  display: flex; align-items: center; gap: 12px; flex: none;
+  padding: 14px 12px 14px 16px;
+  background: radial-gradient(120% 140% at 0% 0%, #123A4C 0%, var(--b-ink-950) 75%);
+  color: #fff;
+}
+.flbot-avatar {
+  width: 38px; height: 38px; flex: none; border-radius: 50%;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--b-teal-400), var(--b-mint-400)); color: var(--b-ink-950);
+}
+.flbot-avatar svg { width: 20px; height: 20px; }
+.flbot-title { min-width: 0; flex: 1; }
+.flbot-title strong { display: block; font-size: 16px; font-weight: 700; letter-spacing: -.01em; line-height: 1.2; }
+.flbot-title span { display: block; font-size: 12.5px; color: var(--b-ink-400); }
+.flbot-iconbtn {
+  width: 40px; height: 40px; flex: none; display: grid; place-items: center;
+  border: 0; border-radius: 50%; background: transparent; color: var(--b-ink-300); cursor: pointer;
+  transition: background .14s, color .14s;
+}
+.flbot-iconbtn:hover { background: rgba(255, 255, 255, .1); color: #fff; }
+.flbot-iconbtn svg { width: 20px; height: 20px; }
+.flbot-head .flbot :focus-visible, .flbot-head :focus-visible { box-shadow: 0 0 0 3px var(--b-ink-950), 0 0 0 6px rgba(53, 221, 251, .6); }
+
+/* ---------- messages ---------- */
+.flbot-log {
+  flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  padding: 16px 14px 8px; background: var(--b-ink-50);
+  display: flex; flex-direction: column; gap: 10px;
+  scroll-behavior: smooth;
+}
+.flbot-msg {
+  max-width: 86%; padding: 10px 14px; font-size: 15px; line-height: 1.45;
+  white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word;
+  border-radius: 22px;
+}
+.flbot-msg--bot { align-self: flex-start; background: #fff; color: var(--b-ink-900); border: 1px solid var(--b-ink-200); border-bottom-left-radius: 6px; }
+.flbot-msg--user { align-self: flex-end; background: var(--b-teal-700); color: #fff; border-bottom-right-radius: 6px; }
+.flbot-msg--user a { color: #fff; }
+.flbot-msg--note { align-self: center; max-width: 94%; background: transparent; border: 0; padding: 2px 8px; text-align: center; font-size: 13px; color: var(--b-ink-500); }
+
+.flbot-typing { align-self: flex-start; display: inline-flex; align-items: center; gap: 5px; padding: 13px 16px; background: #fff; border: 1px solid var(--b-ink-200); border-radius: 22px; border-bottom-left-radius: 6px; }
+.flbot-typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--b-ink-400); animation: flbot-dots 1.2s infinite ease-in-out; }
+.flbot-typing i:nth-child(2) { animation-delay: .15s; }
+.flbot-typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes flbot-dots { 0%, 80%, 100% { transform: translateY(0); opacity: .45; } 40% { transform: translateY(-4px); opacity: 1; } }
+
+.flbot-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.flbot-chip {
+  padding: 8px 14px; border-radius: 999px; cursor: pointer; text-align: left;
+  border: 1.5px solid var(--b-teal-200); background: var(--b-teal-50); color: var(--b-teal-800);
+  font-weight: 600; font-size: 14px; line-height: 1.3;
+  transition: background .14s, transform .14s;
+}
+.flbot-chip:hover { background: #C6F5F2; }
+.flbot-chip:active { transform: scale(.97); }
+
+.flbot-human {
+  align-self: flex-start; max-width: 92%; display: flex; flex-direction: column; gap: 8px;
+  padding: 12px 14px; border-radius: 16px; background: var(--b-teal-50); border: 1px solid var(--b-teal-200);
+  font-size: 14px; color: var(--b-ink-800);
+}
+.flbot-btn {
+  display: inline-flex; align-items: center; justify-content: center; align-self: flex-start;
+  min-height: 40px; padding: 0 18px; border-radius: 999px; border: 0; cursor: pointer;
+  background: var(--b-teal-700); color: #fff; font-weight: 700; text-decoration: none;
+  box-shadow: inset 0 -3px 0 rgba(4, 18, 27, .28);
+}
+.flbot-btn:hover { background: var(--b-teal-800); color: #fff; text-decoration: none; }
+.flbot-btn--ghost { background: #fff; color: var(--b-teal-800); border: 1.5px solid var(--b-teal-200); box-shadow: none; }
+.flbot-btn--ghost:hover { background: var(--b-teal-50); color: var(--b-teal-800); }
+
+/* ---------- composer ---------- */
+.flbot-foot { flex: none; background: #fff; border-top: 1px solid var(--b-ink-200); padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px)); }
+.flbot-notice { margin: 0 4px 8px; font-size: 12px; line-height: 1.35; color: var(--b-ink-500); }
+.flbot-form { display: flex; align-items: flex-end; gap: 8px; margin: 0; }
+.flbot-input {
+  flex: 1; min-width: 0; resize: none; max-height: 112px; min-height: 44px;
+  padding: 10px 14px; border-radius: 14px; border: 1.5px solid var(--b-ink-300);
+  background: #fff; color: var(--b-ink-900); line-height: 1.4;
+}
+.flbot-input::placeholder { color: var(--b-ink-500); }
+.flbot-input:focus { border-color: var(--b-teal-400); }
+.flbot-input:disabled { background: var(--b-ink-100); }
+.flbot-send {
+  width: 44px; height: 44px; flex: none; display: grid; place-items: center;
+  border: 0; border-radius: 50%; cursor: pointer; background: var(--b-teal-700); color: #fff;
+  box-shadow: inset 0 -3px 0 rgba(4, 18, 27, .28);
+  transition: transform .14s, background .14s;
+}
+.flbot-send:hover { background: var(--b-teal-800); }
+.flbot-send:active { transform: scale(.95); }
+.flbot-send:disabled { background: var(--b-ink-300); box-shadow: none; cursor: not-allowed; }
+.flbot-send svg { width: 20px; height: 20px; }
+.flbot-count { margin: 4px 6px 0; text-align: right; font-size: 12px; color: var(--b-ink-500); }
+.flbot-count.is-near { color: var(--b-amber-600); }
+.flbot-count.is-over { color: var(--b-coral-600); font-weight: 700; }
+
+.flbot-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ---------- phones: full-screen sheet; the launcher floats above the bottom tab bar ---------- */
+@media (max-width: 760px) {
+  .flbot-launcher {
+    right: 16px; bottom: calc(var(--fl-tab-h, 0px) + 16px + env(safe-area-inset-bottom, 0px));
+    width: 56px; padding: 0; justify-content: center;
+  }
+  .flbot-launcher-label { display: none; }
+  .flbot-launcher[aria-expanded="true"] { display: none; }
+  .flbot-panel {
+    position: fixed; inset: 0; z-index: 1001; width: 100%; max-width: none; height: 100%; height: 100dvh;
+    border: 0; border-radius: 0; animation: flbot-sheet .26s cubic-bezier(.16, 1, .3, 1);
+  }
+  .flbot-head { padding-top: calc(14px + env(safe-area-inset-top, 0px)); }
+  .flbot-input { font-size: 16px; } /* 16px stops iOS from zooming the page when the keyboard opens */
+  .flbot-msg { max-width: 90%; }
+}
+@keyframes flbot-sheet { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+html.flbot-lock { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .flbot *, .flbot { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+@media print { .flbot { display: none !important; } }

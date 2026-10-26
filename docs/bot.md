@@ -22,6 +22,20 @@ Code map: `api/bot.js` (the one function), `api/_lib/bot/brain.js` (what it says
 `llm.js` (Token Harbor, OpenAI-style), `manus.js` (Manus API v2 client and key pool), `web.js` (the website channel and the
 provider switch), `knowledge.md` (generated).
 
+## The chat widget (on the website)
+
+- Files: `site/assets/js/fl-bot.js` (the widget) and `site/assets/css/fl-bot.css` (its look, scoped under `.flbot`, using the
+  brand tokens). `site/assets/js/fl-mobile.js` ends with a small block that loads the widget; every public page already
+  includes `fl-mobile.js`, so no page was edited and the page builders (`tools/build_*.py`) need no change.
+- It shows on Home, About, FAQ, Pricing, Store, Partners, Guides, Terms and Privacy. It never shows in the Partner Hub.
+- Switch it off for the whole site: `botEnabled: false` in `site/fluency-config.js` (inside `FL_CONFIG`), or delete the block
+  at the end of `fl-mobile.js`. To open it from any button: `<a href="#chat" data-fl-open-chat>Ask us</a>`.
+- Phones: the chat opens as a full-screen sheet; the launcher floats above the bottom tab bar.
+- The chat id is kept in the browser (`localStorage` key `flbot.cid.v1`) so a chat survives a reload; "new chat" clears it.
+- "Email support" is a plain `mailto:` link with the visitor's last question filled in. A proper hand-off (form, transcript
+  emailed to support, admin view) is the next phase.
+- Tests: `tests/bot_widget.test.js` needs jsdom (`npm install --no-save jsdom`); it skips itself if jsdom is missing.
+
 ## Setup (once)
 
 1. Run `scripts/supabase_migration_bot.sql` in the Supabase SQL editor (it is safe to run again; it adds the `provider` column if you ran an earlier version).
