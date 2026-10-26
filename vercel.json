@@ -2,6 +2,12 @@
   "buildCommand": "bash build.sh",
   "outputDirectory": "dist",
   "installCommand": "echo 'skip - flutter deps installed in build.sh'",
+  "functions": {
+    "api/bot.js": {
+      "includeFiles": "api/_lib/bot/knowledge.md",
+      "maxDuration": 60
+    }
+  },
   "redirects": [
     {
       "source": "/creators",
@@ -55,6 +61,18 @@
     {
       "source": "/api/selar-order",
       "destination": "/api/referral?hook=selar"
+    },
+    {
+      "source": "/api/tatoeba-lists",
+      "destination": "/api/tatoeba?hook=lists"
+    },
+    {
+      "source": "/api/tatoeba-audio",
+      "destination": "/api/tatoeba?hook=audio"
+    },
+    {
+      "source": "/api/bot/:op",
+      "destination": "/api/bot?op=:op"
     },
     {
       "source": "/app",

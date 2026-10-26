@@ -19,6 +19,12 @@ const ISO1_TO_ISO3 = {
 };
 
 module.exports = async (req, res) => {
+  // /api/tatoeba-lists and /api/tatoeba-audio are routed here as ?hook=lists / ?hook=audio (vercel.json),
+  // so three endpoints cost one Vercel function. The URLs the app calls did not change.
+  const hook = req.query && req.query.hook;
+  if (hook === 'lists') return require('./_lib/tatoebaLists')(req, res);
+  if (hook === 'audio') return require('./_lib/tatoebaAudio')(req, res);
+
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
