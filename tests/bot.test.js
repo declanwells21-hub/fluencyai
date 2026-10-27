@@ -12,18 +12,19 @@ const assert = require('assert');
 const root = path.join(__dirname, '..');
 
 // ---------- fake database ----------
-const S = { convs: [], msgs: [], seq: 0, rl: {} };
-function resetDb() { S.convs.length = 0; S.msgs.length = 0; S.seq = 0; S.rl = {}; }
+const S = { convs: [], msgs: [], handoffs: [], hseq: 0, seq: 0, rl: {}, cleanup: null };
+function resetDb() { S.convs.length = 0; S.msgs.length = 0; S.handoffs.length = 0; S.hseq = 0; S.seq = 0; S.rl = {}; S.cleanup = null; }
 const uuid = () => '00000000-0000-4000-8000-' + String(++S.seq).padStart(12, '0') + '';
 
 function builder(name) {
-  const rows = name === 'bot_conversations' ? S.convs : S.msgs;
+  const rows = name === 'bot_conversations' ? S.convs : name === 'bot_handoffs' ? S.handoffs : S.msgs;
   const st = { op: 'select', filters: [], payload: null, lim: null, desc: false, sel: false };
   function run(single, strict) {
     const match = (r) => st.filters.every(([k, v]) => r[k] === v);
     if (st.op === 'insert') {
       const base = name === 'bot_conversations'
         ? { id: uuid(), channel: 'web', manus_task_id: null, manus_key_id: null, status: 'idle', pending_since: null, last_user_event_id: null, user_turns: 0 }
+        : name === 'bot_handoffs' ? { id: ++S.hseq, status: 'open', emailed_at: null }
         : { id: ++S.seq };
       const row = Object.assign(base, st.payload);
       rows.push(row);
@@ -57,6 +58,7 @@ function builder(name) {
 const fakeClient = {
   from: (name) => builder(name),
   rpc: (fn, a) => {
+    if (fn === 'fl_bot_cleanup') { S.cleanup = a; return Promise.resolve({ data: 3, error: null }); }
     if (fn !== 'fl_rate_limit_hit') return Promise.resolve({ data: null, error: { message: 'unknown rpc' } });
     S.rl[a.p_key] = (S.rl[a.p_key] || 0) + 1;
     return Promise.resolve({ data: [{ allowed: S.rl[a.p_key] <= a.p_max, current_count: S.rl[a.p_key], retry_after: 60 }], error: null });
@@ -115,9 +117,15 @@ global.fetch = async (url, opts = {}) => {
 // ---------- fake Token Harbor (OpenAI-compatible chat completions) ----------
 const T = { fail: null, badKeys: new Set(), calls: [], reply: 'It costs $9. **Buy** [here](https://selar.com/900z05076s) [[HUMAN]]' };
 function resetTh() { T.fail = null; T.badKeys = new Set(); T.calls = []; T.reply = 'It costs $9. **Buy** [here](https://selar.com/900z05076s) [[HUMAN]]'; }
+const B = { calls: [], fail: false };
+function resetBrevo() { B.calls = []; B.fail = false; }
 const manusFetch = global.fetch;
 global.fetch = async (url, opts = {}) => {
   const u = new URL(url);
+  if (u.hostname === 'api.brevo.com') {
+    B.calls.push({ path: u.pathname, key: opts.headers && opts.headers['api-key'], body: JSON.parse(opts.body) });
+    return B.fail ? jsonRes(500, { message: 'brevo down' }) : jsonRes(201, { messageId: 'm1' });
+  }
   if (u.hostname !== 'tokenharbor.ai') return manusFetch(url, opts);
   const key = String((opts.headers && opts.headers.Authorization) || '').replace('Bearer ', '');
   const body = JSON.parse(opts.body);
@@ -585,6 +593,118 @@ test('vercel.json gives the bot function time for a Token Harbor try plus a Manu
   assert.ok(v.functions['api/bot.js'].maxDuration >= 30);
   assert.ok(String(v.functions['api/bot.js'].includeFiles).includes('knowledge.md'));
   assert.ok(/provider/.test(fs.readFileSync(path.join(root, 'scripts/supabase_migration_bot.sql'), 'utf8')));
+});
+
+
+// ================= "talk to a person": hand-off to support =================
+const handoff = (body, extra) => call('handoff', req('POST', {}, body, extra));
+function withBrevo(fn) {
+  return async () => {
+    resetDb(); resetManus(); resetTh(); resetBrevo();
+    process.env.BREVO_API_KEY = 'brevo-test-key'; process.env.EMAIL_FROM_ADDRESS = 'hello@fluencyai.app';
+    process.env.TOKENHARBOR_API_KEYS = 'th-handoff';
+    try { await fn(); }
+    finally { for (const k of ['BREVO_API_KEY', 'EMAIL_FROM_ADDRESS', 'TOKENHARBOR_API_KEYS', 'BOT_HANDOFF_TO', 'BOT_HANDOFF_PER_HOUR_IP', 'BOT_ENABLED']) delete process.env[k]; resetBrevo(); resetTh(); }
+  };
+}
+
+test('hand-off: the request is saved and support gets an email with the chat, Reply-To the visitor', withBrevo(async () => {
+  T.reply = 'I am not sure about refunds. [[HUMAN]]';
+  const c = await chat({ message: 'Can I get a refund? <script>alert(1)</script>', page: '/pricing', lang: 'en' });
+  const r = await handoff({ email: 'Ada@Example.com', note: 'Order #123\nplease help', cid: c.body.cid });
+  assert.strictEqual(r.statusCode, 200); assert.strictEqual(r.body.ok, true);
+  assert.deepStrictEqual([S.handoffs.length, S.handoffs[0].conversation_id, S.handoffs[0].contact_email, S.handoffs[0].status], [1, c.body.cid, 'ada@example.com', 'open']);
+  assert.strictEqual(S.handoffs[0].note, 'Order #123\nplease help');
+  assert.ok(S.handoffs[0].emailed_at, 'marked as emailed');
+  assert.strictEqual(B.calls.length, 1);
+  const mail = B.calls[0].body;
+  assert.strictEqual(B.calls[0].path, '/v3/smtp/email'); assert.strictEqual(B.calls[0].key, 'brevo-test-key');
+  assert.deepStrictEqual(mail.to, [{ email: 'support@fluencyai.app' }], 'only support is emailed, never the visitor');
+  assert.deepStrictEqual(mail.replyTo, { email: 'ada@example.com' });
+  assert.ok(mail.subject.startsWith('Chat hand-off #1: Can I get a refund?'));
+  assert.ok(!/[\r\n]/.test(mail.subject), 'no line breaks in the subject');
+  assert.ok(mail.textContent.includes('Visitor: Can I get a refund?') && mail.textContent.includes('Assistant: I am not sure about refunds.') && mail.textContent.includes('Order #123'));
+  assert.ok(mail.htmlContent.includes('&lt;script&gt;alert(1)&lt;/script&gt;') && !mail.htmlContent.includes('<script>'), 'visitor text is escaped in the email');
+  assert.ok(mail.htmlContent.includes('/pricing'));
+}));
+
+test('hand-off: works without a chat, and BOT_HANDOFF_TO can redirect the email', withBrevo(async () => {
+  process.env.BOT_HANDOFF_TO = 'team@fluencyai.app';
+  const r = await handoff({ email: 'ada@example.com' });
+  assert.strictEqual(r.statusCode, 200);
+  assert.strictEqual(S.handoffs[0].conversation_id, null);
+  assert.deepStrictEqual(B.calls[0].body.to, [{ email: 'team@fluencyai.app' }]);
+  assert.ok(B.calls[0].body.textContent.includes('No chat was started'));
+}));
+
+test('hand-off: bad or dangerous email addresses are refused before anything is saved or sent', withBrevo(async () => {
+  for (const email of ['nope', '', 'a@b', 'a b@c.com', 'a@b.com\nBcc: victim@x.com', 'a@b.com,c@d.com', '<x@y.com>', 'a'.repeat(250) + '@b.com']) {
+    const r = await handoff({ email });
+    assert.strictEqual(r.statusCode, 400, JSON.stringify(email).slice(0, 40));
+  }
+  assert.strictEqual(S.handoffs.length, 0); assert.strictEqual(B.calls.length, 0);
+}));
+
+test('hand-off: the hidden trap field, foreign sites, wrong method and the kill switch', withBrevo(async () => {
+  const trap = await handoff({ email: 'ada@example.com', hp: 'http://spam' });
+  assert.strictEqual(trap.statusCode, 200); assert.strictEqual(S.handoffs.length, 0); assert.strictEqual(B.calls.length, 0);
+  assert.strictEqual((await handoff({ email: 'ada@example.com' }, { headers: { origin: 'https://evil.example' } })).statusCode, 403);
+  assert.strictEqual((await call('handoff', req('GET', {}))).statusCode, 405);
+  process.env.BOT_ENABLED = 'false';
+  assert.strictEqual((await handoff({ email: 'ada@example.com' })).statusCode, 503);
+}));
+
+test('hand-off: rate limits per device and per chat', withBrevo(async () => {
+  process.env.BOT_HANDOFF_PER_HOUR_IP = '2';
+  const ip = { ip: '7.7.7.7' };
+  assert.strictEqual((await handoff({ email: 'a@example.com' }, ip)).statusCode, 200);
+  assert.strictEqual((await handoff({ email: 'b@example.com' }, ip)).statusCode, 200);
+  assert.strictEqual((await handoff({ email: 'c@example.com' }, ip)).statusCode, 429);
+  delete process.env.BOT_HANDOFF_PER_HOUR_IP;
+  const c = await chat({ message: 'hello' });
+  for (let i = 0; i < 3; i++) assert.strictEqual((await handoff({ email: 'x@example.com', cid: c.body.cid })).statusCode, 200);
+  assert.strictEqual((await handoff({ email: 'x@example.com', cid: c.body.cid })).statusCode, 429, 'a 4th request for the same chat in an hour');
+}));
+
+test('hand-off: if the email cannot be sent the request is still saved (and shows in the admin page)', withBrevo(async () => {
+  B.fail = true;
+  const r = await handoff({ email: 'ada@example.com', note: 'please call' });
+  assert.strictEqual(r.statusCode, 200);
+  assert.strictEqual(S.handoffs.length, 1); assert.strictEqual(S.handoffs[0].emailed_at, null);
+}));
+
+// ================= daily cleanup (Vercel cron) =================
+test('cleanup: refuses without the cron secret, then deletes old chats with the configured retention', async () => {
+  resetDb();
+  const run = (auth) => call('cleanup', req('GET', {}, undefined, { headers: auth ? { authorization: auth } : {} }));
+  delete process.env.CRON_SECRET;
+  assert.strictEqual((await run('Bearer anything')).statusCode, 503, 'no secret configured: never runs');
+  process.env.CRON_SECRET = 'cron-secret-1';
+  try {
+    assert.strictEqual((await run()).statusCode, 401);
+    assert.strictEqual((await run('Bearer wrong')).statusCode, 401);
+    assert.strictEqual((await run('Bearer cron-secret-1x')).statusCode, 401);
+    const ok = await run('Bearer cron-secret-1');
+    assert.strictEqual(ok.statusCode, 200);
+    assert.deepStrictEqual([ok.body.ok, ok.body.days, ok.body.deleted, S.cleanup.p_days], [true, 90, 3, 90]);
+    process.env.BOT_RETENTION_DAYS = '30';
+    assert.strictEqual((await run('Bearer cron-secret-1')).body.days, 30);
+    process.env.BOT_RETENTION_DAYS = '1';
+    assert.strictEqual((await run('Bearer cron-secret-1')).body.days, 7, 'never shorter than a week');
+  } finally { delete process.env.CRON_SECRET; delete process.env.BOT_RETENTION_DAYS; }
+});
+
+test('vercel.json schedules the daily cleanup, and the migration keeps open hand-offs and drops old ones', () => {
+  const v = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
+  assert.deepStrictEqual(v.crons, [{ path: '/api/bot/cleanup', schedule: '17 3 * * *' }]);
+  const sql = fs.readFileSync(path.join(root, 'scripts/supabase_migration_bot.sql'), 'utf8');
+  assert.ok(/h\.status = 'open'/.test(sql) && /interval '24 months'/.test(sql));
+});
+
+test('the Privacy page describes the website chat, its retention and the person-follow-up request', () => {
+  const html = fs.readFileSync(path.join(root, 'site/privacy.html'), 'utf8');
+  assert.ok(html.includes('Website chat:') && html.includes('The assistant on our website is an AI'));
+  assert.ok(/Website chats: 90 days/.test(html) && /requests for a person: 24 months/.test(html));
 });
 
 // ---------- run ----------

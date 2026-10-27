@@ -8,6 +8,12 @@
       "maxDuration": 60
     }
   },
+  "crons": [
+    {
+      "path": "/api/bot/cleanup",
+      "schedule": "17 3 * * *"
+    }
+  ],
   "redirects": [
     {
       "source": "/creators",

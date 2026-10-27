@@ -529,6 +529,7 @@ Orders: for exam guides, Selar handles the payment and sends us the order detail
 Subscriptions and top-ups: plan, top-ups and purchase history. Billing is handled by the App Store, Google Play or our payment provider.
 Device and usage: app version, device type, crash reports and basic analytics events, such as a correction being shown.
 Waitlist and forms: the email, language and any message you send us.
+Website chat: if you use the assistant on our website, the questions you type, its answers, the page you were on and your language. If you ask for a person to follow up, also the email address and note you give us.
 Partner links: if you arrive through a partner link, we store that partner's code for 30 days to credit their referral. Partners we pay also give us payout and tax details.
 3. Why we use it, and our legal basis
 To run the coaching: hearing you, replying, correcting and remembering what to practise next (to perform our contract with you).
@@ -540,6 +541,7 @@ To email you about your account, and about launch news if you joined the waitlis
 Your audio is sent to our speech providers to turn it into text, then deleted within 24 hours. Transcripts stay in your conversation history until you delete them.
 Fluency does not use your recordings to identify you and does not create a voiceprint.
 5. AI and speech providers
+The assistant on our website is an AI. It can make mistakes, and what it says is information, not legal or immigration advice. Please do not type passwords or payment details into it.
 Conversations are processed by third-party AI and speech providers acting on our instructions. Under our agreements they may not use your data to train their own models.
 6. Who else sees your data
 We share data only with: service providers that help us run Fluency (hosting, AI and speech, email, analytics, customer support); Selar and payment providers for purchases; partners, limited to confirmed order counts and amounts tied to their code, never your name or email; and authorities when the law requires it.
@@ -547,7 +549,7 @@ We do not sell your personal data, and we do not share it for advertising.
 7. Cookies and similar tools
 This website uses only the cookies and storage it needs to work, such as remembering your currency and your partner code. If we add analytics or marketing tools, we will ask first where the law requires it, and list them here.
 8. How long we keep things
-Conversation history: until you delete it, or 24 months after your last activity. Learning memory: until you clear it or delete your account. Order and payment records: as long as tax and accounting law requires, typically 7 years. Waitlist emails: until launch plus 12 months, or until you unsubscribe. Support emails: 24 months.
+Conversation history: until you delete it, or 24 months after your last activity. Learning memory: until you clear it or delete your account. Order and payment records: as long as tax and accounting law requires, typically 7 years. Waitlist emails: until launch plus 12 months, or until you unsubscribe. Support emails: 24 months. Website chats: 90 days after the last message, unless the chat belongs to a request for a person that is still open; requests for a person: 24 months.
 9. Your controls and rights
 In the app you can delete any conversation, clear your coach's memory, download your data and delete your account (Settings → Privacy and memory).
 Depending on where you live, you may also have rights to access, correct, restrict, object to, delete and port your data, to withdraw consent, and to complain to your data protection authority. Write to support@fluencyai.app ; we reply within 30 days. We will not treat you worse for using these rights.

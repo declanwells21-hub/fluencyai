@@ -104,6 +104,7 @@
       loadPartnerPayouts(); // same
       loadSelarOrders(); // same
       loadBillingEvents(); // same
+      loadBotOverview(); // same
       try {
         await loadWaitlistStats();
       } catch (err) {
@@ -375,6 +376,84 @@
       alert(err.message);
       await loadBillingEvents();
     }
+  });
+
+  // ---------- Website chat assistant ----------
+  async function loadBotOverview() {
+    const stats = document.getElementById('bot-stats');
+    const hand = document.getElementById('bot-handoffs');
+    const unans = document.getElementById('bot-unanswered');
+    const recent = document.getElementById('bot-recent');
+    [stats, hand, unans, recent].forEach((b) => { b.textContent = 'Loading...'; });
+    try {
+      const d = await apiFetch('/admin/bot-overview');
+      const s7 = d.stats || {};
+      stats.textContent = `Last 7 days: ${fmtNum(s7.conversations7d)} chats, ${fmtNum(s7.messages7d)} questions asked, ${fmtNum(s7.unanswered7d)} it could not answer. Requests for a person waiting: ${fmtNum(s7.handoffsOpen)}.`;
+      const th = (t) => `<th style="text-align:left;padding:6px 10px;color:var(--tx-3);font-weight:600">${t}</th>`;
+      const td = (t) => `<td style="padding:6px 10px;vertical-align:top">${t}</td>`;
+      const when = (iso) => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      const colors = { open: 'var(--coral-400)', answered: 'var(--mint-400)', closed: 'var(--tx-3)' };
+
+      hand.innerHTML = !d.handoffs.length ? 'No requests yet.' :
+        `<table><thead><tr>${th('When')}${th('Visitor')}${th('Status')}${th('')}</tr></thead><tbody>${d.handoffs.map((h) => `<tr>
+          ${td(when(h.created_at))}
+          ${td(`<a href="mailto:${escHtml(h.contact_email)}?subject=${encodeURIComponent('Re: your question to Fluency AI')}">${escHtml(h.contact_email)}</a>${h.note ? `<br><span style="color:var(--tx-3);white-space:pre-wrap">${escHtml(h.note)}</span>` : ''}${h.emailed_at ? '' : '<br><span style="color:var(--coral-400)">The email to support did not go out. Answer from here.</span>'}`)}
+          ${td(`<b style="color:${colors[h.status] || 'var(--tx-3)'}">${escHtml(h.status)}</b>`)}
+          ${td(`${h.conversation_id ? `<button class="row-btn" data-bot-view="${escHtml(h.conversation_id)}">Chat</button> ` : ''}${h.status !== 'answered' ? `<button class="row-btn" data-bot-handoff="${h.id}" data-bot-status="answered">Answered</button> ` : ''}${h.status !== 'closed' ? `<button class="row-btn" data-bot-handoff="${h.id}" data-bot-status="closed">Close</button>` : `<button class="row-btn" data-bot-handoff="${h.id}" data-bot-status="open">Reopen</button>`}`)}
+        </tr>`).join('')}</tbody></table>`;
+
+      unans.innerHTML = !d.unanswered.length ? 'Nothing yet. Every question so far had an answer on the site.' :
+        `<table><thead><tr>${th('When')}${th('Visitor asked')}${th('')}</tr></thead><tbody>${d.unanswered.map((u) => `<tr>
+          ${td(when(u.at))}
+          ${td(`${escHtml(u.question) || '<span style="color:var(--tx-3)">(not found)</span>'}<br><span style="color:var(--tx-3)">Assistant: ${escHtml(u.answer)}</span>`)}
+          ${td(`<button class="row-btn" data-bot-view="${escHtml(u.conversationId)}">Chat</button>`)}
+        </tr>`).join('')}</tbody></table>`;
+
+      recent.innerHTML = !d.recent.length ? 'No chats yet.' :
+        `<table><thead><tr>${th('Last message')}${th('First question')}${th('Page')}${th('Messages')}${th('AI')}${th('')}</tr></thead><tbody>${d.recent.map((c) => `<tr>
+          ${td(when(c.updated_at))}${td(escHtml(c.firstQuestion) || '—')}${td(escHtml(c.page || '—'))}${td(fmtNum(c.user_turns))}${td(escHtml(c.provider || '—'))}
+          ${td(`<button class="row-btn" data-bot-view="${escHtml(c.id)}">Open</button>`)}
+        </tr>`).join('')}</tbody></table>`;
+    } catch (err) {
+      console.warn('bot overview', err);
+      [stats, hand, unans, recent].forEach((b) => { b.textContent = ''; });
+      stats.textContent = 'The chat assistant data is not available yet (has the Supabase migration for the chatbot been run?).';
+    }
+  }
+  async function showBotTranscript(id) {
+    const box = document.getElementById('bot-transcript');
+    box.hidden = false;
+    box.textContent = 'Loading...';
+    try {
+      const d = await apiFetch('/admin/bot-conversation?id=' + encodeURIComponent(id));
+      const c = d.conversation;
+      const bubbles = d.messages.map((m) => `<div style="margin:0 0 8px;display:flex;${m.role === 'user' ? 'justify-content:flex-end' : ''}">
+        <div style="max-width:80%;padding:8px 12px;border-radius:14px;white-space:pre-wrap;overflow-wrap:anywhere;background:${m.role === 'user' ? 'var(--teal-700, #0E7B7E)' : 'rgba(255,255,255,.06)'};color:${m.role === 'user' ? '#fff' : 'var(--tx)'}">${escHtml(m.content)}${m.human_flag ? '<div style="margin-top:4px;color:var(--coral-400);font-size:12px">asked for a person</div>' : ''}</div></div>`).join('');
+      box.innerHTML = `<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px">
+        <div style="font-weight:600">Chat from ${fmtDateTime(c.created_at)} <span style="color:var(--tx-3);font-weight:400">· ${escHtml(c.page || 'unknown page')} · ${escHtml(c.provider || '')}</span></div>
+        <button class="row-btn" id="bot-transcript-close" type="button">Close</button></div>${bubbles || 'No messages.'}`;
+      if (box.scrollIntoView) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } catch (err) {
+      box.textContent = err.message;
+    }
+  }
+  document.getElementById('bot-refresh').addEventListener('click', loadBotOverview);
+  document.getElementById('bot-transcript').addEventListener('click', (e) => {
+    if (e.target.closest('#bot-transcript-close')) document.getElementById('bot-transcript').hidden = true;
+  });
+  ['bot-handoffs', 'bot-unanswered', 'bot-recent'].forEach((id) => {
+    document.getElementById(id).addEventListener('click', async (e) => {
+      const view = e.target.closest('button[data-bot-view]');
+      const upd = e.target.closest('button[data-bot-handoff]');
+      if (view) { showBotTranscript(view.dataset.botView); return; }
+      if (upd) {
+        upd.disabled = true;
+        try {
+          await apiFetch('/admin/bot-handoff-update', { method: 'POST', body: JSON.stringify({ id: Number(upd.dataset.botHandoff), status: upd.dataset.botStatus }) });
+          await loadBotOverview();
+        } catch (err) { alert(err.message); upd.disabled = false; }
+      }
+    });
   });
 
   // ---------- Selar orders ----------

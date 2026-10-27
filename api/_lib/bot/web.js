@@ -5,6 +5,7 @@
 //                                                              or { cid, status: 'pending', retryMs }        (Manus: poll for the answer)
 //   GET  /api/bot/poll     ?cid=...                              -> { status: 'pending'|'done'|'idle'|'error'|'timeout', reply?, human? }
 //   GET  /api/bot/history  ?cid=...                              -> { messages: [{ role, content }] }
+//   POST /api/bot/handoff  { email, note?, cid?, hp? }           -> { ok: true }   ("talk to a person": emails support)
 //
 // Providers, in the order of BOT_PROVIDERS (default "tokenharbor,manus"): Token Harbor answers within the same
 // request; if it is down, rate limited or out of balance, Manus takes over. Manus works in the background, so the
@@ -19,6 +20,8 @@ const { getServiceClient } = require('../supabase');
 const { hit, getClientIp } = require('../rateLimit');
 const manus = require('./manus');
 const llm = require('./llm');
+const { buildHandoffEmail } = require('./handoff');
+const { sendBrandedEmail } = require('../emailTemplate');
 const brain = require('./brain');
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -261,4 +264,51 @@ async function handleHistory(req, res) {
   return send(res, 200, { cid: conv.id, pending: conv.status === 'pending', messages });
 }
 
-module.exports = { handleChat, handlePoll, handleHistory, MAX_TURNS, PENDING_TIMEOUT_MS };
+// ---------------------------------------------------------------------------
+// "Talk to a person". Saves the request, then emails support (Reply-To = the visitor). Never emails the visitor.
+const EMAIL_RE = /^[^\s@<>"',;:()[\]\\]+@[^\s@<>"',;:()[\]\\]+\.[^\s@<>"',;:()[\]\\]{2,}$/;
+
+async function handleHandoff(req, res) {
+  if (disabled()) return send(res, 503, { error: 'disabled' });
+  if (req.method !== 'POST') return send(res, 405, { error: 'method_not_allowed' });
+  if (!originOk(req)) return send(res, 403, { error: 'forbidden' });
+
+  const body = readBody(req);
+  if (body.hp) return send(res, 200, { ok: true });                         // honeypot filled: pretend, do nothing
+
+  const email = String(body.email || '').trim().toLowerCase();
+  if (email.length > 254 || !EMAIL_RE.test(email)) return send(res, 400, { error: 'bad_email' });
+  const note = brain.cleanNote(body.note);
+
+  const ip = getClientIp(req);
+  if (!(await allowed('bot:handoff:ip:' + ip, 3600, num('BOT_HANDOFF_PER_HOUR_IP', 5)))) return send(res, 429, { error: 'rate_limited' });
+  if (!(await allowed('bot:handoff:day', 86400, num('BOT_HANDOFF_DAILY_CAP', 100)))) return send(res, 429, { error: 'rate_limited' });
+
+  const db = getServiceClient();
+  const cid = typeof body.cid === 'string' && UUID.test(body.cid) ? body.cid : null;
+  const conv = cid ? await loadConv(db, cid) : null;
+  if (conv && !(await allowed('bot:handoff:conv:' + conv.id, 3600, 3))) return send(res, 429, { error: 'rate_limited' });
+
+  try {
+    const transcript = conv ? await recentMessages(db, conv.id, 30) : [];
+    const { data: row, error } = await db.from('bot_handoffs')
+      .insert({ conversation_id: conv ? conv.id : null, contact_email: email, note: note || null, status: 'open' })
+      .select('id').single();
+    if (error || !row) throw new Error('could not save the request: ' + (error && error.message));
+
+    // The request is saved; the email is the notification. If it fails, the admin page still shows the request.
+    try {
+      const mail = buildHandoffEmail({ id: row.id, email, note, conversation: conv, transcript });
+      await sendBrandedEmail({ to: process.env.BOT_HANDOFF_TO || 'support@fluencyai.app', subject: mail.subject, htmlContent: mail.htmlContent, textContent: mail.textContent, replyTo: email });
+      await db.from('bot_handoffs').update({ emailed_at: new Date().toISOString() }).eq('id', row.id);
+    } catch (err) {
+      console.error('bot: hand-off email failed (request #' + row.id + ' is saved):', err.message);
+    }
+    return send(res, 200, { ok: true });
+  } catch (err) {
+    console.error('bot: hand-off failed:', err.message);
+    return send(res, 500, { error: 'handoff_failed' });
+  }
+}
+
+module.exports = { handleChat, handlePoll, handleHistory, handleHandoff, MAX_TURNS, PENDING_TIMEOUT_MS };

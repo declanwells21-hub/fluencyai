@@ -157,6 +157,18 @@ function cleanQuestion(text) {
     .slice(0, MAX_QUESTION_CHARS);
 }
 
+const MAX_NOTE_CHARS = 1000;
+/** Free-text note a visitor adds to a hand-off request: keeps line breaks, drops control characters, limits length. */
+function cleanNote(text) {
+  return String(text == null ? '' : text)
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, ' ')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\s*\n\s*/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+    .slice(0, MAX_NOTE_CHARS);
+}
+
 function wrap(question) {
   return '<visitor_message>\n' + question + '\n</visitor_message>';
 }
@@ -247,6 +259,6 @@ const FALLBACKS = {
 };
 
 module.exports = {
-  cleanQuestion, wrapQuestion: wrap, buildSystemPrompt, buildFirstMessage, buildFollowUp, processReply, loadKnowledge, coreFacts, retrieve, FALLBACKS,
+  cleanQuestion, cleanNote, wrapQuestion: wrap, buildSystemPrompt, buildFirstMessage, buildFollowUp, processReply, loadKnowledge, coreFacts, retrieve, FALLBACKS,
   MAX_QUESTION_CHARS, MAX_REPLY_CHARS, RULES,
 };

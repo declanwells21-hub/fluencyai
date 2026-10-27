@@ -39,6 +39,7 @@ const adminBilling = require('../_lib/adminBilling');
 const account = require('../_lib/account');
 const { unsubscribeUrl } = require('../_lib/waitlistUnsub');
 const adminPartners = require('../_lib/adminPartners');
+const adminBot = require('../_lib/adminBot');
 const { sendDecisionEmail } = require('../_lib/partnerEmails');
 
 module.exports = async (req, res) => {
@@ -116,6 +117,15 @@ module.exports = async (req, res) => {
     }
     if (route === 'credits-revoke' && req.method === 'POST') {
       return adminCredits.handleCreditsRevoke(auth, req, res);
+    }
+    if (route === 'bot-overview' && req.method === 'GET') {
+      return adminBot.handleBotOverview(auth, req, res);
+    }
+    if (route === 'bot-conversation' && req.method === 'GET') {
+      return adminBot.handleBotConversation(auth, req, res);
+    }
+    if (route === 'bot-handoff-update' && req.method === 'POST') {
+      return adminBot.handleBotHandoffUpdate(auth, req, res);
     }
     if (route === 'billing-events' && req.method === 'GET') {
       return adminBilling.handleBillingEvents(auth, req, res);

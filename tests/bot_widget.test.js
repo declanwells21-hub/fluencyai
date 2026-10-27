@@ -99,9 +99,7 @@ test('a chip sends the question; the answer is shown safely and only our own lin
   assert.strictEqual(p.w.document.querySelectorAll('.flbot img').length, 0);
   assert.strictEqual(p.w.pwned, undefined);
   assert.strictEqual(p.w.localStorage.getItem('flbot.cid.v1'), CID);
-  const mail = p.w.document.querySelector('.flbot-human a.flbot-btn');
-  assert.ok(mail.href.startsWith('mailto:support@fluencyai.app?subject='));
-  assert.ok(decodeURIComponent(mail.href).includes('How much are the exam guides?'));
+  assert.ok(p.w.document.querySelector('.flbot-human button[data-flbot-open-form]'), 'a "Talk to a person" button appears when the assistant asks for a person');
   assert.strictEqual(p.w.document.querySelector('.flbot-chips').hidden, true, 'chips go away after the first question');
 });
 
@@ -146,12 +144,12 @@ test('a network failure shows a friendly message and gives the text back', async
   assert.strictEqual(p.w.document.querySelector('.flbot-send').disabled, false);
 });
 
-test('rate-limit and server errors show their friendly reply with the email-support card', async () => {
+test('rate-limit and server errors show their friendly reply with the "Talk to a person" card', async () => {
   for (const status of [429, 502]) {
     const p = makePage({ api: () => ({ status, body: { error: 'x', reply: 'I am busy, try again soon or email support@fluencyai.app.', human: true } }) });
     p.open(); p.type('hello'); p.key('Enter');
     await until(() => p.msgs('bot').some((m) => m.textContent.includes('I am busy')), 'the reply for ' + status);
-    assert.ok(p.w.document.querySelector('.flbot-human a[href^="mailto:support@fluencyai.app"]'));
+    assert.ok(p.w.document.querySelector('.flbot-human button[data-flbot-open-form]'));
   }
 });
 
@@ -194,6 +192,93 @@ test('a chat that was waiting for an answer when the page reloaded keeps waiting
   p.open();
   await until(() => p.msgs('bot').some((m) => m.textContent.includes('$9')), 'the answer after reload');
   assert.strictEqual(p.w.document.querySelector('.flbot-typing'), null);
+});
+
+
+// ---------- hand-off form ----------
+function handoffApi(onHandoff) {
+  return (c) => c.path === '/api/bot/handoff' ? onHandoff(c) : done('Not sure about that one. Email support@fluencyai.app.', { human: true });
+}
+const f$ = (p, sel) => p.w.document.querySelector(sel);
+function fillAndSubmit(p, email, note, trap) {
+  f$(p, '#flbot-h-email').value = email;
+  if (note !== undefined) f$(p, '#flbot-h-note').value = note;
+  if (trap !== undefined) f$(p, '.flbot-hform input[name="website"]').value = trap;
+  f$(p, '.flbot-hform').dispatchEvent(new p.w.Event('submit', { bubbles: true, cancelable: true }));
+}
+
+test('"Talk to a person" opens a form, checks the email, and sends the request with the chat id', async () => {
+  const p = makePage({ api: handoffApi(() => ({ body: { ok: true } })) });
+  p.open(); p.type('Can I get a refund?'); p.key('Enter');
+  await until(() => f$(p, '[data-flbot-open-form]'), 'the card');
+  f$(p, '[data-flbot-open-form]').click();
+  assert.ok(f$(p, '#flbot-h-email') && f$(p, '#flbot-h-note'));
+  fillAndSubmit(p, 'not-an-email');
+  assert.ok(!f$(p, '.flbot-ferr').hidden, 'asks for a valid address');
+  assert.strictEqual(p.calls.filter((c) => c.path === '/api/bot/handoff').length, 0, 'nothing is sent for a bad address');
+
+  fillAndSubmit(p, 'Ada@Example.com', 'It is about my order', '');
+  await until(() => !f$(p, '.flbot-hform'), 'the thank-you');
+  const sent = p.calls.find((c) => c.path === '/api/bot/handoff');
+  assert.deepStrictEqual([sent.method, sent.body.email, sent.body.note, sent.body.cid, sent.body.hp], ['POST', 'Ada@Example.com', 'It is about my order', CID, '']);
+  const card = f$(p, '.flbot-human');
+  assert.ok(card.textContent.includes('Thanks! Our team will reply to Ada@Example.com by email.'));
+  assert.strictEqual(card.querySelector('strong').textContent, 'Ada@Example.com');
+  // asking again does not open a second form once the request is in
+  p.w.document.querySelector('.flbot-linkbtn').click();
+  assert.strictEqual(p.w.document.querySelectorAll('.flbot-hform').length, 0);
+});
+
+test('"Talk to a person" is always available under the input, even before any question', async () => {
+  const p = makePage({ api: handoffApi(() => ({ body: { ok: true } })) });
+  p.open();
+  p.w.document.querySelector('.flbot-linkbtn').click();
+  assert.ok(f$(p, '#flbot-h-email'), 'the form opens straight away');
+  assert.strictEqual(p.msgs('bot').length, 1, 'still just one greeting');
+  fillAndSubmit(p, 'ada@example.com');
+  await until(() => !f$(p, '.flbot-hform'), 'the thank-you');
+  const sent = p.calls.find((c) => c.path === '/api/bot/handoff');
+  assert.strictEqual(sent.body.cid, undefined, 'no chat yet, so no chat id');
+});
+
+test('a hand-off the server cannot take keeps the form and offers a direct email link', async () => {
+  const p = makePage({ api: handoffApi(() => ({ status: 500, body: { error: 'handoff_failed' } })) });
+  p.open(); p.type('I need help with my order'); p.key('Enter');
+  await until(() => f$(p, '[data-flbot-open-form]'), 'the card');
+  f$(p, '[data-flbot-open-form]').click();
+  fillAndSubmit(p, 'ada@example.com', 'hello');
+  await until(() => !f$(p, '.flbot-ferr').hidden, 'the error');
+  const mail = f$(p, '.flbot-ferr a');
+  assert.ok(mail.href.startsWith('mailto:support@fluencyai.app?subject='));
+  assert.ok(decodeURIComponent(mail.href).includes('I need help with my order'));
+  assert.strictEqual(f$(p, '.flbot-hform [type="submit"]').disabled, false, 'can try again');
+  assert.strictEqual(f$(p, '#flbot-h-email').value, 'ada@example.com', 'what they typed is kept');
+});
+
+test('hand-off: a server "bad email" and a rate limit each get their own message; Cancel brings the card back', async () => {
+  let status = 400;
+  const p = makePage({ api: handoffApi(() => ({ status, body: { error: 'x' } })) });
+  p.open();
+  p.w.document.querySelector('.flbot-linkbtn').click();
+  fillAndSubmit(p, 'ada@example.com');
+  await until(() => !f$(p, '.flbot-ferr').hidden, 'bad email message');
+  assert.ok(/does not look right/.test(f$(p, '.flbot-ferr').textContent));
+  status = 429;
+  fillAndSubmit(p, 'ada@example.com');
+  await until(() => /Too many requests/.test(f$(p, '.flbot-ferr').textContent), 'rate limit message');
+  assert.ok(f$(p, '.flbot-ferr a[href^="mailto:"]'));
+  f$(p, '.flbot-hform .flbot-btn--ghost').click();
+  assert.ok(f$(p, '[data-flbot-open-form]') && !f$(p, '.flbot-hform'));
+});
+
+test('hand-off: a bot that fills the hidden trap field is reported to the server as such', async () => {
+  const p = makePage({ api: handoffApi(() => ({ body: { ok: true } })) });
+  p.open();
+  p.w.document.querySelector('.flbot-linkbtn').click();
+  fillAndSubmit(p, 'ada@example.com', '', 'http://spam.example');
+  await until(() => p.calls.some((c) => c.path === '/api/bot/handoff'), 'a request');
+  assert.strictEqual(p.calls.find((c) => c.path === '/api/bot/handoff').body.hp, 'http://spam.example');
+  assert.ok(f$(p, '.flbot-hform input[name="website"]').classList.contains('flbot-sr'), 'the trap is invisible to people');
 });
 
 test('on phones, opening the chat locks page scroll and closing releases it', () => {

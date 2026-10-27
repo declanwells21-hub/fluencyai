@@ -32,9 +32,33 @@ provider switch), `knowledge.md` (generated).
   at the end of `fl-mobile.js`. To open it from any button: `<a href="#chat" data-fl-open-chat>Ask us</a>`.
 - Phones: the chat opens as a full-screen sheet; the launcher floats above the bottom tab bar.
 - The chat id is kept in the browser (`localStorage` key `flbot.cid.v1`) so a chat survives a reload; "new chat" clears it.
-- "Email support" is a plain `mailto:` link with the visitor's last question filled in. A proper hand-off (form, transcript
-  emailed to support, admin view) is the next phase.
+- "Talk to a person" opens the hand-off form (see below).
 - Tests: `tests/bot_widget.test.js` needs jsdom (`npm install --no-save jsdom`); it skips itself if jsdom is missing.
+
+## Talking to a person (hand-off)
+
+- In the chat, "Talk to a person" (under the input box, and as a button whenever the assistant could not help) opens a small
+  form: the visitor's email and an optional note. `POST /api/bot/handoff` saves it in `bot_handoffs` and emails
+  **support@fluencyai.app** (set `BOT_HANDOFF_TO` to send it elsewhere) through Brevo, the same way the other site emails go.
+  The email has the visitor's address as **Reply-To**, so support just presses Reply, plus the note, the page and the chat so far.
+- Nothing is ever emailed to the visitor's address (that would let anyone make us email a stranger). The form says so.
+- If the email cannot be sent, the request is still saved; the admin page flags it ("did not go out") so it is not lost.
+- If the form cannot reach the server, the visitor gets a plain "email us directly" link with their question filled in.
+- Protection: a hidden trap field, a rate limit per device (`BOT_HANDOFF_PER_HOUR_IP`, default 5 an hour), 3 an hour per chat and a
+  daily cap for the whole site (`BOT_HANDOFF_DAILY_CAP`, default 100).
+
+## Admin: "Website chat assistant" card (site/admin)
+
+Shows the last 7 days in numbers, the requests for a person (with the visitor's email, their note, Chat / Answered / Close
+buttons), **the questions the assistant could not answer** (each one is a gap in the site's text: add the answer to a page and the
+assistant knows it after the next deploy) and the recent chats with a transcript viewer. Routes: `GET /api/admin/bot-overview`,
+`GET /api/admin/bot-conversation?id=`, `POST /api/admin/bot-handoff-update` (code: `api/_lib/adminBot.js`, mounted in `api/admin/router.js`).
+
+## Retention (what the Privacy Policy promises)
+
+A daily Vercel cron job (`vercel.json`, 03:17 UTC) calls `GET /api/bot/cleanup`. It deletes chats 90 days after their last message
+(`BOT_RETENTION_DAYS`, never less than 7), except chats tied to a request for a person that is still open, and deletes requests for
+a person after 24 months. It only runs when `CRON_SECRET` is set in Vercel (Vercel then sends it automatically).
 
 ## Setup (once)
 
@@ -53,6 +77,10 @@ provider switch), `knowledge.md` (generated).
 | `MANUS_AGENT_PROFILE` | no | e.g. `manus-1.6-lite` for faster answers. Only set it if `tools/manus_speedtest.js` shows it works. |
 | `BOT_LINK_HOSTS` | no | Extra website hosts the bot may link to (comma-separated). fluencyai.app and Selar are built in. |
 | `BOT_FIRST_MSG_CHARS` / `BOT_FOLLOW_MSG_CHARS` | no (13000 / 7000) | Size limits, in characters, for the first and later messages sent to Manus. Manus rejects messages over 5000 estimated tokens (about 20,000 characters), so keep well below that. |
+| `BREVO_API_KEY`, `EMAIL_FROM_ADDRESS` | yes for hand-offs | Already used by the other site emails. |
+| `BOT_HANDOFF_TO` | no (`support@fluencyai.app`) | Where hand-off emails go. |
+| `CRON_SECRET` | yes for cleanup | Any long random string; lets Vercel's daily cleanup job in. Without it the cleanup refuses to run. |
+| `BOT_RETENTION_DAYS` | no (90) | How long chats are kept after their last message. Keep it in step with the Privacy Policy. |
 | `BOT_ENABLED` | no | Set to `false` to switch the bot off immediately. |
 
 3. Deploy. Then try `POST /api/bot/chat` from the widget (Phase 2) or with curl.

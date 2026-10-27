@@ -89,7 +89,7 @@
   }
 
   // ---------- state ----------
-  var state = { cid: store.get('localStorage', KEY_CID) || '', open: false, busy: false, greeted: false, restored: false, pollTimer: null, pollStart: 0, lastQuestion: '', ended: false, typingNode: null };
+  var state = { cid: store.get('localStorage', KEY_CID) || '', open: false, busy: false, greeted: false, restored: false, pollTimer: null, pollStart: 0, lastQuestion: '', ended: false, typingNode: null, handoffSent: false };
 
   // ---------- DOM ----------
   var root = el('div', 'flbot');
@@ -115,6 +115,10 @@
   notice.appendChild(doc.createTextNode(NOTICE));
   var priv = el('a', '', { href: '/privacy', target: '_blank', rel: 'noopener' }); priv.textContent = 'Privacy';
   notice.appendChild(priv);
+  notice.appendChild(doc.createTextNode(' · '));
+  var talk = el('button', 'flbot-linkbtn', { type: 'button' }); talk.textContent = 'Talk to a person';
+  talk.addEventListener('click', function () { greet(); addHumanCard(true); });
+  notice.appendChild(talk);
   var form = el('form', 'flbot-form', { novalidate: '' });
   var label = el('label', 'flbot-sr', { for: 'flbot-input' }); label.textContent = 'Your question';
   var input = el('textarea', 'flbot-input', { id: 'flbot-input', rows: '1', maxlength: String(MAX_CHARS), placeholder: 'Ask a question…', autocomplete: 'off', enterkeyhint: 'send' });
@@ -150,14 +154,73 @@
     if (state.typingNode && state.typingNode.parentNode) state.typingNode.parentNode.removeChild(state.typingNode);
     state.typingNode = null;
   }
-  function addHumanCard() {
-    var card = el('div', 'flbot-human');
-    var p = el('div'); p.textContent = 'Want a person to look at this?';
+  // "Talk to a person": a small form in the chat. It posts to /api/bot/handoff, which saves the request and emails
+  // support (Reply-To = the visitor's address). If the server cannot take it, a plain email link is the way out.
+  var EMAIL_OK = /^[^\s@<>"',;:()\[\]\\]+@[^\s@<>"',;:()\[\]\\]+\.[^\s@<>"',;:()\[\]\\]{2,}$/;
+  function mailtoHref() {
     var subject = 'Question from the Fluency AI website';
     var body = 'Hi Fluency AI team,\n\n' + (state.lastQuestion ? 'My question: ' + state.lastQuestion + '\n\n' : '') + '(Sent from ' + location.href + ')';
-    var a = el('a', 'flbot-btn', { href: 'mailto:' + SUPPORT + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body) });
-    a.textContent = 'Email support';
-    card.appendChild(p); card.appendChild(a); log.appendChild(card); scrollDown();
+    return 'mailto:' + SUPPORT + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  }
+  function addHumanCard(openForm) {
+    if (state.handoffSent) return;
+    var existing = log.querySelector('.flbot-human');
+    if (existing) { if (openForm) { var open = existing.querySelector('[data-flbot-open-form]'); if (open) open.click(); } existing.scrollIntoView && existing.scrollIntoView({ block: 'nearest' }); return; }
+    var card = el('div', 'flbot-human');
+    var intro = el('div'); intro.textContent = 'Want a person to look at this?';
+    var ask = el('button', 'flbot-btn', { type: 'button', 'data-flbot-open-form': '' }); ask.textContent = 'Talk to a person';
+    card.appendChild(intro); card.appendChild(ask);
+    log.appendChild(card); scrollDown();
+    ask.addEventListener('click', function () { buildHandoffForm(card); });
+    if (openForm) ask.click();
+  }
+  function buildHandoffForm(card) {
+    card.innerHTML = '';
+    var f = el('form', 'flbot-hform', { novalidate: '' });
+    var l1 = el('label', 'flbot-flabel', { for: 'flbot-h-email' }); l1.textContent = 'Your email';
+    var email = el('input', 'flbot-finput', { id: 'flbot-h-email', type: 'email', autocomplete: 'email', inputmode: 'email', placeholder: 'you@example.com', required: '', maxlength: '254' });
+    var l2 = el('label', 'flbot-flabel', { for: 'flbot-h-note' }); l2.textContent = 'Anything to add? (optional)';
+    var note = el('textarea', 'flbot-finput flbot-fnote', { id: 'flbot-h-note', rows: '3', maxlength: '1000', placeholder: 'Tell us more so we can help faster.' });
+    var trap = el('input', 'flbot-sr', { type: 'text', name: 'website', tabindex: '-1', autocomplete: 'off', 'aria-hidden': 'true' });
+    var fine = el('p', 'flbot-ffine'); fine.textContent = "We'll use your email only to reply to this question. We'll email you from our support address.";
+    var err = el('p', 'flbot-ferr', { role: 'alert' }); err.hidden = true;
+    var row = el('div', 'flbot-frow');
+    var go = el('button', 'flbot-btn', { type: 'submit' }); go.textContent = 'Send to our team';
+    var cancel = el('button', 'flbot-btn flbot-btn--ghost', { type: 'button' }); cancel.textContent = 'Cancel';
+    row.appendChild(go); row.appendChild(cancel);
+    [l1, email, l2, note, trap, fine, err, row].forEach(function (n) { f.appendChild(n); });
+    card.appendChild(f); scrollDown(); email.focus();
+
+    cancel.addEventListener('click', function () { card.parentNode && card.parentNode.removeChild(card); addHumanCard(false); });
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var addr = email.value.trim();
+      err.hidden = true;
+      if (!EMAIL_OK.test(addr)) { err.textContent = 'Please enter a valid email address so we can reply.'; err.hidden = false; email.focus(); return; }
+      go.disabled = true; cancel.disabled = true; go.textContent = 'Sending…';
+      jsonFetch(API + '/handoff', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: addr, note: note.value.trim(), cid: state.cid || undefined, hp: trap.value })
+      }).then(function (r) {
+        if (r.status === 200 && r.body && r.body.ok) {
+          state.handoffSent = true;
+          card.innerHTML = '';
+          var ok = el('div'); ok.textContent = 'Thanks! Our team will reply to ';
+          var strong = el('strong'); strong.textContent = addr; ok.appendChild(strong); ok.appendChild(doc.createTextNode(' by email.'));
+          card.appendChild(ok); scrollDown();
+          return;
+        }
+        throw new Error(r.status === 400 ? 'bad' : r.status === 429 ? 'limit' : 'server');
+      }).catch(function (e2) {
+        go.disabled = false; cancel.disabled = false; go.textContent = 'Send to our team';
+        var kind = e2 && e2.message;
+        err.textContent = kind === 'bad' ? 'That email address does not look right. Please check it.'
+          : kind === 'limit' ? 'Too many requests from this device. Please email us directly instead:'
+          : "We couldn't send that just now. You can try again, or email us directly:";
+        if (kind !== 'bad') { var a = el('a', '', { href: mailtoHref() }); a.textContent = SUPPORT; err.appendChild(doc.createTextNode(' ')); err.appendChild(a); }
+        err.hidden = false;
+      });
+    });
   }
   function showChips() {
     chips.innerHTML = '';
@@ -176,7 +239,7 @@
     root.setAttribute('aria-busy', b ? 'true' : 'false');
   }
   function resetLog() {
-    stopPoll(); hideTyping(); log.innerHTML = ''; state.greeted = false; state.ended = false; state.lastQuestion = '';
+    stopPoll(); hideTyping(); log.innerHTML = ''; state.greeted = false; state.ended = false; state.lastQuestion = ''; state.handoffSent = false;
     input.disabled = false; input.value = ''; autoGrow(); setBusy(false);
   }
   function greet() {
@@ -201,7 +264,7 @@
     stopPoll(); hideTyping();
     var text = body.reply || FALLBACK_GENERIC;
     addMsg('bot', text);
-    if (body.human) addHumanCard();
+    if (body.human) addHumanCard(false);
     if (body.status === 'limit') endChat();
     setBusy(false);
     if (!panel.hidden && window.matchMedia && !window.matchMedia('(max-width: 760px)').matches && !state.ended) input.focus();

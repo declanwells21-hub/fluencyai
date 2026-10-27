@@ -7,8 +7,8 @@
 --      `channel` is 'web' today; 'telegram', 'email' and 'whatsapp' can be added later without a migration
 --      (put the chat id / sender address in `external_id`).
 --   2. bot_messages: the visible transcript (visitor question, assistant answer).
---   3. bot_handoffs: "please let a person answer" requests (used by the human-handoff phase).
---   4. fl_bot_cleanup(days): deletes old conversations so chat data is not kept forever.
+--   3. bot_handoffs: "talk to a person" requests: the visitor's email and note, linked to the chat.
+--   4. fl_bot_cleanup(days): deletes old chats and old hand-off requests so chat data is not kept forever.
 --
 -- Every table has Row Level Security switched on with no public policies. The API reaches them with the
 -- service-role key, which bypasses RLS, so visitors and signed-in users cannot read them directly.
@@ -77,8 +77,11 @@ revoke all on public.bot_handoffs from anon, authenticated;
 create index if not exists bot_handoffs_status_idx on public.bot_handoffs (status, created_at);
 
 -- ---------------------------------------------------------------------------
--- 4. Retention: call select public.fl_bot_cleanup(90); now and then (or schedule it with pg_cron).
---    Conversations that are waiting for a human (status 'handoff') are kept.
+-- 4. Retention. Called every day by the Vercel cron job (api/bot/cleanup), or by hand: select public.fl_bot_cleanup(90);
+--    - chats older than p_days (days since the last message) are deleted, EXCEPT chats tied to a hand-off request that
+--      is still open (support may still need the transcript);
+--    - hand-off requests older than 24 months are deleted (the Privacy Policy keeps support emails for 24 months).
+--    Returns how many chats were deleted.
 -- ---------------------------------------------------------------------------
 create or replace function public.fl_bot_cleanup(p_days integer default 90)
 returns integer
@@ -89,10 +92,15 @@ as $$
 declare
   v_deleted integer;
 begin
-  delete from public.bot_conversations
-   where updated_at < now() - make_interval(days => greatest(p_days, 1))
-     and status <> 'handoff';
+  delete from public.bot_conversations c
+   where c.updated_at < now() - make_interval(days => greatest(p_days, 1))
+     and not exists (
+       select 1 from public.bot_handoffs h
+        where h.conversation_id = c.id and h.status = 'open'
+     );
   get diagnostics v_deleted = row_count;
+
+  delete from public.bot_handoffs where created_at < now() - interval '24 months';
   return v_deleted;
 end;
 $$;
