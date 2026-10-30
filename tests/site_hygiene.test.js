@@ -65,6 +65,7 @@ test('every internal link on every page goes to a real page', () => {
     for (const m of html.matchAll(/<a\s[^>]*href=["'](\/[^"'#?]*)(?:[?#][^"']*)?["']/g)) {
       const href = m[1].replace(/\/$/, '') || '/';
       if (routes.has(href) || files.has(href) || /^\/(r|api|app)\b/.test(href) || href.startsWith('/guides')) continue;
+      if (href === '/blog' || (href.startsWith('/blog/') && files.has(href + '.html'))) continue; // /blog/<slug> is rewritten to site/blog/<slug>.html
       bad.push(`${rel(page)} -> ${m[1]}`);
     }
   }
@@ -84,6 +85,28 @@ test('build.sh: previews skip the Flutter build; production and BUILD_FLUTTER=tr
   assert.ok(!sh.slice(elseAt).includes('flutter build'), 'the preview branch must not build Flutter');
   assert.ok(sh.slice(elseAt).includes('dist/app/index.html'), 'previews get a placeholder /app page');
   assert.ok(/dist\/config\.js/.test(sh), 'config.js is written in both cases');
+});
+
+test('the blog: routes exist, every post is in the sitemap, has one h1, a canonical, JSON-LD, sources and internal links', () => {
+  assert.ok(vercel.rewrites.some((r) => r.source === '/blog' && r.destination === '/blog/index.html'));
+  assert.ok(vercel.rewrites.some((r) => r.source === '/blog/:slug' && r.destination === '/blog/:slug.html'));
+  const sitemap = fs.readFileSync(path.join(site, 'sitemap.xml'), 'utf8');
+  assert.ok(sitemap.includes('https://fluencyai.app/blog</loc>'));
+  const posts = fs.readdirSync(path.join(site, 'blog')).filter((f) => f.endsWith('.html') && f !== 'index.html');
+  assert.ok(posts.length >= 2);
+  for (const f of posts) {
+    const slug = f.replace(/\.html$/, ''), html = fs.readFileSync(path.join(site, 'blog', f), 'utf8');
+    assert.ok(sitemap.includes(`https://fluencyai.app/blog/${slug}</loc>`), slug + ' missing from the sitemap');
+    assert.strictEqual((html.match(/<h1[ >]/g) || []).length, 1, slug + ' needs exactly one h1');
+    assert.ok(html.includes(`<link rel="canonical" href="https://fluencyai.app/blog/${slug}">`), slug + ' canonical');
+    assert.ok(/"@type": "BlogPosting"/.test(html) && /"@type": "BreadcrumbList"/.test(html), slug + ' JSON-LD');
+    assert.ok(fs.existsSync(path.join(site, 'assets', 'blog', slug + '.png')), slug + ' social image');
+    assert.ok(/<meta name="description" content="[^"]{70,170}"/.test(html), slug + ' description length');
+    assert.ok(/<title>[^<]{20,70}<\/title>/.test(html), slug + ' title length');
+    assert.ok((html.match(/href="https:\/\/[^"]+" rel="noopener"/g) || []).length >= 4, slug + ' needs external sources');
+    assert.ok((html.match(/<a href="\/(store|guides|pricing|faq|about|blog)[^"]*"/g) || []).length >= 4, slug + ' needs internal links');
+    for (const m of html.matchAll(/href="#(src-\d+)"/g)) assert.ok(html.includes(`id="${m[1]}"`), slug + ' cites a missing source ' + m[1]);
+  }
 });
 
 console.log(`\n${passed} passed, ${failed} failed`);

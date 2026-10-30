@@ -57,7 +57,7 @@ FAQ = [
 WORDMARK = ('<span style="display:inline-flex;align-items:baseline;gap:4.84px;font:var(--fw-black) 22px/1 var(--font-display);letter-spacing:-.035em;color:var(--white);">'
             '<span><span style="color:var(--teal-400)">F</span>luency</span>'
             '<span style="font:var(--fw-bold) 9.24px/1 var(--font-display);letter-spacing:.08em;color:var(--teal-300);transform:translateY(-4.84px)">AI</span></span>')
-LINKS = [("/", "Home"), ("/store", "Exam guides"), ("/pricing", "Pricing"), ("/partners", "Partners"), ("/about", "About"), ("/faq", "FAQ")]
+LINKS = [("/", "Home"), ("/store", "Exam guides"), ("/pricing", "Pricing"), ("/partners", "Partners"), ("/about", "About"), ("/faq", "FAQ"), ("/blog", "Blog")]
 
 def nav(active):
     a = "".join(
