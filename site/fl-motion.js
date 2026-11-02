@@ -89,13 +89,34 @@
     batch.forEach((el, i) => { const a = el.__flAnim; if (a) { a.effect.updateTiming({ delay: Math.min(i, 6) * 70 }); a.play(); } });
     batch = []; flushing = false;
   };
-  const io = new IntersectionObserver((entries) => {
+  const pending = new Set();   // revealed-on-scroll elements still waiting to play
+  const onHit = (entries) => {
     entries.forEach((e) => {
       if (!e.isIntersecting) return;
-      io.unobserve(e.target); batch.push(e.target);
+      ioSmall.unobserve(e.target); ioTall.unobserve(e.target); pending.delete(e.target); batch.push(e.target);
       if (!flushing) { flushing = true; requestAnimationFrame(flush); }
     });
-  }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+  };
+  const MARGIN = "0px 0px -8% 0px";
+  // Small elements: reveal once 8% is visible. Tall elements (e.g. the whole guide list, 10,000px+ on a phone)
+  // can never show 8% of themselves in a phone-sized screen, so they reveal as soon as they touch the viewport.
+  const ioSmall = new IntersectionObserver(onHit, { rootMargin: MARGIN, threshold: 0.08 });
+  const ioTall = new IntersectionObserver(onHit, { rootMargin: MARGIN, threshold: 0 });
+  // Safety net: if a browser never delivers the observer callback, anything on screen is shown after scrolling stops.
+  let rescueT = 0;
+  const rescue = () => {
+    pending.forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.bottom > 0 && r.top < innerHeight) {
+        ioSmall.unobserve(el); ioTall.unobserve(el); pending.delete(el); batch.push(el);
+      }
+    });
+    if (batch.length && !flushing) { flushing = true; requestAnimationFrame(flush); }
+  };
+  const kickRescue = () => { clearTimeout(rescueT); rescueT = setTimeout(rescue, 350); };
+  addEventListener("scroll", kickRescue, { passive: true });
+  addEventListener("resize", kickRescue, { passive: true });
+  addEventListener("load", () => setTimeout(rescue, 1500));
 
   const prep = (el) => {
     if (seen.has(el) || !(el instanceof HTMLElement) || el.hasAttribute("data-fl-stagger")) return;
@@ -107,7 +128,8 @@
     const from = { opacity: 0, transform: fine ? `translate3d(${dx}px, 22px, 0) scale(.985)` : "translate3d(0, 12px, 0)", transformOrigin: js === "end" ? "100% 0" : "0 0" };
     const a = el.animate([from, { opacity: 1, transform: "none" }], { duration: fine ? 760 : 420, easing: EASE, fill: "backwards" });
     a.pause(); a.currentTime = 0; el.__flAnim = a;
-    io.observe(el);
+    pending.add(el);
+    (r.height > innerHeight * 0.6 ? ioTall : ioSmall).observe(el);
   };
   const scan = () => {
     document.querySelectorAll("[data-fl-chat] > *, [data-fl-reveal], [data-fl-stagger] > *").forEach(prep);
