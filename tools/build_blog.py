@@ -196,7 +196,7 @@ def post_page(p):
     <section aria-labelledby="more-h" style="display:grid;gap:14px;"><h2 id="more-h" style="margin:0;">Keep reading</h2><div class="posts">{rel}</div></section>
     <section class="cta" aria-labelledby="cta-h"><h2 id="cta-h">Practise speaking out loud, privately</h2>
       <p style="margin:0 0 14px;">Fluency AI is a speaking coach you talk to out loud, in French, German and English. Join the waitlist to lock the launch price, or browse the 20-minute exam guides.</p>
-      <div class="row"><a class="btn p" href="/#join">Join the waitlist</a><a class="btn s" href="/store">Browse exam guides</a><a class="btn s" href="/blog">More articles</a></div></section>
+      <div class="row"><a class="btn p" href="/join">Join the waitlist</a><a class="btn s" href="/store">Browse exam guides</a><a class="btn s" href="/blog">More articles</a></div></section>
     <p class="foot">Questions about your account: <a href="mailto:support@fluencyai.app">support@fluencyai.app</a>. Read our <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms of Service</a>.</p>'''
     text_len = words(p["body"])
     ld = [{"@context": "https://schema.org", "@type": "BlogPosting", "@id": ORIGIN + path + "#article",
@@ -225,7 +225,7 @@ def index_page():
     <div class="posts">{cards}</div>
     <section class="cta" aria-labelledby="cta-h"><h2 id="cta-h">Ready to speak?</h2>
       <p style="margin:0 0 14px;">Join the waitlist for the speaking coach, or pick a 20-minute exam guide for the test you are sitting.</p>
-      <div class="row"><a class="btn p" href="/#join">Join the waitlist</a><a class="btn s" href="/store">Browse exam guides</a><a class="btn s" href="/faq">Read the FAQ</a></div></section>
+      <div class="row"><a class="btn p" href="/join">Join the waitlist</a><a class="btn s" href="/store">Browse exam guides</a><a class="btn s" href="/faq">Read the FAQ</a></div></section>
     <p class="foot">Questions or feedback: <a href="mailto:info@fluencyai.app">info@fluencyai.app</a>. Read our <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms of Service</a>.</p>'''
     ld = [{"@context": "https://schema.org", "@type": "Blog", "@id": ORIGIN + "/blog", "name": "Fluency AI Blog", "url": ORIGIN + "/blog",
            "description": "Practical, sourced guides on speaking practice, exam preparation and language learning.", "inLanguage": "en", "publisher": ORG,

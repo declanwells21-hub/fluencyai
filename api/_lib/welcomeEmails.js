@@ -16,7 +16,7 @@ const { sendBrandedEmail } = require('./emailTemplate');
 
 const SITE = 'https://fluencyai.app';
 const STORE_URL = SITE + '/store';
-const WAITLIST_URL = SITE + '/#join';
+const WAITLIST_URL = SITE + '/join';
 const HUB_URL = SITE + '/partner-hub';
 const DEFAULT_REPLY_TO = 'support@fluencyai.app';
 const NEW_ACCOUNT_DAYS = 3; // only accounts this new get a welcome, so nobody who signed up long ago is emailed by surprise

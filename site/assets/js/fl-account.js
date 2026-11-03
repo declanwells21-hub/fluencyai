@@ -201,7 +201,7 @@
       if (window.flScrollTo) window.flScrollTo("join");
       else document.getElementById("join").scrollIntoView({ behavior: "smooth" });
     } else {
-      location.href = "/#join";   /* the waitlist form lives on Home */
+      location.href = "/join";   /* the waitlist form lives on Home */
     }
   };
 

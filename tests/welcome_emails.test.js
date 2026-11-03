@@ -60,7 +60,7 @@ async function test(name, fn) {
     const m = W.accountWelcome({ name: 'Ann Lee' });
     assert.strictEqual(m.subject, 'Welcome to Fluency AI');
     assert.ok(m.htmlContent.includes('Hi Ann,') && m.htmlContent.includes('While you wait') && m.htmlContent.includes('Browse the exam guides'));
-    assert.ok(/not open yet/.test(m.htmlContent) && m.htmlContent.includes('href="https://fluencyai.app/store"') && m.htmlContent.includes('href="https://fluencyai.app/#join"'));
+    assert.ok(/not open yet/.test(m.htmlContent) && m.htmlContent.includes('href="https://fluencyai.app/store"') && m.htmlContent.includes('href="https://fluencyai.app/join"'));
     assert.ok(W.accountWelcome({}).htmlContent.includes('Hi there,'));
     assert.ok(!/Unsubscribe/.test(m.htmlContent), 'a one-off account email has nothing to unsubscribe from');
   });

@@ -26,18 +26,13 @@
       "permanent": true
     },
     {
-      "source": "/how",
-      "destination": "/#how",
-      "permanent": true
-    },
-    {
       "source": "/product",
-      "destination": "/#features",
+      "destination": "/features",
       "permanent": true
     },
     {
       "source": "/waitlist",
-      "destination": "/#join",
+      "destination": "/join",
       "permanent": true
     },
     {
@@ -87,6 +82,18 @@
     {
       "source": "/app/:path*",
       "destination": "/app/index.html"
+    },
+    {
+      "source": "/how",
+      "destination": "/how.html"
+    },
+    {
+      "source": "/features",
+      "destination": "/features.html"
+    },
+    {
+      "source": "/join",
+      "destination": "/join.html"
     },
     {
       "source": "/pricing",

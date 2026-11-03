@@ -31,6 +31,10 @@ else
 APPEOF
 fi
 
+# Clean section URLs (/how, /features, /join): generated from dist/index.html so they always match the home page.
+# The committed copies in site/ are the fallback if this step ever fails.
+node scripts/make-section-pages.js dist || echo "Warning: could not regenerate section pages, using the committed ones."
+
 # Overwrite the placeholder config.js with real values from Vercel's env vars,
 # so the plain-HTML marketing site can talk to the same Supabase project the
 # Flutter app uses.

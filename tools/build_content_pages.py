@@ -190,7 +190,7 @@ about_body = f'''    <div style="display:grid;grid-template-columns:minmax(0,1fr
 {cards}
     </div>
     <div class="row">
-      <a class="btn p" href="/#join">Join the waitlist</a>
+      <a class="btn p" href="/join">Join the waitlist</a>
       <a class="btn s" href="/faq">Read the FAQ</a>
       <a class="btn s" href="/partners">Become a partner</a>
     </div>
@@ -220,7 +220,7 @@ faq_body = f'''    <div style="display:grid;grid-template-columns:minmax(0,1fr) 
     </div>
 {chr(10).join(parts)}
     <div class="row">
-      <a class="btn p" href="/#join">Join the waitlist</a>
+      <a class="btn p" href="/join">Join the waitlist</a>
       <a class="btn s" href="/partners">Partnership Program</a>
       <a class="btn s" href="/store">Exam guides</a>
     </div>
