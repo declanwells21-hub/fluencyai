@@ -32,7 +32,7 @@ POST = {
   ("Can French help even if my English is strong?",
    "Yes. The CRS adds points for French: 25 if you score NCLC 7 or higher in all four French abilities and CLB 4 or lower in English (or did not take an English test), and 50 if you also reach CLB 5 or higher in all four English abilities.[[2]]"),
  ],
- "related": ["stop-freezing-when-you-speak-a-new-language"],
+ "related": ["stop-freezing-when-you-speak-a-new-language", "french-language-levels-residence-citizenship-france-2026"],
  "body": """
 <p class="lead">Almost every Express Entry question about language comes back to two acronyms: CLB and NCLC. Your IELTS band, CELPIP level, TEF score or TCF score means nothing to the system until it has been converted into one of them. This guide shows the conversion, the minimums, and what each step is worth.</p>
 
@@ -159,6 +159,6 @@ POST = {
   <li>Rehearse speaking out loud, not in your head, with a partner or a speaking coach.</li>
   <li>Write to the time and word limits, then compare against a model.</li>
 </ol>
-<p>Full disclosure: we sell short exam guides, so weigh this accordingly. Our 14-page <a href="/store">Exam Blueprints</a> cover TCF Canada and TEF Canada at NCLC 7 and NCLC 9, plus CELPIP General and IELTS General Training at CLB 7, with models for the writing tasks and a plan for each speaking part. You can compare them on the <a href="/guides">Exam Blueprints page</a>. For daily speaking rehearsal in French or English, <a href="/#join">join the Fluency AI waitlist</a> or see the <a href="/pricing">pricing</a>. Nothing in this article requires either.</p>
+<p>Full disclosure: we sell short exam guides, so weigh this accordingly. Our 14-page <a href="/store">Exam Blueprints</a> cover TCF Canada and TEF Canada at NCLC 7 and NCLC 9, plus CELPIP General and IELTS General Training at CLB 7, with models for the writing tasks and a plan for each speaking part. You can compare them on the <a href="/guides">Exam Blueprints page</a>. For daily speaking rehearsal in French or English, <a href="/join">join the Fluency AI waitlist</a> or see the <a href="/pricing">pricing</a>. Nothing in this article requires either.</p>
 """,
 }

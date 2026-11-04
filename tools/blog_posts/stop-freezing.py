@@ -30,7 +30,7 @@ POST = {
   ("Should I correct myself mid-sentence?",
    "Usually not while you are still building confidence. Finish the thought, let the other person respond, and fix the mistake afterwards. Constant self-correction feeds the fear of being judged."),
  ],
- "related": ["express-entry-language-scores-clb-nclc-explained"],
+ "related": ["express-entry-language-scores-clb-nclc-explained", "german-a1-start-deutsch-1-spouse-visa"],
  "body": """
 <p class="lead">You know the word. You practised the sentence on the bus. Then someone at a café counter asks, “For here or to go?” and your mind goes completely blank.</p>
 <p>If that sounds familiar, you are in very large company. Researchers have been studying this exact freeze for forty years, and what they have found is more reassuring, and more useful, than “just relax”.</p>
@@ -129,6 +129,6 @@ POST = {
 <p>Everyone gets nervous speaking a new language. If your anxiety is intense, spreads well beyond language practice, or interferes with daily life, talk to a teacher, a doctor or a mental health professional. A speaking-practice tool, ours included, is for building skill and confidence. It is not a treatment.</p>
 
 <h2 id="where-fluency-fits">Where Fluency AI fits</h2>
-<p>Full disclosure: we build <a href="/about">Fluency AI</a>, a speaking coach you talk to out loud in French, German and English. It answers like a person, then shows what you said, what to say and why, and it includes the four repair moves from tip 4 inside every conversation. It is currently <a href="/#join">open for waitlist sign-ups</a>, and you can see the plan on the <a href="/pricing">pricing page</a> or read the <a href="/faq">FAQ</a>. Everything above works with or without our app.</p>
+<p>Full disclosure: we build <a href="/about">Fluency AI</a>, a speaking coach you talk to out loud in French, German and English. It answers like a person, then shows what you said, what to say and why, and it includes the four repair moves from tip 4 inside every conversation. It is currently <a href="/join">open for waitlist sign-ups</a>, and you can see the plan on the <a href="/pricing">pricing page</a> or read the <a href="/faq">FAQ</a>. Everything above works with or without our app.</p>
 """,
 }
