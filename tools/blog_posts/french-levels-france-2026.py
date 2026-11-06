@@ -40,7 +40,7 @@ POST = {
   ("How much does the test cost?",
    "The State page gives a range of 100 to 200 euros for a TCF or TEF and says it can be financed through the French training account (CPF). Some centres offer paid preparation courses, which are not compulsory.[[1]] The page does not give DELF fees, so ask your centre."),
  ],
- "related": ["german-a1-start-deutsch-1-spouse-visa", "stop-freezing-when-you-speak-a-new-language", "express-entry-language-scores-clb-nclc-explained"],
+ "related": ["french-speaking-practice-delf-b1-b2-oral", "german-a1-start-deutsch-1-spouse-visa", "stop-freezing-when-you-speak-a-new-language"],
  "body": """
 <p class="lead">France raised the bar on 1 January 2026. The French you must prove now depends on what you are applying for: A2 for a first multi-year residence card, B1 for the 10-year resident card, and B2 for French nationality. This guide sets out the new levels, the proofs a State page says are accepted, how long they last, how the TCF IRN changed, and how to prepare.</p>
 

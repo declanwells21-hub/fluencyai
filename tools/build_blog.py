@@ -8,7 +8,7 @@ from datetime import date
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SITE = ROOT / "site"
-POST_FILES = ["express-entry-language.py", "stop-freezing.py", "german-a1-spouse-visa.py", "french-levels-france-2026.py"]   # order does not matter; the index sorts newest first
+POST_FILES = ["express-entry-language.py", "stop-freezing.py", "german-a1-spouse-visa.py", "french-levels-france-2026.py", "practise-french-alone.py", "delf-oral-practice.py"]   # order does not matter; the index sorts newest first
 ORIGIN = "https://fluencyai.app"
 esc = html.escape
 
@@ -233,7 +233,7 @@ def index_page():
           {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
            {"@type": "ListItem", "position": 1, "name": "Home", "item": ORIGIN + "/"}, {"@type": "ListItem", "position": 2, "name": "Blog", "item": ORIGIN + "/blog"}]}]
     return page("/blog", "Blog: speaking practice, exam prep and language tips | Fluency AI",
-                "Sourced guides on speaking confidence, Express Entry language scores, and the German and French language levels needed for visas and residence.", body, ld)
+                "Sourced guides on French speaking practice, DELF preparation, Express Entry language scores and the language levels needed for visas and residence.", body, ld)
 
 # ------------------------------------------------------------------ SOCIAL IMAGES (1200x630)
 def og_image(p, out):

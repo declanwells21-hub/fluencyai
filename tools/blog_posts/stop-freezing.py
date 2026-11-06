@@ -30,7 +30,7 @@ POST = {
   ("Should I correct myself mid-sentence?",
    "Usually not while you are still building confidence. Finish the thought, let the other person respond, and fix the mistake afterwards. Constant self-correction feeds the fear of being judged."),
  ],
- "related": ["express-entry-language-scores-clb-nclc-explained", "german-a1-start-deutsch-1-spouse-visa"],
+ "related": ["how-to-practise-speaking-french-alone", "express-entry-language-scores-clb-nclc-explained", "german-a1-start-deutsch-1-spouse-visa"],
  "body": """
 <p class="lead">You know the word. You practised the sentence on the bus. Then someone at a café counter asks, “For here or to go?” and your mind goes completely blank.</p>
 <p>If that sounds familiar, you are in very large company. Researchers have been studying this exact freeze for forty years, and what they have found is more reassuring, and more useful, than “just relax”.</p>
