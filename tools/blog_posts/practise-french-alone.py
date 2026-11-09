@@ -26,7 +26,7 @@ POST = {
   ("Do I need a native speaker for the audio?",
    "You need clear, natural French that is not too fast. A short news bulletin made for learners, a podcast excerpt or a slow dialogue all work. Choose clips you can understand at least in part, and keep them short so you can repeat them."),
  ],
- "related": ["french-speaking-practice-delf-b1-b2-oral", "stop-freezing-when-you-speak-a-new-language", "french-language-levels-residence-citizenship-france-2026"],
+ "related": ["stop-translating-in-your-head-when-speaking-french", "french-speaking-practice-delf-b1-b2-oral", "stop-freezing-when-you-speak-a-new-language"],
  "body": """
 <p class="lead">You do not need a conversation partner to improve your spoken French. You need short, regular practice that makes you say French out loud, plus a way to check yourself. This is the 20-minute daily routine we suggest at <a href="/">Fluency AI</a>, with the research behind each step.</p>
 

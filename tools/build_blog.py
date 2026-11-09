@@ -8,7 +8,7 @@ from datetime import date
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SITE = ROOT / "site"
-POST_FILES = ["express-entry-language.py", "stop-freezing.py", "german-a1-spouse-visa.py", "french-levels-france-2026.py", "practise-french-alone.py", "delf-oral-practice.py"]   # order does not matter; the index sorts newest first
+POST_FILES = ["express-entry-language.py", "stop-freezing.py", "german-a1-spouse-visa.py", "french-levels-france-2026.py", "practise-french-alone.py", "delf-oral-practice.py", "stop-translating-french.py", "ielts-speaking.py"]   # order does not matter; the index sorts newest first
 ORIGIN = "https://fluencyai.app"
 esc = html.escape
 

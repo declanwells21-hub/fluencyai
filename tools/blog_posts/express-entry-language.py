@@ -32,7 +32,7 @@ POST = {
   ("Can French help even if my English is strong?",
    "Yes. The CRS adds points for French: 25 if you score NCLC 7 or higher in all four French abilities and CLB 4 or lower in English (or did not take an English test), and 50 if you also reach CLB 5 or higher in all four English abilities.[[2]]"),
  ],
- "related": ["stop-freezing-when-you-speak-a-new-language", "french-language-levels-residence-citizenship-france-2026"],
+ "related": ["ielts-general-training-speaking-test-practice", "stop-freezing-when-you-speak-a-new-language", "french-language-levels-residence-citizenship-france-2026"],
  "body": """
 <p class="lead">Almost every Express Entry question about language comes back to two acronyms: CLB and NCLC. Your IELTS band, CELPIP level, TEF score or TCF score means nothing to the system until it has been converted into one of them. This guide shows the conversion, the minimums, and what each step is worth.</p>
 
