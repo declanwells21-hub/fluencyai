@@ -54,6 +54,9 @@ html,body{height:100%;margin:0}#app{height:100%}
       [data-fl-switch]{bottom:10px!important}
     }
   
+    /* Guide viewer: the back cover sits beside the cover when the dialog has two columns; below that width it becomes a "Back" tab. */
+    .fl-sd-back{display:none !important}
+    @media (max-width: 711px){ .fl-gback{display:none !important} .fl-sd-back{display:inline-block !important} }
 </style>
 <link rel="stylesheet" href="/assets/css/fl-mobile.css">
 <link rel="manifest" href="/manifest.json">

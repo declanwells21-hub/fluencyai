@@ -47,7 +47,7 @@
   }[h] || "");
 
   const FING = {
-    relax: ["M-6.5,16 L-7.5,25", "M-2.2,18 L-2.6,28", "M2.2,18 L2.6,28", "M6.5,16 L7.5,24", "M-9,6 L-15,14"],
+    relax: ["M-5.6,16 Q-6.8,22 -5.8,27", "M-1.9,18 Q-2.6,25 -2,31", "M1.9,18 Q2.6,25 2.2,30", "M5.6,16 Q6.6,22 6,26", "M-8,8 Q-11.5,12 -9.5,19"],
     open: ["M-6.5,16 L-12.5,29", "M-2.2,18 L-4,33", "M2.2,18 L4,33", "M6.5,16 L11.5,28", "M-9,7 L-20,9"],
     point: ["M-6.5,16 L-6.5,21", "M2.2,18 L3,22", "M6.5,16 L7,20", "M-2.2,18 L-3,37", "M-9,7 L-14,15"],
     thumb: ["M-6,15 L-6,19", "M-2,16 L-2,20", "M2,16 L2,20", "M6,15 L6,19", "M-9,9 L-9.5,28"],
@@ -55,6 +55,9 @@
     cup: ["M-6.5,16 L-8,30", "M-2.2,18 L-2.6,33", "M2.2,18 L2.8,33", "M6.5,16 L8,29", "M-9,7 L-16,13"],
     fist: ["M-6.5,15 L-6.5,18", "M-2.2,16 L-2.2,19", "M2.2,16 L2.2,19", "M6.5,15 L6.5,18", "M-9,8 L-5,15"],
   };
+  // Hands that rest against the body (hanging, folded across the belly, on the chest) are mirrored so the thumb sits on the
+  // correct side: a right hand and a left hand, not two left hands.
+  const INWARD = { relax: 1, cup: 1 };
   const hand = (s, sk, leg) => `<g data-p="h${s}-pocket" style="display:none"><path d="M-16,-3 Q0,3 16,-3 L15,13 Q0,16 -15,13 Z" fill="${leg}"/><path d="M-16,-3 Q0,3 16,-3" stroke="rgba(4,18,27,.35)" stroke-width="2.5" fill="none" stroke-linecap="round"/><ellipse cx="${s === "L" ? -11 : -11}" cy="0" rx="4.5" ry="6" fill="${sk[0]}"/></g>` + Object.entries(FING).map(([k, fs]) => `<g data-p="h${s}-${k}" style="display:${k === "relax" ? "" : "none"}">${fs.map((d) => `<path d="${d}" stroke="${sk[1]}" stroke-width="7.4" stroke-linecap="round" fill="none"/><path d="${d}" stroke="${sk[0]}" stroke-width="5.2" stroke-linecap="round" fill="none"/>`).join("")}<ellipse cx="0" cy="${k === "thumb" ? 10 : 10.5}" rx="${k === "thumb" ? 11.5 : 10.5}" ry="${k === "thumb" ? 10 : 11}" fill="${sk[0]}"/>${k === "thumb" ? `<path d="M-5,15 h11" stroke="${sk[1]}" stroke-width="2.4" stroke-linecap="round"/>` : ""}</g>`).join("");
   const SIDE = (o) => {
     const sk = o.sk, hc = o.hc, of = o.of, id = o.id + "s";
@@ -137,9 +140,7 @@
           <g clip-path="url(#${o.id}m)"><rect data-p="teeth" x="120" y="150" width="60" height="9" fill="#fff"/><ellipse data-p="tongue" cx="150" cy="182" rx="11" ry="6" fill="${K.coral}"/></g>
           <path data-p="mline" stroke="${K.ink}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
         </g>
-        ${["L", "R"].map((s) => `<path data-p="arm${s}" stroke="${o.of.sleeve}" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          
-          <g data-p="hand${s}">${hand(s, o.sk, o.of.legs)}</g>`).join("")}
+        ${["L", "R"].map((s) => `<path data-p="armShade${s}" stroke="rgba(4,18,27,.2)" stroke-width="29.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path data-p="arm${s}" stroke="${o.of.sleeve}" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`).join("")}${["L", "R"].map((s) => `<g data-p="hand${s}">${hand(s, o.sk, o.of.legs)}</g>`).join("")}
       </g>
     </g>
     ${SIDE(o)}</g>
@@ -147,9 +148,9 @@
 
   const R = (a, b) => a + Math.random() * (b - a), pick = (a) => a[Math.floor(Math.random() * a.length)];
   const TEMPO = { fast: [480, 0.64], med: [170, 0.74], slow: [52, 0.9] };
-  const BASE = { ry: 0, rsx: 1, rsy: 1, zoom: 1, lean: 0, bob: 0, hr: 0, hx: 0, hy: 0, lx: 0, ly: 0, lid: 0, smile: 0, curve: .5, open: 0, blY: 0, blR: 0, brY: 0, brR: 0, aL: 17, eL: 112, aR: 17, eR: 112 };
+  const BASE = { ry: 0, rsx: 1, rsy: 1, zoom: 1, lean: 0, bob: 0, hr: 0, hx: 0, hy: 0, lx: 0, ly: 0, lid: 0, smile: 0, curve: .5, open: 0, blY: 0, blR: 0, brY: 0, brR: 0, aL: -4, eL: 100, aR: -4, eR: 94 };
   const ARMS = {
-    rest: { aL: 8, eL: 10, aR: 8, eR: 10 }, pocket: { aL: 7, eL: 16, aR: 7, eR: 16 }, clasp: { aL: 17, eL: 112, aR: 17, eR: 112 }, hold: { aL: 14, eL: 96, aR: 9, eR: 22 }, open: { aL: 24, eL: -24, aR: 24, eR: -24, hL: "open", hR: "open" },
+    rest: { aL: 8, eL: 10, aR: 8, eR: 10 }, pocket: { aL: 7, eL: 16, aR: 7, eR: 16 }, clasp: { aL: -4, eL: 100, aR: -4, eR: 94 }, hold: { aL: 14, eL: 96, aR: 9, eR: 22 }, open: { aL: 24, eL: -24, aR: 24, eR: -24, hL: "open", hR: "open" },
     thinkR: { aR: 14, eR: 168, hR: "point" }, thinkL: { aL: -20, eL: 74 },
     palmR: { aR: 28, eR: -80, hR: "open" }, palmL: { aL: 28, eL: -80, hL: "open" }, spread: { aL: 32, eL: -70, aR: 32, eR: -70, hL: "open", hR: "open" },
     chestR: { aR: 10, eR: 118, hR: "cup" }, countR: { aR: 20, eR: -150, hR: "point" }, headR: { aR: 156, eR: -14, hR: "scratch" },
@@ -164,7 +165,7 @@
       () => { const sd = pick([-1, 1]); return { ms: R(1600, 2600), p: { ...ARMS.clasp, lean: sd * 1.4, hr: -sd * 2, hx: sd * 1.5, lx: sd * 3 } }; },
       () => ({ ms: R(1800, 2800), p: { ...ARMS.pocket, ly: R(-1, 1) } }),
       () => ({ ms: R(1400, 2200), p: { ...ARMS.hold, hL: "relax", hr: 2 } }),
-      () => ({ ms: 700, p: { aR: 22, eR: 74, hR: "open", aL: 17, eL: 112, hr: -2, brY: -3 }, then: { ms: R(900, 1300), p: { aR: 20, eR: 82, hR: "open", aL: 17, eL: 112 } } }),
+      () => ({ ms: 700, p: { aR: 22, eR: 74, hR: "open", aL: -4, eL: 100, hr: -2, brY: -3 }, then: { ms: R(900, 1300), p: { aR: 20, eR: 82, hR: "open", aL: -4, eL: 100 } } }),
       () => ({ ms: R(1200, 2000), p: { ...ARMS.chestR, aL: 10, eL: 30, ly: -1, curve: .7 } }),
     ] },
     talk: { tempo: "med", pose: { aL: 12, eL: 40, aR: 12, eR: 40, blY: -2, brY: -2, curve: .45 }, gap: [250, 700], talk: true, gest: true, beats: [
@@ -175,7 +176,7 @@
       () => ({ ms: 500, p: { ...ARMS.chestR, ...ARMS.sideL, hy: 2, curve: .7 }, then: { ms: R(500, 800), p: { ...ARMS.chestR, ...ARMS.sideL } } }),
       () => ({ ms: R(700, 1100), p: { aL: 12, eL: 40, aR: 12, eR: 40 } }),
     ] },
-    listen: { tempo: "slow", pose: { aL: 12, eL: 106, aR: 13, eR: 98, hr: 4, hx: 2, lean: -1, blY: -4, brY: -4, smile: .34, curve: .95, open: .08, ly: -1 }, gap: [700, 1600], beats: [
+    listen: { tempo: "slow", pose: { aL: -2, eL: 98, aR: -3, eR: 92, hr: 4, hx: 2, lean: -1, blY: -4, brY: -4, smile: .34, curve: .95, open: .08, ly: -1 }, gap: [700, 1600], beats: [
       () => ({ ms: 520, p: { hy: 3, hr: 5 }, then: { ms: 520, p: { hy: 0, hr: 4 }, then: { ms: 520, p: { hy: 3, hr: 5 }, then: { ms: 640, p: { hy: 0 } } } } }),
       () => ({ ms: 420, p: { smile: .55, open: .32, curve: 1, hy: -2, blY: -7, brY: -7, lean: -2 }, tempo: "med", then: { ms: R(700, 1000), p: { smile: .5, open: .22, curve: 1, hy: 2, blY: -6, brY: -6 }, then: { ms: 600, p: { hy: 0 } } } }),
       () => ({ ms: R(1600, 2200), p: { zoom: 1.03, lean: 1.5, hr: 6, hy: 2 }, then: { ms: 700, p: { zoom: 1.03, lean: 1.5, hr: 6, hy: 5 }, then: { ms: 800, p: { zoom: 1.02, hr: 5, hy: 1 } } } }),
@@ -324,6 +325,8 @@
       if (this.over && now > this.over.end) { const th = this.over.then; this.over = null; if (th) this._ov(th); else this.nextBeat = now + R(st.gap[0], st.gap[1]); }
       if (!this.over && now > this.nextBeat && !this.reduced) this._ov(pick(st.beats)());
       const tg = { ...BASE, ...st.pose, ...(this.over ? this.over.p : {}) };
+      { const given = { ...st.pose, ...(this.over ? this.over.p : {}) }, usesL = "aL" in given || "eL" in given, usesR = "aR" in given || "eR" in given;
+        if (usesR && !usesL) { tg.aL = 9; tg.eL = 14; } else if (usesL && !usesR) { tg.aR = 9; tg.eR = 14; } }
       this.hands = { L: tg.hL || "relax", R: tg.hR || "relax" }; delete tg.hL; delete tg.hR;
       this.back = { L: !!tg.bkL, R: !!tg.bkR }; delete tg.bkL; delete tg.bkR;
       if (tg.scratch) tg.eR += Math.sin(T * 16) * 8; delete tg.scratch;
@@ -435,10 +438,11 @@
         const A = this._arm(s, s === "L" ? c.aL : c.aR, s === "L" ? c.eL : c.eR);
         const k1 = .82, c1 = [A.S[0] + (A.E[0] - A.S[0]) * k1, A.S[1] + (A.E[1] - A.S[1]) * k1], c2 = [A.W[0] + (A.E[0] - A.W[0]) * k1, A.W[1] + (A.E[1] - A.W[1]) * k1];
         const d = `M${f(A.S[0])},${f(A.S[1])} C${f(c1[0])},${f(c1[1])} ${f(c2[0])},${f(c2[1])} ${f(A.W[0])},${f(A.W[1])}`;
-        $["arm" + s].setAttribute("d", d);
-        $["hand" + s].setAttribute("transform", `translate(${f(A.W[0])},${f(A.W[1])}) rotate(${f(-A.sg * A.b)}) scale(${-A.sg},1)`);
+        $["arm" + s].setAttribute("d", d); $["armShade" + s].setAttribute("d", d);
+        const hpNow = (this.hands && this.hands[s]) || "relax";
+        $["hand" + s].setAttribute("transform", `translate(${f(A.W[0])},${f(A.W[1])}) rotate(${f(-A.sg * A.b)}) scale(${INWARD[hpNow] ? A.sg : -A.sg},1)`);
         const bk = !!(this.back && this.back[s]);
-        if (this["_bk" + s] !== bk) { const up = $.upper; if (bk) { up.insertBefore($["hand" + s], up.firstChild); up.insertBefore($["arm" + s], up.firstChild); } else { up.appendChild($["arm" + s]); up.appendChild($["hand" + s]); } this["_bk" + s] = bk; }
+        if (this["_bk" + s] !== bk) { const up = $.upper; if (bk) { up.insertBefore($["hand" + s], up.firstChild); up.insertBefore($["arm" + s], up.firstChild); up.insertBefore($["armShade" + s], up.firstChild); } else { up.appendChild($["armShade" + s]); up.appendChild($["arm" + s]); up.appendChild($["hand" + s]); } this["_bk" + s] = bk; }
         const hp = (this.hands && this.hands[s]) || "relax";
         if (this["_hp" + s] !== hp) { if (this["_hp" + s]) $[`h${s}-${this["_hp" + s]}`].style.display = "none"; $[`h${s}-${hp}`].style.display = ""; this["_hp" + s] = hp; }
       }

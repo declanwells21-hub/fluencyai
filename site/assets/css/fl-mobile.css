@@ -328,6 +328,8 @@ html.fl-lock { overflow: hidden; }
     padding: 2px 0 !important;
   }
 
-  /* The scrolling pages only repaint what changed */
-  [data-fl-page] { contain: paint; }
+  /* Keep sideways overflow clipped. This used to be "contain: paint", but paint containment makes the page the containing
+     block for position:fixed children, so on phones the guide popup and the full-screen viewer were placed relative to the
+     whole page (thousands of pixels tall) instead of the screen and opened off-screen. "clip" does not have that side effect. */
+  [data-fl-page] { overflow-x: clip; }
 }
