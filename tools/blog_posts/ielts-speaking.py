@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 POST = {
  "slug": "ielts-general-training-speaking-test-practice",
- "title": "IELTS General Training Speaking: Format and Practice",
+ "title": "IELTS General Speaking: Format and Practice",
  "h1": "IELTS General Training speaking: how the test works and how to practise each part",
  "description": "How the IELTS General Training speaking test works, how it is marked, which speaking scores match CLB 7, 8 and 9, and how to practise each part.",
  "category": "Exam prep",

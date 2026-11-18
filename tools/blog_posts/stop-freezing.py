@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 POST = {
  "slug": "stop-freezing-when-you-speak-a-new-language",
- "title": "Why You Freeze Speaking a New Language (and 7 Fixes)",
+ "title": "Why You Freeze Speaking a Language: 7 Fixes",
  "h1": "Why you freeze when you speak a new language, and 7 ways to stop",
  "description": "Speaking anxiety is common and well studied. Here is what research says about why you freeze in a new language, and seven practical ways to speak anyway.",
  "category": "Speaking confidence",

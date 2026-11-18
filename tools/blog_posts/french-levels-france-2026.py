@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 POST = {
  "slug": "french-language-levels-residence-citizenship-france-2026",
- "title": "French Levels Required in France in 2026: A2, B1, B2",
+ "title": "French Levels Required in France (2026)",
  "h1": "French language levels for residence and citizenship in France: A2, B1 and B2 in 2026",
  "description": "From 1 January 2026 France asks for A2, B1 or B2 French depending on the card or citizenship. See which tests count, how long results last and how to prepare.",
  "category": "Exam prep",

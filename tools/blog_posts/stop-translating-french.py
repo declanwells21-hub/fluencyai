@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 POST = {
  "slug": "stop-translating-in-your-head-when-speaking-french",
- "title": "Stop Translating in Your Head When Speaking French",
+ "title": "Stop Translating in Your Head in French",
  "h1": "How to stop translating in your head when you speak French",
  "description": "Translating every sentence in your head slows you down. See why it happens, what research says, and a four-step routine to speak French more directly.",
  "category": "Speaking practice",

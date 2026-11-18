@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 POST = {
  "slug": "goethe-b1-speaking-test-sprechen",
- "title": "Goethe B1 Speaking Test: Format, Scoring and Tips",
+ "title": "Goethe B1 Speaking Test: Format and Tips",
  "h1": "Goethe-Zertifikat B1 speaking test (Sprechen): format, scoring and how to pass",
  "description": "How the Goethe B1 speaking test works: three parts, about 15 minutes, 100 points and a 60-point pass mark, with German phrases and a plan to prepare.",
  "category": "Exam prep",

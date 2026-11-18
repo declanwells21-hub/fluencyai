@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 POST = {
  "slug": "german-a1-start-deutsch-1-spouse-visa",
- "title": "German A1 for the Spouse Visa: Start Deutsch 1 Explained",
+ "title": "German A1 Spouse Visa: Start Deutsch 1 Guide",
  "h1": "German A1 for the spouse visa: what Start Deutsch 1 tests and how to pass it",
  "description": "Who must prove A1 German for a spouse visa, who is exempt, how the Goethe Start Deutsch 1 exam is built and scored, and a practical plan to pass it.",
  "category": "Exam prep",

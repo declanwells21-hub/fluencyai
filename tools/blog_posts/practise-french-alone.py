@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 POST = {
  "slug": "how-to-practise-speaking-french-alone",
- "title": "How to Practise Speaking French Alone: 20-Minute Routine",
+ "title": "Speak French Alone: A 20-Minute Daily Routine",
  "h1": "How to practise speaking French alone, in 20 minutes a day",
  "description": "No conversation partner? You can still improve your spoken French with a 20-minute daily routine built on shadowing, recall and recording.",
  "category": "Speaking practice",

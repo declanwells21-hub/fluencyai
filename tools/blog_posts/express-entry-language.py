@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 POST = {
  "slug": "express-entry-language-scores-clb-nclc-explained",
- "title": "CLB and NCLC Explained: Express Entry Language Scores",
+ "title": "CLB and NCLC Explained for Express Entry",
  "h1": "CLB and NCLC explained: the language scores you need for Express Entry",
  "description": "What CLB 7 and CLB 9 mean on IELTS, CELPIP, TEF Canada and TCF Canada, the minimum levels by program, and how language scores become CRS points.",
  "category": "Exam prep",

@@ -232,7 +232,7 @@ def index_page():
            "blogPost": [{"@type": "BlogPosting", "headline": p["h1"][:110], "url": f"{ORIGIN}/blog/{p['slug']}", "datePublished": p["published"], "dateModified": p["modified"]} for p in posts]},
           {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
            {"@type": "ListItem", "position": 1, "name": "Home", "item": ORIGIN + "/"}, {"@type": "ListItem", "position": 2, "name": "Blog", "item": ORIGIN + "/blog"}]}]
-    return page("/blog", "Blog: speaking practice, exam prep and language tips | Fluency AI",
+    return page("/blog", "Fluency AI Blog: Speaking Practice, Exam Prep | Fluency AI",
                 "Sourced guides on French speaking practice, DELF preparation, Express Entry language scores and the language levels needed for visas and residence.", body, ld)
 
 # ------------------------------------------------------------------ SOCIAL IMAGES (1200x630)

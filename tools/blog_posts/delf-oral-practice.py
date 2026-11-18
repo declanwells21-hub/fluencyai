@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 POST = {
  "slug": "french-speaking-practice-delf-b1-b2-oral",
- "title": "DELF Oral Practice: Prepare for B1 and B2 Speaking",
+ "title": "DELF B1 and B2 Oral: How to Practise Speaking",
  "h1": "French speaking practice for the DELF exam: how to prepare the B1 and B2 oral",
  "description": "How the DELF B1 and B2 oral exams are built, how the oral counts towards the 50/100 pass mark, and a practice plan you can follow on your own.",
  "category": "Exam prep",
