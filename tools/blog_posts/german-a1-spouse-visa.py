@@ -6,7 +6,7 @@ POST = {
  "description": "Who must prove A1 German for a spouse visa, who is exempt, how the Goethe Start Deutsch 1 exam is built and scored, and a practical plan to pass it.",
  "category": "Exam prep",
  "published": "2026-11-04",
- "modified": "2026-11-04",
+ "modified": "2026-11-17",
  "image_alt": "Fluency AI blog: German A1 for the spouse visa, Start Deutsch 1 explained",
  "keywords": ["German A1 spouse visa", "Start Deutsch 1", "Goethe-Zertifikat A1", "family reunification Germany language requirement", "A1 German exemption", "Start Deutsch 1 pass mark", "Start Deutsch 1 speaking test"],
  "toc": [("who-needs-a1", "Who has to prove A1 German, and who does not"), ("certificates", "Which certificates the embassy accepts"),
@@ -39,7 +39,7 @@ POST = {
   ("Can I use telc instead of the Goethe exam?",
    "The BAMF leaflet names Start Deutsch 1 from Goethe-Institut or from telc as accepted certificates, alongside the Austrian ÖSD and TestDaF.[[1]] A March 2026 embassy checklist asks for Goethe or telc, with TestDaF or the Austrian diploma as alternatives.[[4]] Your embassy decides, so confirm which providers it accepts in your country."),
  ],
- "related": ["french-language-levels-residence-citizenship-france-2026", "stop-freezing-when-you-speak-a-new-language", "express-entry-language-scores-clb-nclc-explained"],
+ "related": ["goethe-b1-speaking-test-sprechen", "french-language-levels-residence-citizenship-france-2026", "stop-freezing-when-you-speak-a-new-language"],
  "body": """
 <p class="lead">If you are applying for a spouse or family-reunification visa to Germany, the embassy will often ask for one document before anything else: a certificate showing that you can handle basic German. This guide explains who has to provide it, which certificates count, how the Goethe-Zertifikat A1: Start Deutsch 1 is built and marked, and how to prepare so that you pass first time.</p>
 
@@ -186,6 +186,6 @@ POST = {
 
 <h2 id="where-fluency-fits">Where Fluency AI fits</h2>
 <p>Full disclosure: we sell short exam guides and are building a speaking coach, so weigh this section accordingly. Our 20-minute <a href="/store">Goethe A1 guide</a> covers Start Deutsch 1, the exam behind many spouse and family visas, and our notes say it is also valid for the telc version. It walks through the form and short message, the introduction and card tasks, and what happens on exam day. You can compare it with the others on the <a href="/guides">Exam Blueprints page</a> and check current prices on the <a href="/pricing">pricing page</a>.</p>
-<p>For daily speaking rehearsal in German, <a href="/join">join the Fluency AI waitlist</a>. Talking out loud to a private partner is a low-pressure way to practise the introduction and question-and-answer pairs from the plan above. It does not replace a real exam, an embassy’s decision or a teacher, and it does not guarantee a pass. If you plan to study or work in Germany afterwards, the same approach applies to higher levels. See the <a href="/faq">FAQ</a> for how our guides work, or read <a href="/blog/french-language-levels-residence-citizenship-france-2026">our guide to the French language levels required in France</a> if your route runs through another country.</p>
+<p>For daily speaking rehearsal in German, <a href="/join">join the Fluency AI waitlist</a>. Talking out loud to a private partner is a low-pressure way to practise the introduction and question-and-answer pairs from the plan above. It does not replace a real exam, an embassy’s decision or a teacher, and it does not guarantee a pass. If you plan to study, work or settle in Germany afterwards, the same approach applies to higher levels, such as the <a href="/blog/goethe-b1-speaking-test-sprechen">Goethe B1 speaking test</a>. See the <a href="/faq">FAQ</a> for how our guides work, or read <a href="/blog/french-language-levels-residence-citizenship-france-2026">our guide to the French language levels required in France</a> if your route runs through another country.</p>
 """,
 }
