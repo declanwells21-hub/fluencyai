@@ -178,7 +178,7 @@ ABOUT_BODY = f"""<h2>Who is Fluency AI for?</h2>
  ["Main focus", "Whatever you choose", "Vocabulary and grammar", "Spoken output"]])}
 <h2>Common questions about Fluency AI</h2>
 {faq_html(ABOUT_FAQ)}
-<p>More answers are in the <a href="/faq">full FAQ</a>, or see <a href="/pricing">pricing</a> and the <a href="/blog">Fluency AI blog</a>.</p>"""
+<p>More answers are in the <a href="/faq">full FAQ</a>, or see <a href="/how">how it works</a>, <a href="/features">features</a>, <a href="/pricing">pricing</a> and the <a href="/blog">Fluency AI blog</a>.</p>"""
 
 # ---------------------------------------------------------------- helpers
 def read(p): return (ROOT / p).read_text(encoding="utf-8")

@@ -88,8 +88,9 @@
   const bootBg = () => { floatBg(); if (!document.getElementById("fl-void") && ++bgTries < 25) setTimeout(bootBg, 120); };
   document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", bootBg) : bootBg();
 
-  // ---- clean section URLs: /how, /features, /join open the home page at that section (no "#" needed) ----
-  const SECTION_PATHS = { "/how": "how", "/features": "features", "/join": "join" };
+  // ---- section URLs (kept for window.FL_SECTION; the three clean URLs are standalone pages now) ----
+  // /how, /features and /join are now standalone pages, so their links open those pages instead of scrolling the home page.
+  const SECTION_PATHS = {};
   const pathKey = (path) => (path || "").replace(/\/+$/, "") || "/";
   const jumpTo = (id, smooth) => {
     const el = document.getElementById(id); if (!el) return false;
